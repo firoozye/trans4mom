@@ -1,0 +1,14 @@
+# Requirements for Momentum Transformer Project
+numpy
+pandas
+pyarrow
+ccxt
+databento
+torch
+matplotlib
+seaborn
+scipy
+yfinance
+scikit-learn
+tqdm
+pyyaml
