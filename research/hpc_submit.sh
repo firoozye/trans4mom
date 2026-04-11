@@ -20,22 +20,14 @@ module load python/3.10
 module load cuda/11.8
 
 # 2. Activate Environment
-# Replace 'mom_env' with your actual conda environment name
-source activate mom_env
+# Use the absolute path to your anaconda3/bin/conda
+source /home/firoozye/anaconda3/bin/activate mome_env
 
 # 3. Setup Logging
 mkdir -p logs
 mkdir -p weights
 
 # 4. Run Training
-# We use torch.distributed.run for potential multi-GPU expansion
-# For 1 GPU, nproc_per_node=1
-python -m torch.distributed.run \
-    --nproc_per_node=1 \
-    --master_port=29500 \
-    train_hpc.py \
-    --epochs 100 \
-    --batch_size 64 \
-    --hidden_dim 64 \
-    --lr 0.001 \
-    --trans_cost 0.001
+# We use train_hpc.py with --config config.yaml
+python train_hpc.py --config config.yaml
+

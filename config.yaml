@@ -1,0 +1,46 @@
+# Momentum Transformer Project Configuration
+
+# Data Settings
+data:
+  exchange: "binance"
+  symbols: 
+    - "BTC/USDT"
+    - "ETH/USDT"
+    - "SOL/USDT"
+  timeframe: "1h"
+  since: "2021-01-01T00:00:00Z"
+  raw_path: "data/raw/"
+  processed_path: "data/processed/crypto_data.parquet"
+
+# Feature Engineering
+features:
+  window_sizes: [10, 21, 63, 126, 252]
+  vol_window: 22
+  clean_outliers: true
+  outlier_threshold: 5.0  # Z-score threshold
+  impute_nans: true      # If true, forward fill + backward fill. If false, drop.
+
+# Model Hyperparameters
+model:
+  input_dim: 1
+  num_vars: 5
+  hidden_dim: 64
+  num_heads: 4
+  num_layers: 1
+  dropout: 0.1
+
+# Training Hyperparameters
+training:
+  epochs: 100
+  batch_size: 64
+  lr: 0.001
+  trans_cost: 0.001
+  annualization: 252.0
+  seed: 42
+
+# HPC Settings
+hpc:
+  use_gpu: true
+  distributed: false
+  num_nodes: 1
+  gpus_per_node: 1

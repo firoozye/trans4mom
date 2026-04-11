@@ -103,12 +103,17 @@ class VariableSelectionNetwork(nn.Module):
         )
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
-        # x shape: (batch, time, num_vars * input_dim) or (batch, time, num_vars, input_dim)
-        # Let's assume (batch, time, num_vars, input_dim)
+        # x shape: (batch, time, num_vars, input_dim)
         
-        # Flatten for weight calculation
-        batch, time, num_vars, input_dim = x.shape
-        x_flat = x.view(batch, time, -1)
+        if x.dim() == 4:
+            batch, time, num_vars, input_dim = x.shape
+            x_flat = x.view(batch, time, -1)
+        else:
+            # Fallback for (batch, time, flattened_features)
+            x_flat = x
+            batch, time, _ = x.shape
+            input_dim = x_flat.shape[-1] // self.num_vars
+            x = x.view(batch, time, self.num_vars, input_dim)
         
         # Compute weights
         weights = self.weight_grn(x_flat, context) # (batch, time, num_vars)
@@ -117,7 +122,9 @@ class VariableSelectionNetwork(nn.Module):
         # Process individual features
         processed_features = []
         for i in range(self.num_vars):
-            processed_features.append(self.feature_grns[i](x[:, :, i, :]))
+            # Extract i-th variable: (batch, time, input_dim)
+            var_i = x[:, :, i, :]
+            processed_features.append(self.feature_grns[i](var_i))
             
         processed_features = torch.stack(processed_features, dim=2) # (batch, time, num_vars, hidden_dim)
         

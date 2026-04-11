@@ -1,53 +1,85 @@
 import os
 import argparse
+import yaml
 import torch
 import pandas as pd
 import numpy as np
 from engine.trainer import run_training_job
 from data.processor import FeatureProcessor
 
+def load_config(config_path: str):
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
 def main():
     parser = argparse.ArgumentParser(description="HPC Training Script for Momentum Transformer")
-    parser.add_argument("--epochs", type=int, default=100)
-    parser.add_argument("--batch_size", type=int, default=64)
-    parser.add_argument("--hidden_dim", type=int, default=64)
-    parser.add_argument("--num_heads", type=int, default=4)
-    parser.add_argument("--lr", type=float, default=0.001)
-    parser.add_argument("--trans_cost", type=float, default=0.001)
-    parser.add_argument("--data_path", type=str, default="data/processed/crypto_data.parquet")
+    parser.add_argument("--config", type=str, default="config.yaml", help="Path to config.yaml")
+    parser.add_argument("--epochs", type=int, default=None, help="Override number of epochs")
     args = parser.parse_args()
 
-    # 1. Load Data
-    # Expecting a multi-asset dataframe with a hierarchical index or multiple asset columns
-    if not os.path.exists(args.data_path):
-        print(f"Data not found at {args.data_path}. Generating toy data for script verification...")
-        # Placeholder for real data loading
-        num_assets = 10
-        time_steps = 1000
-        x_toy = torch.randn(100, 64, 5, 1) # (batches, time, vars, in_dim)
-        y_toy = torch.randn(100, 64, num_assets)
-        num_assets = 10
-    else:
-        # Load your real parquet/csv here
-        # df = pd.read_parquet(args.data_path)
-        # process into tensors ...
-        pass
+    # 1. Load Configuration
+    config = load_config(args.config)
+    
+    # 2. Extract Hyperparameters
+    data_cfg = config['data']
+    feat_cfg = config['features']
+    model_cfg = config['model']
+    train_cfg = config['training']
+    hpc_cfg = config['hpc']
 
-    # 2. Setup Hyperparameters
+    # 3. Load Data
+    data_path = data_cfg['processed_path']
+    if not os.path.exists(data_path):
+        print(f"Data not found at {data_path}. Generating toy data for script verification...")
+        num_assets = len(data_cfg['symbols'])
+        x_toy = torch.randn(100, 64, len(feat_cfg['window_sizes']), 1) 
+        y_toy = torch.randn(100, 64, num_assets)
+    else:
+        print(f"Loading real data from {data_path}...")
+        df = pd.read_parquet(data_path)
+        
+        # Simple Pivot/Reshape for Transformer
+        # Required format: (batch, time, num_vars, input_dim)
+        # For this demo, we'll slice into sequences of length 64
+        seq_len = 64
+        num_assets = len(df['symbol'].unique())
+        
+        # Extract features (macd_*) and targets (scaled_returns)
+        features = [f'macd_{w}' for w in feat_cfg['window_sizes']]
+        
+        all_x, all_y = [], []
+        for sym, group in df.groupby('symbol'):
+            group = group.sort_index()
+            x_vals = group[features].values
+            y_vals = group[['scaled_returns']].values
+            
+            # Create sliding windows
+            for i in range(len(group) - seq_len):
+                all_x.append(x_vals[i:i+seq_len])
+                all_y.append(y_vals[i:i+seq_len])
+        
+        x_toy = torch.tensor(np.array(all_x), dtype=torch.float32).unsqueeze(-1)
+        y_toy = torch.tensor(np.array(all_y), dtype=torch.float32) # (N, 64, 1)
+        num_assets = 1 # Each sample is a single asset sequence
+        print(f"Prepared {x_toy.shape[0]} sequences of length {seq_len}")
+
+
+
+    # 4. Setup Hyperparameters for Trainer
     hparams = {
-        'input_dim': 1,
-        'num_vars': 5, # MACD [10, 21, 63, 126, 252]
-        'hidden_dim': args.hidden_dim,
-        'num_heads': args.num_heads,
-        'num_assets': num_assets if 'num_assets' in locals() else 1,
-        'lr': args.lr,
-        'trans_cost': args.trans_cost,
-        'batch_size': args.batch_size,
-        'epochs': args.epochs
+        'input_dim': model_cfg['input_dim'],
+        'num_vars': len(feat_cfg['window_sizes']),
+        'hidden_dim': model_cfg['hidden_dim'],
+        'num_heads': model_cfg['num_heads'],
+        'num_assets': num_assets if 'num_assets' in locals() else len(data_cfg['symbols']),
+        'lr': train_cfg['lr'],
+        'trans_cost': train_cfg['trans_cost'],
+        'batch_size': train_cfg['batch_size'],
+        'epochs': args.epochs if args.epochs is not None else train_cfg['epochs']
     }
 
-    # 3. Launch Training
-    print(f"Launching HPC Training with {hparams}")
+    # 5. Launch Training
+    print(f"Launching HPC Training from config: {args.config}")
     run_training_job(x_toy, y_toy, hparams=hparams)
 
 if __name__ == "__main__":
