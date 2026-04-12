@@ -54,8 +54,15 @@ class MomentumTransformer(nn.Module):
         gated_out = self.post_lstm_grn(lstm_out) # (batch, time, hidden_dim)
         
         # Attention (Self-Attention)
-        # Note: For time series, we should use causal masking in attention
-        attn_out, attn_weights = self.attention(gated_out, gated_out, gated_out, key_padding_mask=mask)
+        # For time series, we MUST use causal masking in attention to prevent look-ahead bias
+        seq_len = gated_out.size(1)
+        causal_mask = torch.triu(torch.ones(seq_len, seq_len, device=gated_out.device), diagonal=1).bool()
+        
+        attn_out, attn_weights = self.attention(
+            gated_out, gated_out, gated_out, 
+            key_padding_mask=mask,
+            attn_mask=causal_mask
+        )
         
         # Final output
         positions = self.output_layer(attn_out) # (batch, time, output_dim)

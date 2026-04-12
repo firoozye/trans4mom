@@ -49,6 +49,12 @@ class GatedResidualNetwork(nn.Module):
             self.skip_fc = nn.Linear(input_dim, output_dim)
         else:
             self.skip_fc = nn.Identity()
+        
+        # Gating projection if hidden_dim != output_dim
+        if hidden_dim != output_dim:
+            self.project_fc = nn.Linear(hidden_dim, output_dim)
+        else:
+            self.project_fc = nn.Identity()
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         # First layer
@@ -64,9 +70,7 @@ class GatedResidualNetwork(nn.Module):
         h = self.glu(h)
         
         # Skip connection and LayerNorm
-        # Note: if output_dim != hidden_dim, we need a final projection
-        if h.shape[-1] != self.output_dim:
-            h = nn.Linear(h.shape[-1], self.output_dim)(h)
+        h = self.project_fc(h)
             
         return self.ln(h + self.skip_fc(x))
 
