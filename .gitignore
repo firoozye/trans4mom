@@ -1,2 +1,7 @@
 *.md
 docs/
+weights/
+outputs/
+*.parquet
+__pycache__/
+.ipynb_checkpoints/
