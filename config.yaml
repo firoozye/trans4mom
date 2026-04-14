@@ -31,7 +31,7 @@ model:
 
 # Training Hyperparameters
 training:
-  epochs: 100
+  epochs: 200
   batch_size: 64
   lr: 0.001
   trans_cost: 0.001

@@ -40,7 +40,7 @@ class MomentumTransformer(nn.Module):
             nn.Tanh() # Position in [-1, 1]
         )
 
-    def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, mask: Optional[torch.Tensor] = None, return_attention: bool = False) -> torch.Tensor:
         """
         x: (batch, time, num_vars, input_dim)
         """
@@ -67,6 +67,8 @@ class MomentumTransformer(nn.Module):
         # Final output
         positions = self.output_layer(attn_out) # (batch, time, output_dim)
         
+        if return_attention:
+            return positions, attn_weights
         return positions
 
 if __name__ == "__main__":
