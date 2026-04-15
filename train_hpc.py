@@ -11,6 +11,17 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
+def get_annualization_factor(timeframe: str) -> float:
+    """Calculate the number of periods in a year for crypto (24/7)."""
+    unit = timeframe[-1]
+    value = int(timeframe[:-1])
+    
+    if unit == 'h':
+        return (24 / value) * 365
+    elif unit == 'd':
+        return (1 / value) * 365
+    return 252.0 # Default fallback
+
 def main():
     parser = argparse.ArgumentParser(description="HPC Training Script for Momentum Transformer")
     parser.add_argument("--config", type=str, default="config.yaml", help="Path to config.yaml")
@@ -66,6 +77,9 @@ def main():
 
 
     # 4. Setup Hyperparameters for Trainer
+    ann_factor = get_annualization_factor(data_cfg['timeframe'])
+    print(f"Using annualization factor: {ann_factor:.2f} for timeframe: {data_cfg['timeframe']}")
+
     hparams = {
         'input_dim': model_cfg['input_dim'],
         'num_vars': len(feat_cfg['window_sizes']),
@@ -74,6 +88,7 @@ def main():
         'num_assets': num_assets if 'num_assets' in locals() else len(data_cfg['symbols']),
         'lr': train_cfg['lr'],
         'trans_cost': train_cfg['trans_cost'],
+        'annualization': ann_factor,
         'batch_size': train_cfg['batch_size'],
         'epochs': args.epochs if args.epochs is not None else train_cfg['epochs']
     }

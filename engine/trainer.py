@@ -96,7 +96,10 @@ def run_training_job(
     
     # 3. Setup Engine
     optimizer = optim.Adam(model.parameters(), lr=hparams['lr'])
-    loss_fn = SharpeLoss(trans_cost=hparams['trans_cost'])
+    loss_fn = SharpeLoss(
+        trans_cost=hparams['trans_cost'], 
+        annualization=hparams.get('annualization', 252.0)
+    )
     trainer = Trainer(model, optimizer, loss_fn, device, is_dist)
     
     # 4. DataLoaders
@@ -106,12 +109,20 @@ def run_training_job(
     # 5. Training Loop
     best_val_loss = float('inf')
     os.makedirs("weights", exist_ok=True)
+    
+    # Create timestamp for this run
+    from datetime import datetime
+    run_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+    model_name = f"model_{run_id}.pt"
+    
     for epoch in range(hparams['epochs']):
         train_loss = trainer.train_epoch(train_loader)
         
         # Only log/save on rank 0 if distributed
         if local_rank in [-1, 0]:
             print(f"Epoch {epoch}: Train Loss {train_loss:.4f}")
+            trainer.save_checkpoint(os.path.join("weights", model_name))
+            # Also save a 'last_model.pt' for the visualization scripts
             trainer.save_checkpoint(os.path.join("weights", "last_model.pt"))
             
     if is_dist:

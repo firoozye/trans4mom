@@ -36,6 +36,7 @@ class MomentumTransformer(nn.Module):
         # 5. Output Layer (Position Sizing)
         self.output_layer = nn.Sequential(
             GatedResidualNetwork(hidden_dim, hidden_dim, hidden_dim, dropout),
+            nn.LayerNorm(hidden_dim), # Added for stability
             nn.Linear(hidden_dim, output_dim),
             nn.Tanh() # Position in [-1, 1]
         )

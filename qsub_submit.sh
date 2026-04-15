@@ -2,8 +2,8 @@
 # SGE submission script for UCL CS HPC Cluster (using qsub)
 
 #$ -N mom_trans_train
-#$ -o logs/train.out
-#$ -e logs/train.err
+#$ -o logs/train_$JOB_ID.out
+#$ -e logs/train_$JOB_ID.err
 #$ -l h_rt=4:00:00
 #$ -l tmem=16G
 #$ -l h_vmem=16G

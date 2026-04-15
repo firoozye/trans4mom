@@ -7,7 +7,7 @@ data:
     - "BTC/USDT"
     - "ETH/USDT"
     - "SOL/USDT"
-  timeframe: "1h"
+  timeframe: "4h"
   since: "2021-01-01T00:00:00Z"
   raw_path: "data/raw/"
   processed_path: "data/processed/crypto_data.parquet"
@@ -33,7 +33,7 @@ model:
 training:
   epochs: 200
   batch_size: 64
-  lr: 0.001
+  lr: 0.0001
   trans_cost: 0.001
   annualization: 252.0
   seed: 42

@@ -40,17 +40,15 @@ class SharpeLoss(nn.Module):
         net_returns = port_returns.sum(dim=-1, keepdim=True) - self.trans_cost * turnover
         
         # Calculate mean and std over the time dimension (dim=1)
-        # Average over batch as well if needed, or keep per-batch and then average
-        # Let's average over the whole batch for a single scalar loss
+        # We calculate per batch item first to maintain signal variance
+        mean_ret = torch.mean(net_returns, dim=1)
+        std_ret = torch.std(net_returns, dim=1, unbiased=False) + 1e-6
         
-        # Flat view for distribution calculation
-        mean_ret = torch.mean(net_returns)
-        std_ret = torch.std(net_returns, unbiased=False) + 1e-9
-        
-        # Negative Sharpe Ratio
+        # Negative Sharpe Ratio per batch item
         sharpe = (mean_ret / std_ret) * self.annualization.to(returns.device)
         
-        return -sharpe
+        # Return negative average Sharpe as loss
+        return -torch.mean(sharpe)
 
 if __name__ == "__main__":
     # Toy example
