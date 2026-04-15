@@ -1,0 +1,73 @@
+% Beamer Slides Content - Momentum Transformer Masterclass
+
+% --- SLIDE 1: Momentum Archeology ---
+\begin{frame}{Momentum Archeology: Finding the Signal}
+    \begin{itemize}
+        \item \textbf{Question:} Does momentum exist in Crypto at all timeframes?
+        \item \textbf{The Tool:} Variance Ratio (VR) Test
+        \item \textbf{Interpretation:} VR > 1 (Momentum), VR < 1 (Mean Reversion)
+    \end{itemize}
+    
+    \begin{table}[]
+        \centering
+        \tiny
+        \begin{tabular}{l|ccccc}
+        \hline
+        \textbf{Horizon} & \textbf{1h Data} & \textbf{4h Data} & \textbf{12h Data} & \textbf{1d Data} \\ \hline
+        1 Day   & 0.974 & 1.117 & 1.022 & 0.977 \\
+        5 Days  & \textbf{1.266} & \textbf{1.181} & \textbf{1.146} & 1.043 \\
+        20 Days & 0.582 (MR) & 0.789 & \textbf{1.076} & 1.038 \\ \hline
+        \end{tabular}
+        \caption{BTC/USDT Variance Ratios across Horizons}
+    \end{table}
+
+    \begin{itemize}
+        \item \textit{Insight:} 1h momentum is strong but short-lived. 12h data provides the most stable "long-horizon" signal.
+    \end{itemize}
+\end{frame}
+
+% --- SLIDE 2: Failure Analysis ---
+\begin{frame}{Failure Analysis: The Saturation Trap}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{The Symptom:}
+            \begin{itemize}
+                \item Training Loss pinned at exactly 0.1064.
+                \item Predictions stuck at constant -1.000.
+                \item Zero gradient flow.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{The Diagnosis:}
+            \begin{itemize}
+                \item \textbf{High Learning Rate (0.001)} exploded weights early.
+                \item \textbf{Tanh Saturation:} Large weights pushed activation to the limit.
+                \item \textbf{Numerical Instability} in raw Sharpe Loss.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{0.5cm}
+    \centering
+    \textit{Graphic Recommendation: Use research/strategy_performance.png to show the flat-line Equity Curve.}
+\end{frame}
+
+% --- SLIDE 3: Architectural Stability ---
+\begin{frame}{Engineering for Stability: The Fixes}
+    How we stabilized the Momentum Transformer:
+    \begin{enumerate}
+        \item \textbf{LayerNorm Integration:} Normalised features before the Tanh head to prevent saturation.
+        \item \textbf{Per-Batch Sharpe:} Calculated Sharpe per-sample before averaging to maintain signal variance.
+        \item \textbf{Learning Rate Pivot:} Reduced LR by 10x ($10^{-3} \to 10^{-4}$) for precise convergence.
+        \item \textbf{Causal Masking:} Removed look-ahead bias to ensure realistic performance.
+    \end{enumerate}
+\end{frame}
+
+% --- SLIDE 4: Senior Engineer Lessons ---
+\begin{frame}{Closing: Lessons from the Cluster}
+    \begin{itemize}
+        \item \textbf{Cluster Archeology:} Always investigate known working scripts (e.g., \texttt{tmem} vs \texttt{mem\_free}).
+        \item \textbf{Provenance:} Timestamp your weights and logs. Never overwrite history.
+        \item \textbf{Robustness:} Use \texttt{if executable(...)} checks. Production code must run on modern Spectre AND old Cluster nodes.
+        \item \textbf{Truth over Hype:} A model that "cheats" (no mask) is a liability, not an asset.
+    \end{itemize}
+\end{frame}
