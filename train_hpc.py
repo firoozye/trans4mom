@@ -49,28 +49,36 @@ def main():
         print(f"Loading real data from {data_path}...")
         df = pd.read_parquet(data_path)
         
+        # Filter for training period (Pre-2025)
+        train_end = '2024-12-31'
+        df = df[df.index <= train_end]
+        print(f"Training on data up to {train_end} ({len(df)} rows)")
+        
         # Simple Pivot/Reshape for Transformer
         # Required format: (batch, time, num_vars, input_dim)
         # For this demo, we'll slice into sequences of length 64
         seq_len = 64
         num_assets = len(df['symbol'].unique())
         
-        # Extract features (macd_*) and targets (scaled_returns)
+        # Extract features (macd_*), targets (scaled_returns), and dynamic costs (spread)
         features = [f'macd_{w}' for w in feat_cfg['window_sizes']]
         
-        all_x, all_y = [], []
+        all_x, all_y, all_s = [], [], []
         for sym, group in df.groupby('symbol'):
             group = group.sort_index()
             x_vals = group[features].values
             y_vals = group[['scaled_returns']].values
+            s_vals = group[['spread']].values
             
             # Create sliding windows
             for i in range(len(group) - seq_len):
                 all_x.append(x_vals[i:i+seq_len])
                 all_y.append(y_vals[i:i+seq_len])
+                all_s.append(s_vals[i:i+seq_len])
         
         x_toy = torch.tensor(np.array(all_x), dtype=torch.float32).unsqueeze(-1)
         y_toy = torch.tensor(np.array(all_y), dtype=torch.float32) # (N, 64, 1)
+        s_toy = torch.tensor(np.array(all_s), dtype=torch.float32) # (N, 64, 1)
         num_assets = 1 # Each sample is a single asset sequence
         print(f"Prepared {x_toy.shape[0]} sequences of length {seq_len}")
 
@@ -95,7 +103,7 @@ def main():
 
     # 5. Launch Training
     print(f"Launching HPC Training from config: {args.config}")
-    run_training_job(x_toy, y_toy, hparams=hparams)
+    run_training_job(x_toy, y_toy, train_spreads=s_toy if 's_toy' in locals() else None, hparams=hparams)
 
 if __name__ == "__main__":
     main()

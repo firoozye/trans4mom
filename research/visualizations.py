@@ -8,18 +8,32 @@ from models.architecture import MomentumTransformer
 from data.processor import FeatureProcessor
 
 def plot_cumulative_returns(df, symbols):
-    """Plot cumulative returns of the assets to show the data."""
-    plt.figure(figsize=(12, 6))
-    for symbol in symbols:
-        asset_df = df[df['symbol'] == symbol]
-        cum_ret = (1 + asset_df['returns']).cumprod()
-        plt.plot(cum_ret, label=symbol)
+    """Plot cumulative returns of the assets using multiple y-axes to handle scaling diffs."""
+    fig, ax1 = plt.subplots(figsize=(12, 7))
     
-    plt.title("Asset Cumulative Returns (Data Overview)")
-    plt.xlabel("Time")
-    plt.ylabel("Cumulative Return")
-    plt.legend()
-    plt.grid(True, alpha=0.3)
+    colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple']
+    axes = [ax1]
+    
+    # Create extra y-axes for other assets
+    for i in range(len(symbols) - 1):
+        axes.append(ax1.twinx())
+        # Offset the extra axes to the right
+        if i > 0:
+            axes[-1].spines['right'].set_position(('outward', 60 * i))
+
+    for i, symbol in enumerate(symbols):
+        asset_df = df[df['symbol'] == symbol].sort_index()
+        # Use log returns to compute cumulative price index starting at 1.0
+        cum_ret = np.exp(asset_df['returns'].cumsum())
+        
+        ax = axes[i]
+        ax.plot(asset_df.index, cum_ret, label=symbol, color=colors[i % len(colors)])
+        ax.set_ylabel(f"{symbol} Index", color=colors[i % len(colors)])
+        ax.tick_params(axis='y', labelcolor=colors[i % len(colors)])
+    
+    plt.title("Asset Cumulative Returns (Data Overview - Multiple Scales)")
+    fig.tight_layout()
+    plt.grid(True, alpha=0.1)
     plt.savefig("research/data_overview.png")
     plt.close()
 
@@ -146,22 +160,31 @@ def main():
     symbols = df['symbol'].unique()
     
     # 2. Data Overview
-    print("Generating Data Overview...")
+    print("Generating Data Overview with Multi-Axes...")
     plot_cumulative_returns(df, symbols)
     
     # 3. Momentum Check
-    print("Generating Momentum Check...")
+    print(f"Generating Momentum Check for {symbols[0]}...")
     plot_momentum_feasibility(df, symbols[0])
     
-    # 4. Model Visuals (Toy example since actual weights might be on HPC)
-    print("Generating Model Diagnostics (Toy)...")
-    batch, time, num_vars, input_dim = 1, 128, 5, 1
-    model = MomentumTransformer(input_dim, num_vars, 64, 4)
-    x = torch.randn(batch, time, num_vars, input_dim)
-    y_true = torch.randn(batch, time, 1)
-    
-    plot_strategy_performance(model, x, y_true)
-    plot_attention_map(model, x)
+    # 4. Model Visuals
+    print("Generating Model Diagnostics...")
+    weight_path = 'weights/model_insane_penalty.pt'
+    if os.path.exists(weight_path):
+        model = MomentumTransformer(input_dim=1, num_vars=5, hidden_dim=64, num_heads=4)
+        model.load_state_dict(torch.load(weight_path, map_location='cpu'))
+        print("  Loaded champion weights.")
+        
+        # Prepare a real sample from the data
+        asset_df = df[df['symbol'] == symbols[0]].iloc[:500]
+        feat_cols = [c for c in asset_df.columns if 'macd' in c]
+        x_vals = torch.tensor(asset_df[feat_cols].values, dtype=torch.float32).unsqueeze(0).unsqueeze(-1)
+        y_vals = torch.tensor(asset_df[['scaled_returns']].values, dtype=torch.float32).unsqueeze(0)
+        
+        plot_strategy_performance(model, x_vals, y_vals)
+        plot_attention_map(model, x_vals)
+    else:
+        print("  Weights not found. Skipping model-specific diagnostics.")
     
     print("\nSUCCESS: All visualizations saved to research/ directory.")
 

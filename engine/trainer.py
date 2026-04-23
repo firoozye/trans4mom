@@ -34,15 +34,19 @@ class Trainer:
     def train_epoch(self, dataloader: DataLoader) -> float:
         self.model.train()
         total_loss = 0
-        for x, y in dataloader:
-            x, y = x.to(self.device), y.to(self.device)
+        for batch in dataloader:
+            if len(batch) == 3:
+                x, y, spreads = batch
+                x, y, spreads = x.to(self.device), y.to(self.device), spreads.to(self.device)
+            else:
+                x, y = batch
+                x, y = x.to(self.device), y.to(self.device)
+                spreads = None
+
             self.optimizer.zero_grad()
             
-            # x: (batch, time, num_vars, input_dim)
-            # y: (batch, time, num_assets) - scaled returns for Sharpe
-            
             output_pos = self.model(x)
-            loss = self.loss_fn(output_pos, y)
+            loss = self.loss_fn(output_pos, y, spreads=spreads)
             
             loss.backward()
             self.optimizer.step()
@@ -54,10 +58,17 @@ class Trainer:
         self.model.eval()
         total_loss = 0
         with torch.no_grad():
-            for x, y in dataloader:
-                x, y = x.to(self.device), y.to(self.device)
+            for batch in dataloader:
+                if len(batch) == 3:
+                    x, y, spreads = batch
+                    x, y, spreads = x.to(self.device), y.to(self.device), spreads.to(self.device)
+                else:
+                    x, y = batch
+                    x, y = x.to(self.device), y.to(self.device)
+                    spreads = None
+
                 output_pos = self.model(x)
-                loss = self.loss_fn(output_pos, y)
+                loss = self.loss_fn(output_pos, y, spreads=spreads)
                 total_loss += loss.item()
         return total_loss / len(dataloader)
 
@@ -69,8 +80,10 @@ class Trainer:
 def run_training_job(
     train_data: torch.Tensor,
     train_returns: torch.Tensor,
+    train_spreads: Optional[torch.Tensor] = None,
     val_data: Optional[torch.Tensor] = None,
     val_returns: Optional[torch.Tensor] = None,
+    val_spreads: Optional[torch.Tensor] = None,
     hparams: Dict = None
 ):
     """Entry point for a training job (local or HPC)."""
@@ -98,12 +111,18 @@ def run_training_job(
     optimizer = optim.Adam(model.parameters(), lr=hparams['lr'])
     loss_fn = SharpeLoss(
         trans_cost=hparams['trans_cost'], 
-        annualization=hparams.get('annualization', 252.0)
+        annualization=hparams.get('annualization', 252.0),
+        smoothing_beta=hparams.get('smoothing_beta', 0.01),
+        bias_beta=hparams.get('bias_beta', 0.01)
     )
     trainer = Trainer(model, optimizer, loss_fn, device, is_dist)
     
     # 4. DataLoaders
-    train_set = TensorDataset(train_data, train_returns)
+    if train_spreads is not None:
+        train_set = TensorDataset(train_data, train_returns, train_spreads)
+    else:
+        train_set = TensorDataset(train_data, train_returns)
+        
     train_loader = DataLoader(train_set, batch_size=hparams['batch_size'], shuffle=True)
     
     # 5. Training Loop

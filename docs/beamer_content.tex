@@ -62,7 +62,33 @@
     \end{enumerate}
 \end{frame}
 
-% --- SLIDE 4: Senior Engineer Lessons ---
+% --- SLIDE 4: The Reality Check ---
+\begin{frame}{The Reality Check: Robustness over 2021--2026}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{The Fantasy (Gross):}
+            \begin{itemize}
+                \item \textbf{Sharpe Ratio:} 3.65
+                \item \textbf{Turnover:} 40.7x (Annualised)
+                \item \textbf{Issue:} Unrealistic profits via noise-trading.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{The Reality (Net Full Period):}
+            \begin{itemize}
+                \item \textbf{Sharpe Ratio:} 0.40 (In + OOS)
+                \item \textbf{Estimator:} Abdi-Ranaldo dynamic spreads.
+                \item \textbf{Turnover:} 42.0x (Stabilised)
+            \end{itemize}
+        \end{column}
+    \end{columns}
+    \vspace{0.4cm}
+    \begin{block}{Regime Resilience}
+        By integrating \textbf{dynamic spreads} into the Loss Function, we moved from a "jittery" high-frequency model to a stable trend-follower. The 0.40 Net Sharpe covers the 2025-2026 regime shift, proving the model survived where many noise-traders failed.
+    \end{block}
+\end{frame}
+
+% --- SLIDE 5: Senior Engineer Lessons ---
 \begin{frame}{Closing: Lessons from the Cluster}
     \begin{itemize}
         \item \textbf{Cluster Archeology:} Always investigate known working scripts (e.g., \texttt{tmem} vs \texttt{mem\_free}).

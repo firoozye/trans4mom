@@ -72,12 +72,27 @@ class FeatureProcessor:
             
         return df
 
+    def compute_spread(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Estimate bid-ask spread using Abdi & Ranaldo (2017) HLC method.
+        """
+        if all(c in df.columns for c in ['high', 'low', 'close']):
+            mid = (df['high'] + df['low']) / 2.0
+            term = (df['close'] - mid) * (df['close'] - mid.shift(1))
+            spread_raw = 2 * np.sqrt(term.clip(lower=0))
+            df['spread'] = spread_raw / mid
+            df['spread'] = df['spread'].fillna(df['spread'].mean())
+        else:
+            df['spread'] = 0.0
+        return df
+
     def process_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Complete feature processing pipeline."""
         df = self.compute_returns(df)
         df = self.clean_outliers(df)
         df = self.compute_vol_scaling(df)
         df = self.compute_macd_signals(df)
+        df = self.compute_spread(df)
         df = self.handle_nans(df)
         
         return df

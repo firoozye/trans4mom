@@ -7,10 +7,17 @@ data:
     - "BTC/USDT"
     - "ETH/USDT"
     - "SOL/USDT"
-  timeframe: "4h"
-  since: "2021-01-01T00:00:00Z"
+    - "ADA/USDT"
+    - "DOT/USDT"
+    - "LINK/USDT"
+    - "XRP/USDT"
+    - "LTC/USDT"
+    - "BCH/USDT"
+    - "DOGE/USDT"
+  timeframe: "1d"
+  since: "2020-01-01T00:00:00Z"
   raw_path: "data/raw/"
-  processed_path: "data/processed/crypto_data.parquet"
+  processed_path: "data/processed/crypto_1d.parquet"
 
 # Feature Engineering
 features:
@@ -31,10 +38,11 @@ model:
 
 # Training Hyperparameters
 training:
-  epochs: 200
+  epochs: 150
   batch_size: 64
   lr: 0.0001
-  trans_cost: 0.001
+  trans_cost: 0.01
+  smoothing_beta: 5.0
   annualization: 252.0
   seed: 42
 
