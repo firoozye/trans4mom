@@ -63,37 +63,37 @@
 \end{frame}
 
 % --- SLIDE 4: The Reality Check ---
-\begin{frame}{The Reality Check: Robustness over 2021--2026}
+\begin{frame}{The Reality Check: Global Macro Diversification}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{The Fantasy (Gross):}
+            \textbf{5-Asset Basket (Crypto/Macro):}
             \begin{itemize}
-                \item \textbf{Sharpe Ratio:} 3.65
-                \item \textbf{Turnover:} 40.7x (Annualised)
-                \item \textbf{Issue:} Unrealistic profits via noise-trading.
+                \item \textbf{Sharpe Ratio:} 1.14
+                \item \textbf{Turnover:} 1.0x (Annualised)
+                \item \textbf{Market Neutrality:} High
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \textbf{The Reality (Net Full Period):}
+            \textbf{15-Asset "Global Macro" Basket:}
             \begin{itemize}
-                \item \textbf{Sharpe Ratio:} 0.40 (In + OOS)
-                \item \textbf{Estimator:} Abdi-Ranaldo dynamic spreads.
-                \item \textbf{Turnover:} 42.0x (Stabilised)
+                \item \textbf{Sharpe Ratio:} \textbf{2.74} (Net)
+                \item \textbf{Costs:} AR Spread + 20bps Slippage
+                \item \textbf{Turnover:} 1.1x (Stable)
             \end{itemize}
         \end{column}
     \end{columns}
     \vspace{0.4cm}
-    \begin{block}{Regime Resilience}
-        By integrating \textbf{dynamic spreads} into the Loss Function, we moved from a "jittery" high-frequency model to a stable trend-follower. The 0.40 Net Sharpe covers the 2025-2026 regime shift, proving the model survived where many noise-traders failed.
+    \begin{block}{The Power of the Cross-Section}
+        Transitioning from independent time-series to \textbf{cross-sectional ranking} allowed the Transformer to wash out local noise. By pessimistically training against 100bps costs, we forced the model to capture only the most persistent trends across Equities, Fixed Income, and Commodities.
     \end{block}
 \end{frame}
 
 % --- SLIDE 5: Senior Engineer Lessons ---
 \begin{frame}{Closing: Lessons from the Cluster}
     \begin{itemize}
-        \item \textbf{Cluster Archeology:} Always investigate known working scripts (e.g., \texttt{tmem} vs \texttt{mem\_free}).
-        \item \textbf{Provenance:} Timestamp your weights and logs. Never overwrite history.
-        \item \textbf{Robustness:} Use \texttt{if executable(...)} checks. Production code must run on modern Spectre AND old Cluster nodes.
-        \item \textbf{Truth over Hype:} A model that "cheats" (no mask) is a liability, not an asset.
+        \item \textbf{Diversification is the Only Free Lunch:} Boosting from 5 to 15 assets more than doubled the Sharpe Ratio (1.14 $\to$ 2.74).
+        \item \textbf{Pessimistic Training:} Training with 100bps friction creates a "Fortress Strategy" that thrives in realistic 20bps environments.
+        \item \textbf{The Stability Pivot:} Daily data and market-neutral constraints fixed the overtrading disaster of the 4h crypto model.
+        \item \textbf{Infrastructure Matters:} Seamlessly scaling from local "toy" runs to 15-asset cluster jobs is the hallmark of a production pipeline.
     \end{itemize}
 \end{frame}
