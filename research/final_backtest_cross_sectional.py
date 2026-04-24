@@ -76,18 +76,18 @@ def run_backtest_multi(model, df, feat_cols, ann_factor, base_cost=0.002):
 
 def main():
     # 1. Setup
-    data_path = 'data/processed/crypto_1d.parquet'
+    data_path = 'data/processed/futures_1d.parquet'
     df = pd.read_parquet(data_path)
-    ann_factor = 365
+    ann_factor = 252 # Futures are 252 days
     feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]
     num_assets = len(df['symbol'].unique())
     
     # 2. Load Model
     model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_cross_sectional_latest.pt', map_location='cpu'))
+    model.load_state_dict(torch.load('weights/model_macro_cs.pt', map_location='cpu'))
     
     # 3. Backtest
-    print("--- Running Cross-Sectional Backtest (10 Assets) ---")
+    print(f"--- Running Cross-Sectional Backtest ({num_assets} Assets) ---")
     results = run_backtest_multi(model, df, feat_cols, ann_factor)
     
     print(f"Portfolio Results:")

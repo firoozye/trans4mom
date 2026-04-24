@@ -23,7 +23,8 @@ class DataIngestor:
         start: str,
         end: str,
         dataset: str = "GLBX.MDP3",
-        schema: str = "ohlcv-1h"
+        schema: str = "ohlcv-1h",
+        stype_in: str = "continuous"
     ) -> pd.DataFrame:
         """Fetch historical data from DataBento."""
         if not self.db_client:
@@ -35,6 +36,7 @@ class DataIngestor:
             schema=schema,
             start=start,
             end=end,
+            stype_in=stype_in
         )
         df = data.to_df()
         return df

@@ -69,14 +69,14 @@ def plot_attention(model, x, filename="research/cs_attention_map.png"):
 
 def main():
     # 1. Load Data and Model
-    data_path = 'data/processed/crypto_1d.parquet'
+    data_path = 'data/processed/futures_1d.parquet'
     df = pd.read_parquet(data_path)
     symbols = df['symbol'].unique()
     num_assets = len(symbols)
     feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]
     
     model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_cross_sectional_latest.pt', map_location='cpu'))
+    model.load_state_dict(torch.load('weights/model_macro_cs.pt', map_location='cpu'))
     
     # 2. Re-run small inference for visuals
     pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['returns', 'spread'])

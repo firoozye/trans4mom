@@ -2,22 +2,18 @@
 
 # Data Settings
 data:
-  exchange: "binance"
+  exchange: "databento"
+  dataset: "GLBX.MDP3"
   symbols: 
-    - "BTC/USDT"
-    - "ETH/USDT"
-    - "SOL/USDT"
-    - "ADA/USDT"
-    - "DOT/USDT"
-    - "LINK/USDT"
-    - "XRP/USDT"
-    - "LTC/USDT"
-    - "BCH/USDT"
-    - "DOGE/USDT"
+    - "ES.c.0"
+    - "NQ.c.0"
+    - "ZN.c.0"
+    - "CL.c.0"
+    - "GC.c.0"
   timeframe: "1d"
-  since: "2020-01-01T00:00:00Z"
-  raw_path: "data/raw/"
-  processed_path: "data/processed/crypto_1d.parquet"
+  since: "2018-01-01T00:00:00Z"
+  raw_path: "data/raw/futures/"
+  processed_path: "data/processed/futures_1d.parquet"
 
 # Feature Engineering
 features:

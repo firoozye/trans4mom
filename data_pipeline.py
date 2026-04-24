@@ -1,6 +1,7 @@
 import os
 import yaml
 import pandas as pd
+from datetime import datetime
 from data.ingestion import DataIngestor
 from data.processor import FeatureProcessor
 
@@ -8,8 +9,18 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
+def load_env(env_path=".env"):
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            for line in f:
+                if "=" in line and not line.startswith("#"):
+                    key, value = line.strip().split("=", 1)
+                    os.environ[key] = value
+        print(f"Loaded environment variables from {env_path}")
+
 def main():
     # 1. Load Config
+    load_env()
     config = load_config("config.yaml")
     data_cfg = config['data']
     feat_cfg = config['features']
@@ -30,27 +41,50 @@ def main():
 
     all_assets = []
 
-    # 4. Download and Process each symbol
-    for symbol in data_cfg['symbols']:
-        print(f"--- Processing {symbol} ---")
-        
-        # Download
-        df_raw = ingestor.fetch_ccxt_ohlcv(
-            exchange_id=data_cfg['exchange'],
-            symbol=symbol,
-            timeframe=data_cfg['timeframe'],
-            since=data_cfg['since']
+    # 4. Download and Process
+    if data_cfg['exchange'] == 'databento':
+        print(f"--- Fetching Macro Basket from DataBento ({data_cfg['dataset']}) ---")
+        from datetime import timedelta
+        # Cap end_date at yesterday to avoid 422 "data_end_after_available_end" error
+        end_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
+        df_full = ingestor.fetch_databento(
+            symbols=data_cfg['symbols'],
+            start=data_cfg['since'],
+            end=end_date,
+            dataset=data_cfg['dataset'],
+            schema='ohlcv-1d',
+            stype_in='continuous'
         )
+        print(f"  Fetched {len(df_full)} rows. Available symbols: {df_full['symbol'].unique() if not df_full.empty else 'None'}")
         
-        # Save Raw
-        raw_file = os.path.join(raw_dir, f"{symbol.replace('/', '_')}.parquet")
-        df_raw.to_parquet(raw_file)
-        print(f"  Saved raw data to {raw_file}")
-
-        # Feature Engineering
-        df_processed = processor.process_features(df_raw)
-        df_processed['symbol'] = symbol
-        all_assets.append(df_processed)
+        for symbol in data_cfg['symbols']:
+            # In 'continuous' mode, the symbol in the DF might be the root (e.g., 'ES')
+            df_raw = df_full[df_full['symbol'] == symbol].copy()
+            if df_raw.empty: continue
+            
+            # Save Raw
+            raw_file = os.path.join(raw_dir, f"{symbol.replace('.', '_')}.parquet")
+            df_raw.to_parquet(raw_file)
+            
+            # Process
+            df_processed = processor.process_features(df_raw)
+            df_processed['symbol'] = symbol
+            all_assets.append(df_processed)
+    else:
+        for symbol in data_cfg['symbols']:
+            # ... existing CCXT logic ...
+            df_raw = ingestor.fetch_ccxt_ohlcv(
+                exchange_id=data_cfg['exchange'],
+                symbol=symbol,
+                timeframe=data_cfg['timeframe'],
+                since=data_cfg['since']
+            )
+            # ... process and save ...
+            raw_file = os.path.join(raw_dir, f"{symbol.replace('/', '_')}.parquet")
+            df_raw.to_parquet(raw_file)
+            df_processed = processor.process_features(df_raw)
+            df_processed['symbol'] = symbol
+            all_assets.append(df_processed)
 
     # 5. Combine and Save Final Parquet
     final_df = pd.concat(all_assets)

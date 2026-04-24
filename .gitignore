@@ -7,3 +7,8 @@ __pycache__/
 .ipynb_checkpoints/
 *.parquet
 *.png
+
+# Local secrets
+.env
+.env.*
+
