@@ -5,3 +5,5 @@ outputs/
 *.parquet
 __pycache__/
 .ipynb_checkpoints/
+*.parquet
+*.png
