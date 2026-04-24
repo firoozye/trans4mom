@@ -45,31 +45,43 @@ def main():
     if data_cfg['exchange'] == 'databento':
         print(f"--- Fetching Macro Basket from DataBento ({data_cfg['dataset']}) ---")
         from datetime import timedelta
-        # Cap end_date at yesterday to avoid 422 "data_end_after_available_end" error
         end_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
-        df_full = ingestor.fetch_databento(
-            symbols=data_cfg['symbols'],
-            start=data_cfg['since'],
-            end=end_date,
-            dataset=data_cfg['dataset'],
-            schema='ohlcv-1d',
-            stype_in='continuous'
-        )
-        print(f"  Fetched {len(df_full)} rows. Available symbols: {df_full['symbol'].unique() if not df_full.empty else 'None'}")
         
         for symbol in data_cfg['symbols']:
-            # In 'continuous' mode, the symbol in the DF might be the root (e.g., 'ES')
-            df_raw = df_full[df_full['symbol'] == symbol].copy()
-            if df_raw.empty: continue
-            
-            # Save Raw
             raw_file = os.path.join(raw_dir, f"{symbol.replace('.', '_')}.parquet")
-            df_raw.to_parquet(raw_file)
-            
-            # Process
-            df_processed = processor.process_features(df_raw)
-            df_processed['symbol'] = symbol
-            all_assets.append(df_processed)
+            if os.path.exists(raw_file):
+                print(f"  Skipping {symbol} (already exists).")
+                df_raw = pd.read_parquet(raw_file)
+                df_processed = processor.process_features(df_raw)
+                df_processed['symbol'] = symbol
+                all_assets.append(df_processed)
+                continue
+
+            print(f"  Downloading {symbol}...")
+            try:
+                df_raw = ingestor.fetch_databento(
+                    symbols=[symbol],
+                    start=data_cfg['since'],
+                    end=end_date,
+                    dataset=data_cfg['dataset'],
+                    schema='ohlcv-1d',
+                    stype_in='continuous'
+                )
+                if df_raw.empty: 
+                    print(f"    Warning: No data for {symbol}")
+                    continue
+                
+                # Save Raw
+                raw_file = os.path.join(raw_dir, f"{symbol.replace('.', '_')}.parquet")
+                df_raw.to_parquet(raw_file)
+                
+                # Process
+                df_processed = processor.process_features(df_raw)
+                df_processed['symbol'] = symbol
+                all_assets.append(df_processed)
+                print(f"    Success: {len(df_raw)} rows.")
+            except Exception as e:
+                print(f"    Error fetching {symbol}: {e}")
     else:
         for symbol in data_cfg['symbols']:
             # ... existing CCXT logic ...

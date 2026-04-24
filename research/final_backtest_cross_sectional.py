@@ -80,11 +80,15 @@ def main():
     df = pd.read_parquet(data_path)
     ann_factor = 252 # Futures are 252 days
     feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]
-    num_assets = len(df['symbol'].unique())
+    
+    # Identify unique symbols present in the data
+    symbols = df['symbol'].unique()
+    num_assets = len(symbols)
+    print(f"Detected {num_assets} assets in data: {symbols}")
     
     # 2. Load Model
     model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_macro_cs.pt', map_location='cpu'))
+    model.load_state_dict(torch.load('weights/model_macro_cs_15.pt', map_location='cpu'))
     
     # 3. Backtest
     print(f"--- Running Cross-Sectional Backtest ({num_assets} Assets) ---")
