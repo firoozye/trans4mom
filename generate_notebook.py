@@ -1,0 +1,173 @@
+import json
+
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# Momentum Transformer Masterclass: Deep Dive\n",
+                "\n",
+                "This notebook provides a live walkthrough of the **Momentum Transformer** architecture and its application to a global macro futures portfolio. We will cover:\n",
+                "1. **Feature Engineering**: Multi-scale MACD and Volatility Scaling.\n",
+                "2. **Variable Selection Network (VSN)**: How the model prioritizes assets.\n",
+                "3. **Attention Maps**: Visualizing temporal dependencies and market regimes.\n",
+                "4. **Cross-Sectional Backtest**: Performance evaluation with realistic transaction costs."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "import os\n",
+                "import torch\n",
+                "import pandas as pd\n",
+                "import numpy as np\n",
+                "import matplotlib.pyplot as plt\n",
+                "import seaborn as sns\n",
+                "from models.architecture import MomentumTransformer\n",
+                "from research.final_backtest_cross_sectional import run_backtest_multi\n",
+                "\n",
+                "# Setup aesthetics\n",
+                "plt.style.use('seaborn-v0_8-whitegrid')\n",
+                "sns.set_palette(\"viridis\")\n",
+                "os.makedirs(\"research\", exist_ok=True)"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 1. Feature Engineering: Multi-Scale Momentum\n",
+                "We use MACD-style signals at multiple scales [10, 21, 63, 126, 252] days to capture both fast and slow trends."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "df = pd.read_parquet('data/processed/futures_1d.parquet')\n",
+                "symbol = 'ES.c.0' # S&P 500\n",
+                "asset_df = df[df['symbol'] == symbol].last('2Y')\n",
+                "\n",
+                "plt.figure(figsize=(14, 6))\n",
+                "for w in [10, 63, 252]:\n",
+                "    plt.plot(asset_df.index, asset_df[f'macd_{w}'], label=f'MACD-{w}')\n",
+                "\n",
+                "plt.title(f\"Multi-Scale Momentum Signals ({symbol})\")\n",
+                "plt.legend()\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 2. Model Interpretability: The Variable Selection Network (VSN)\n",
+                "The VSN weights different features and assets dynamically. Let's load the trained model and see what it's looking at."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]\n",
+                "num_assets = len(df['symbol'].unique())\n",
+                "model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)\n",
+                "model.load_state_dict(torch.load('weights/model_macro_cs_15.pt', map_location='cpu'))\n",
+                "model.eval()\n",
+                "print(\"Model Loaded Successfully.\")"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 3. Attention Maps: Market Memory\n",
+                "We can visualize the self-attention weights to see how the query at the current time step looks back at past market regimes."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "# Prepare a sample window\n",
+                "pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols).sort_index().ffill().bfill()\n",
+                "x_vals = np.stack([pivoted[f].values for f in feat_cols], axis=-1)\n",
+                "sample_x = torch.tensor(x_vals[-64:], dtype=torch.float32).unsqueeze(0)\n",
+                "\n",
+                "with torch.no_grad():\n",
+                "    _, attn_weights = model(sample_x, return_attention=True)\n",
+                "\n",
+                "weights = attn_weights[0, 0].cpu().numpy()\n",
+                "plt.figure(figsize=(10, 8))\n",
+                "sns.heatmap(weights, cmap='magma')\n",
+                "plt.title(\"Transformer Temporal Attention (Last 64 Days)\")\n",
+                "plt.xlabel(\"Past Time\")\n",
+                "plt.ylabel(\"Current Time\")\n",
+                "plt.show()"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 4. Final Portfolio Performance\n",
+                "Running the cross-sectional backtest with **Abdi-Ranaldo dynamic spreads** and **20bps slippage**."
+            ]
+        },
+        {
+            "cell_type": "code",
+            "execution_count": None,
+            "metadata": {},
+            "outputs": [],
+            "source": [
+                "print(\"--- Running Cross-Sectional Backtest ---\")\n",
+                "results = run_backtest_multi(model, df, feat_cols, ann_factor=252, base_cost=0.002)\n",
+                "\n",
+                "plt.figure(figsize=(12, 6))\n",
+                "plt.plot(results['dates'], results['cum_pnl'], label=f\"Net PnL (Sharpe: {results['sr']:.2f})\")\n",
+                "plt.axvline(pd.to_datetime('2025-01-01'), color='red', linestyle='--', label='Out-of-Sample')\n",
+                "plt.title(\"Cross-Sectional Portfolio: Global Macro Futures\")\n",
+                "plt.ylabel(\"Cumulative Net Return\")\n",
+                "plt.legend()\n",
+                "plt.show()\n",
+                "\n",
+                "print(f\"Final Portfolio Sharpe: {results['sr']:.2f}\")\n",
+                "print(f\"Annualized Turnover: {results['turnover']:.1f}x\")"
+            ]
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3"
+        },
+        "language_info": {
+            "codemirror_mode": {
+                "name": "ipython",
+                "version": 3
+            },
+            "file_extension": ".py",
+            "mimetype": "text/x-python",
+            "name": "python",
+            "nbconvert_exporter": "python",
+            "pygments_lexer": "ipython3",
+            "version": "3.10.0"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+with open('Momentum_Transformer_Masterclass.ipynb', 'w') as f:
+    json.dump(notebook, f, indent=2)
