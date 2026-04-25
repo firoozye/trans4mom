@@ -1,0 +1,48 @@
+% masterclass\_intro\_full.tex
+
+\section{Momentum Archeology}
+
+\begin{frame}{Defining Momentum}
+    \begin{definition}[A version of Momentum]
+    In its most basic form: Find a moving average/trend.
+        \begin{itemize}
+        \item \textbf{Go Long} if 
+            \begin{itemize}
+            \item Level $>$ Moving average (+threshold)
+            \item Short Moving Average $>$ Long Moving Average
+            \end{itemize}
+        \item \textbf{Go Short} if
+            \begin{itemize}
+            \item Level $<$ Moving average (-threshold)
+            \item Short Moving Average $<$ Long Moving Average
+            \end{itemize}
+        \end{itemize}
+    \end{definition}
+\end{frame}
+
+\begin{frame}{200 Years of Trend Following}
+    \begin{itemize}
+        \item \textbf{Persistence:} Trend following has worked for over two centuries.
+        \item \textbf{Crisis Alpha:} It tends to perform best during market dislocations.
+        \item \textbf{Sharpe Persistence:} Combined Sharpe Ratio of ~0.7 over long horizons.
+    \end{itemize}
+    \begin{block}{Theoretical Foundation}
+        The Momentum Transformer aims to boost this historical premium by dynamically weighting horizons and assets.
+    \end{block}
+\end{frame}
+
+\begin{frame}{The Overfitting Challenge}
+    \begin{itemize}
+        \item \textbf{Noise vs Signal:} High-frequency data (like 4h crypto) is dominated by noise.
+        \item \textbf{Memorization:} Deep models easily "memorize" past wiggles that don't repeat.
+        \item \textbf{Regularization:} We use aggressive transaction cost penalties (100bps) and smoothing to force the model to be "slow and stubborn."
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Variable Selection Networks (VSN)}
+    \begin{itemize}
+        \item \textbf{Dynamic Prioritization:} Which asset class matters now?
+        \item \textbf{Feature Gating:} Automatically ignoring noisy MACD signals.
+        \item \textbf{Interpretability:} We can extract the weights to see "what the model is thinking."
+    \end{itemize}
+\end{frame}

@@ -48,7 +48,7 @@
     \end{columns}
     \vspace{0.5cm}
     \centering
-    \textit{Graphic Recommendation: Use research/strategy_performance.png to show the flat-line Equity Curve.}
+    \textit{Graphic Recommendation: Use research\/strategy\_performance.png to show the flat-line Equity Curve.}
 \end{frame}
 
 % --- SLIDE 3: Architectural Stability ---
@@ -62,33 +62,41 @@
     \end{enumerate}
 \end{frame}
 
-% --- SLIDE 4: The Reality Check ---
-\begin{frame}{The Reality Check: Global Macro Diversification}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \textbf{5-Asset Basket (Crypto/Macro):}
-            \begin{itemize}
-                \item \textbf{Sharpe Ratio:} 1.14
-                \item \textbf{Turnover:} 1.0x (Annualised)
-                \item \textbf{Market Neutrality:} High
-            \end{itemize}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \textbf{15-Asset "Global Macro" Basket:}
-            \begin{itemize}
-                \item \textbf{Sharpe Ratio:} \textbf{2.74} (Net)
-                \item \textbf{Costs:} AR Spread + 20bps Slippage
-                \item \textbf{Turnover:} 1.1x (Stable)
-            \end{itemize}
-        \end{column}
-    \end{columns}
-    \vspace{0.4cm}
-    \begin{block}{The Power of the Cross-Section}
-        Transitioning from independent time-series to \textbf{cross-sectional ranking} allowed the Transformer to wash out local noise. By pessimistically training against 100bps costs, we forced the model to capture only the most persistent trends across Equities, Fixed Income, and Commodities.
-    \end{block}
+% --- SLIDE 4: The Visual Proof: Equity Curve ---
+\begin{frame}{Performance: The 15-Asset "Fortress" Portfolio}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\textwidth]{research/backtest_cross_sectional.png}
+        \caption{Net Cumulative PnL (Realistic 20bps Costs + AR Spread)}
+    \end{figure}
+    \begin{itemize}
+        \item \textbf{Sharpe Ratio:} 2.74
+        \item \textbf{Annualized Turnover:} 1.1x
+        \item \textbf{OOS Resilience:} Performance remains stable into 2025.
+    \end{itemize}
 \end{frame}
 
-% --- SLIDE 5: Senior Engineer Lessons ---
+% --- SLIDE 5: Market Neutrality & Position Sizing ---
+\begin{frame}{Market Neutrality: The Long/Short Balance}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.85\textwidth]{research/cs_positions_heatmap.png}
+        \caption{Cross-Sectional Positions: Perfectly Balanced Market Exposure}
+    \end{figure}
+    \textit{Insight:} The model naturally weights higher-alpha assets (Bonds, Commodities) while maintaining a near-zero net portfolio exposure (~0.0005).
+\end{frame}
+
+% --- SLIDE 6: Interpretability: The Attention Map ---
+\begin{frame}{Interpretability: How the Model "Remembers"}
+    \begin{figure}
+        \centering
+        \includegraphics[width=0.6\textwidth]{research/cs_attention_map.png}
+        \caption{Temporal Attention: Queries looking back at Past Regimes}
+    \end{figure}
+    The diagonal and off-diagonal hotspots reveal how the Transformer uses 64-day windows to detect shifts in momentum direction.
+\end{frame}
+
+% --- SLIDE 7: Senior Engineer Lessons ---
 \begin{frame}{Closing: Lessons from the Cluster}
     \begin{itemize}
         \item \textbf{Diversification is the Only Free Lunch:} Boosting from 5 to 15 assets more than doubled the Sharpe Ratio (1.14 $\to$ 2.74).
