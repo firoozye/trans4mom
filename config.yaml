@@ -24,16 +24,16 @@ data:
     "6J.c.0": "6J=F"
     "6B.c.0": "6B=F"
   timeframe: "1d"
-  since: "2000-01-01T00:00:00Z"
-  raw_path: "data/raw/futures/"
-  processed_path: "data/processed/futures_full_scale.parquet"
+  since: "1990-01-01T00:00:00Z"
+  raw_path: "data/raw/futures_1990/"
+  processed_path: "data/processed/futures_1990_present.parquet"
 
-# Asset Class Mapping for Static Context
+# Asset Class Mapping for Static Context (Expanded for 24 assets)
 asset_map:
-  equity: ["ES.c.0", "NQ.c.0", "RTY.c.0", "YM.c.0", "EMD.c.0", "NKD.c.0"]
-  fixed_income: ["ZT.c.0", "ZF.c.0", "ZN.c.0", "ZB.c.0", "TN.c.0", "UB.c.0", "GE.c.0", "SR3.c.0", "ZQ.c.0"]
-  commodity: ["CL.c.0", "NG.c.0", "RB.c.0", "HO.c.0", "GC.c.0", "SI.c.0", "HG.c.0", "PL.c.0", "PA.c.0", "ZC.c.0", "ZW.c.0", "ZS.c.0", "ZL.c.0", "ZM.c.0", "LE.c.0", "HE.c.0", "GF.c.0", "KE.c.0", "ZO.c.0"]
-  fx: ["6E.c.0", "6J.c.0", "6B.c.0", "6A.c.0", "6C.c.0", "6S.c.0", "6N.c.0", "6M.c.0", "6Z.c.0", "6L.c.0"]
+  equity: ["ES=F", "NQ=F", "RTY=F", "YM=F"]
+  fixed_income: ["ZT=F", "ZF=F", "ZN=F", "ZB=F"]
+  commodity: ["CL=F", "NG=F", "RB=F", "HO=F", "GC=F", "SI=F", "HG=F", "ZC=F", "ZW=F", "ZS=F"]
+  fx: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F"]
   crypto: ["BTC.c.0", "ETH.c.0"]
 
 # Feature Engineering

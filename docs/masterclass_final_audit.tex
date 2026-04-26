@@ -1,0 +1,22 @@
+\begin{frame}{The Mirage of "God-Mode" Performance}
+    \begin{alertblock}{The 21.3 Sharpe Ratio Trap}
+        During training, the model achieved a Negative Sharpe Loss of -21.3. This "too good to be true" result was an immediate indicator of \textbf{Lookahead Bias}.
+    \end{alertblock}
+    \textbf{The Culprit:  \to t$ Alignment}
+    \begin{itemize}
+        \item \textbf{Leakage:}  = Pos_t \cdot Ret_t$ (The model knows the current day's return when sizing).
+        \item \textbf{The Fix:}  = Pos_t \cdot Ret_{t+1}$ (The position taken at the close of $ earns the return from $ to +1$).
+    \end{itemize}
+    \textit{Masterclass Lesson:} High training performance is a liability, not an achievement. Always assume a "mirage" until the causality of the loss function is mathematically proven.
+\end{frame}
+
+\begin{frame}{Regime Robustness: 1990--2026}
+    To move beyond "COVID-specialization," we expanded the training horizon to include \textbf{36 years} of macro history.
+    \begin{itemize}
+        \item \textbf{Diverse Regimes:} Includes the Dot-com bubble, the 2008 GFC, and the 2022 inflationary spike.
+        \item \textbf{Multi-Asset Breadth:} Scaled to 24 liquid futures across Equities, Fixed Income, Commodities, and FX.
+        \item \textbf{Statistical Power:} Increased sample size from 36k to 143k sequence steps, forcing the Transformer to learn features that persist across decades, not just months.
+    \end{itemize}
+    \centering
+    \textit{Result: A model that trades "Macro Realities" rather than "Recent Noise."}
+\end{frame}

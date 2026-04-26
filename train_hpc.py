@@ -19,18 +19,32 @@ def get_annualization_factor(timeframe: str) -> float:
     if unit == 'h':
         return (24 / value) * 365
     elif unit == 'd':
-        return (1 / value) * 365
+        return 252.0
     return 252.0 # Default fallback
 
-def prepare_hpc_data(df, feat_cols, seq_len=64):
+def prepare_hpc_data(df, feat_cols, config, seq_len=64):
     """
     Reshapes data for multi-asset training, similar to train_cross_sectional.py
     """
     symbols = df['symbol'].unique()
     num_assets = len(symbols)
     
+    # 1. Asset ID Mapping (if not already in df)
+    if 'asset_id' not in df.columns:
+        asset_id_map = {}
+        if config and 'asset_map' in config:
+            for idx, (category, syms) in enumerate(config['asset_map'].items()):
+                for s in syms:
+                    asset_id_map[s] = idx
+        df['asset_id'] = df['symbol'].map(lambda s: asset_id_map.get(s, 4))
+
+    # 2. Spread Fallback (if not in df)
+    if 'spread' not in df.columns:
+        # Default to a conservative 5bps spread for futures
+        df['spread'] = 0.0005
+    
     # Pivot to align assets by timestamp
-    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['scaled_returns', 'spread'])
+    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['scaled_returns', 'spread', 'asset_id'])
     pivoted = pivoted.sort_index().ffill().bfill()
     
     # features: (time, assets, num_features)
@@ -38,16 +52,19 @@ def prepare_hpc_data(df, feat_cols, seq_len=64):
     x_vals = np.stack(x_list, axis=-1) 
     y_vals = pivoted['scaled_returns'].values 
     s_vals = pivoted['spread'].values 
+    aid_vals = pivoted['asset_id'].values # (time, assets)
     
-    all_x, all_y, all_s = [], [], []
+    all_x, all_y, all_s, all_aid = [], [], [], []
     for i in range(len(pivoted) - seq_len):
         all_x.append(x_vals[i:i+seq_len])
         all_y.append(y_vals[i:i+seq_len])
         all_s.append(s_vals[i:i+seq_len])
+        all_aid.append(aid_vals[i:i+seq_len])
         
     return (torch.tensor(np.array(all_x), dtype=torch.float32), 
             torch.tensor(np.array(all_y), dtype=torch.float32),
-            torch.tensor(np.array(all_s), dtype=torch.float32))
+            torch.tensor(np.array(all_s), dtype=torch.float32),
+            torch.tensor(np.array(all_aid), dtype=torch.long))
 
 def main():
     parser = argparse.ArgumentParser(description="HPC Training Script for Momentum Transformer")
@@ -87,7 +104,7 @@ def main():
         features = [f'ret_{k}' for k in feat_cfg['return_windows']] + \
                    [f'macd_{S}_{L}' for S, L in feat_cfg['macd_pairs']]
         
-        x_toy, y_toy, s_toy = prepare_hpc_data(df, features, seq_len=seq_len)
+        x_toy, y_toy, s_toy, aid_toy = prepare_hpc_data(df, features, config, seq_len=seq_len)
         print(f"Prepared {x_toy.shape[0]} sequences of length {seq_len} for {num_assets} assets")
 
     # 4. Setup Hyperparameters for Trainer
@@ -109,7 +126,7 @@ def main():
 
     # 5. Launch Training
     print(f"Launching HPC Training from config: {args.config}")
-    run_training_job(x_toy, y_toy, train_spreads=s_toy if 's_toy' in locals() else None, hparams=hparams)
+    run_training_job(x_toy, y_toy, train_spreads=s_toy, hparams=hparams)
 
 if __name__ == "__main__":
     main()
