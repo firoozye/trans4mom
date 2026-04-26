@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from models.architecture import MomentumTransformer
+from models.architecture import EnsembleMomentumTransformer
 
 def run_backtest_multi(model, df, feat_cols, ann_factor, base_cost=0.002):
     """
@@ -47,31 +47,40 @@ def run_backtest_multi(model, df, feat_cols, ann_factor, base_cost=0.002):
         positions = np.concatenate(all_pos) # (time, num_assets)
 
     # 2. Portfolio Returns
-    # Note: rets[t] is return of period (t-1, t). 
-    # positions[t] is position decided at end of t, captures rets[t+1].
-    # So we shift rets to align.
     shifted_rets = rets[1:, :]
     active_pos = positions[:-1, :]
-    
-    gross_rets = np.sum(active_pos * shifted_rets, axis=1) / num_assets
-    
-    # Costs
-    turnover = np.sum(np.abs(np.diff(positions, axis=0)), axis=1) / num_assets
-    avg_spread = np.mean(spreads, axis=1)
-    trading_costs = turnover * (base_cost + avg_spread[:-1] / 2.0)
-    
-    net_rets = gross_rets - trading_costs
-    
-    # Performance
+    dates_backtest = dates[1:]
+
+    # Precise per-asset trading costs
+    pos_diff = np.abs(np.diff(positions, axis=0))
+    asset_costs = pos_diff * (base_cost + spreads[1:, :] / 2.0)
+
+    gross_rets_per_asset = active_pos * shifted_rets
+    net_rets_per_asset = gross_rets_per_asset - asset_costs
+
+    net_rets = np.sum(net_rets_per_asset, axis=1) / num_assets
     cum_pnl = np.cumsum(net_rets)
-    sr = (np.mean(net_rets) / (np.std(net_rets) + 1e-9)) * np.sqrt(ann_factor)
-    
+
+    # Full Period SR
+    sr_full = (np.mean(net_rets) / (np.std(net_rets) + 1e-9)) * np.sqrt(ann_factor)
+
+    # --- OOS AUDIT (2025+) ---
+    oos_start = pd.to_datetime('2025-01-01').tz_localize('UTC')
+    oos_mask = dates_backtest >= oos_start
+    if oos_mask.any():
+        oos_net_rets = net_rets[oos_mask]
+        sr_oos = (np.mean(oos_net_rets) / (np.std(oos_net_rets) + 1e-9)) * np.sqrt(ann_factor)
+    else:
+        sr_oos = 0.0
+
     return {
-        'dates': dates[1:],
+        'dates': dates_backtest,
         'cum_pnl': cum_pnl,
-        'sr': sr,
-        'turnover': np.mean(turnover) * ann_factor,
-        'net_exposure': np.mean(positions, axis=1)
+        'sr': sr_full,
+        'sr_oos': sr_oos,
+        'turnover': np.mean(np.sum(pos_diff, axis=1) / num_assets) * ann_factor,
+        'net_exposure': np.mean(positions, axis=1),
+        'symbols': symbols
     }
 
 def main():
@@ -85,29 +94,41 @@ def main():
     symbols = df['symbol'].unique()
     num_assets = len(symbols)
     print(f"Detected {num_assets} assets in data: {symbols}")
-    
     # 2. Load Model
-    model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_macro_cs_15.pt', map_location='cpu'))
+    model = EnsembleMomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=32, num_heads=4, output_dim=num_assets)
+    model.load_state_dict(torch.load('weights/model_macro_ensemble.pt', map_location='cpu'))
     
-    # 3. Backtest
+    # 3. Backtest (Realistic)
     print(f"--- Running Cross-Sectional Backtest ({num_assets} Assets) ---")
-    results = run_backtest_multi(model, df, feat_cols, ann_factor)
+    results = run_backtest_multi(model, df, feat_cols, ann_factor, base_cost=0.002)
     
-    print(f"Portfolio Results:")
-    print(f"  Sharpe Ratio: {results['sr']:.2f}")
-    print(f"  Annualized Turnover: {results['turnover']:.1f}x")
-    print(f"  Avg Net Exposure: {np.mean(results['net_exposure']):.4f}")
+    print(f"\n--- 15-Asset Macro Audit ---")
+    print(f"  Full Period Net Sharpe: {results['sr']:.2f}")
+    print(f"  OOS (2025+) Net Sharpe: {results['sr_oos']:.2f}")
+    print(f"  Annualized Turnover:    {results['turnover']:.1f}x")
+    print(f"\n--- Running Cross-Sectional Backtest (Pure AR Spread Only) ---")
+    results_pure = run_backtest_multi(model, df, feat_cols, ann_factor, base_cost=0.0)
+    print(f"  Sharpe Ratio (Pure AR): {results_pure['sr']:.2f}")
 
-    # 4. Plot
+    # 5. Plot Comparison
     plt.figure(figsize=(12, 6))
-    plt.plot(results['dates'], results['cum_pnl'], label=f'CS Portfolio (SR: {results["sr"]:.2f})')
+    plt.plot(results['dates'], results['cum_pnl'], label=f'Realistic (SR: {results["sr"]:.2f})', color='green')
+    plt.plot(results_pure['dates'], results_pure['cum_pnl'], label=f'Pure AR (SR: {results_pure["sr"]:.2f})', color='blue', alpha=0.7)
     plt.axvline(pd.to_datetime('2025-01-01'), color='red', linestyle='--', label='OOS Split')
-    plt.title("Cross-Sectional Momentum Portfolio Performance (Net)")
+    plt.title("Cross-Sectional Momentum: Realistic vs. Pure AR Performance")
     plt.legend()
     plt.grid(True, alpha=0.3)
-    plt.savefig("research/backtest_cross_sectional.png")
-    print("\nPlot saved to research/backtest_cross_sectional.png")
+    plt.savefig("research/backtest_cs_comparison.png")
+    
+    # Save individual Pure AR plot for the 'Amazing' slide
+    plt.figure(figsize=(12, 6))
+    plt.plot(results_pure['dates'], results_pure['cum_pnl'], color='blue', linewidth=2)
+    plt.title(f"Intrinsic Alpha: Pure AR Momentum Portfolio (Sharpe: {results_pure['sr']:.2f})")
+    plt.ylabel("Cumulative Net Return")
+    plt.grid(True, alpha=0.3)
+    plt.savefig("research/backtest_cs_pure_ar.png")
+    
+    print("\nPlots saved to research/ (including backtest_cs_pure_ar.png)")
 
 if __name__ == "__main__":
     main()

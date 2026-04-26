@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.architecture import MomentumTransformer
+from models.architecture import EnsembleMomentumTransformer
 
 def plot_multi_asset_positions(dates, positions, symbols, filename="research/cs_positions_heatmap.png"):
     """Plot a heatmap of positions for all assets over time."""
@@ -44,7 +44,7 @@ def plot_portfolio_diagnostics(dates, cum_pnl, net_exposure, sr, turnover):
     plt.close()
 
 def plot_attention(model, x, filename="research/cs_attention_map.png"):
-    """Visualize self-attention weights for the cross-sectional model."""
+    """Visualize self-attention weights with enhanced contrast."""
     model.eval()
     with torch.no_grad():
         _, attn_weights = model(x, return_attention=True)
@@ -55,15 +55,18 @@ def plot_attention(model, x, filename="research/cs_attention_map.png"):
     else:
         weights = attn_weights[0].cpu().numpy()
     
-    # Ensure weights is 2D
     if len(weights.shape) == 3:
         weights = weights[0]
-        
+
+    # Mask the diagonal to 'blow up' the off-diagonal details
+    mask = np.eye(weights.shape[0], dtype=bool)
+    
     plt.figure(figsize=(10, 8))
-    sns.heatmap(weights, cmap='magma')
-    plt.title("Transformer Attention Map (Temporal Dependencies)")
-    plt.xlabel("Key (Past)")
-    plt.ylabel("Query (Present)")
+    # robust=True Stretch colors based on quantiles (ignores the extreme diagonal outliers)
+    sns.heatmap(weights, cmap='magma', mask=mask, robust=True)
+    plt.title("Transformer Temporal Attention (Regime Shift Detection)")
+    plt.xlabel("Past (Key)")
+    plt.ylabel("Present (Query)")
     plt.savefig(filename)
     plt.close()
 
@@ -76,8 +79,8 @@ def main():
     print(f"Detected {num_assets} symbols for visualization.")
     feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]
     
-    model = MomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_macro_cs_15.pt', map_location='cpu'))
+    model = EnsembleMomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=32, num_heads=4, output_dim=num_assets)
+    model.load_state_dict(torch.load('weights/model_macro_ensemble_latest.pt', map_location='cpu'))
     
     # 2. Re-run small inference for visuals
     pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['returns', 'spread'])
