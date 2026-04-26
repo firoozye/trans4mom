@@ -12,9 +12,9 @@
 \usepackage{latexsym}
 \usepackage{subcaption}
 \usepackage{hyperref}
+\usepackage[ruled]{algorithm2e}
 \usepackage{color}
 \usepackage{graphicx}
-\usepackage[ruled]{algorithm2e}
 \usepackage{centernot}
 \usepackage[cache=false]{minted}
 \usepackage[makeroom]{cancel}
@@ -22,6 +22,12 @@
 \usepackage[style=authoryear,backend=biber]{biblatex}
 \addbibresource{docs/bibliography.bib}
 
+\setbeamertemplate{caption}[numbered]
+\setbeamersize{description width=2em}
+\setbeamertemplate{navigation symbols}{\vspace{-2ex}}
+
+\newcommand{\themename}{\textbf{\textsc{metropolis}}\xspace}
+\usepgfplotslibrary{dateplot}
 \definecolor{aquamarine}{rgb}{0.5, 1.0, 0.83}
 \definecolor{aqua}{rgb}{0.0, 1.0, 1.0}
 \definecolor{beige}{rgb}{0.96,0.96,0.86}
@@ -52,14 +58,13 @@
         bgcolor=beige} 
 
 \title{Momentum Transformer Master Class}
-\subtitle{From Foundations to Frontier}
+\subtitle{Algorithmic Trading Course}
 \author{Nick Firoozye}
 \date{\today}
 
 \begin{document}
 \maketitle
 
-\input{docs/masterclass_intro_full.tex}
-\input{docs/masterclass_transformers.tex}
+\input{docs/trend_following_content.tex}
 
 \end{document}

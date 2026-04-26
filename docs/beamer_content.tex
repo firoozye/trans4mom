@@ -1,31 +1,5 @@
 % Beamer Slides Content - Momentum Transformer Masterclass
 
-% --- SLIDE 1: Momentum Archeology ---
-\begin{frame}{Momentum Archeology: Finding the Signal}
-    \begin{itemize}
-        \item \textbf{Question:} Does momentum exist in Crypto at all timeframes?
-        \item \textbf{The Tool:} Variance Ratio (VR) Test
-        \item \textbf{Interpretation:} VR > 1 (Momentum), VR < 1 (Mean Reversion)
-    \end{itemize}
-    
-    \begin{table}[]
-        \centering
-        \tiny
-        \begin{tabular}{l|ccccc}
-        \hline
-        \textbf{Horizon} & \textbf{1h Data} & \textbf{4h Data} & \textbf{12h Data} & \textbf{1d Data} \\ \hline
-        1 Day   & 0.974 & 1.117 & 1.022 & 0.977 \\
-        5 Days  & \textbf{1.266} & \textbf{1.181} & \textbf{1.146} & 1.043 \\
-        20 Days & 0.582 (MR) & 0.789 & \textbf{1.076} & 1.038 \\ \hline
-        \end{tabular}
-        \caption{BTC/USDT Variance Ratios across Horizons}
-    \end{table}
-
-    \begin{itemize}
-        \item \textit{Insight:} 1h momentum is strong but short-lived. 12h data provides the most stable "long-horizon" signal.
-    \end{itemize}
-\end{frame}
-
 % --- SLIDE 2: Failure Analysis ---
 \begin{frame}{Failure Analysis: The Saturation Trap}
     \begin{columns}
