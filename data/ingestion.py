@@ -85,15 +85,45 @@ class DataIngestor:
         df.set_index('timestamp', inplace=True)
         return df
 
+    # --- OLD CODE (Commented out per instructions) ---
+    # def fetch_yfinance(
+    #     self,
+    #     symbols: List[str],
+    #     start: str,
+    #     end: str,
+    #     interval: str = "1d"
+    # ) -> pd.DataFrame:
+    #     """Fetch historical data from yfinance (Free)."""
+    #     df = yf.download(symbols, start=start, end=end, interval=interval)
+    #     return df
+
     def fetch_yfinance(
         self,
-        symbols: List[str],
+        symbol: str,
         start: str,
         end: str,
         interval: str = "1d"
     ) -> pd.DataFrame:
-        """Fetch historical data from yfinance (Free)."""
-        df = yf.download(symbols, start=start, end=end, interval=interval)
+        """
+        Fetch historical data from yfinance (Free).
+        Standardizes columns to lowercase to match the rest of the pipeline.
+        """
+        # Cleanup timestamp if it has the ISO T...Z suffix which yfinance dislikes
+        clean_start = start.split('T')[0] if 'T' in start else start
+        clean_end = end.split('T')[0] if 'T' in end else end
+        
+        ticker = yf.Ticker(symbol)
+        df = ticker.history(start=clean_start, end=clean_end, interval=interval)
+        
+        if df.empty:
+            return df
+            
+        # Standardize columns to lowercase
+        df.columns = [c.lower() for c in df.columns]
+        
+        # Ensure 'symbol' column is present
+        df['symbol'] = symbol
+        
         return df
 
     def load_local_csv(self, file_path: str) -> pd.DataFrame:
@@ -102,7 +132,4 @@ class DataIngestor:
         return df
 
 if __name__ == "__main__":
-    # Example usage (commented out to prevent execution without keys)
-    # ingestor = DataIngestor()
-    # print("Ingestor ready.")
     pass

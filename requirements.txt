@@ -12,3 +12,7 @@ yfinance
 scikit-learn
 tqdm
 pyyaml
+jupyter
+notebook
+ipykernel
+

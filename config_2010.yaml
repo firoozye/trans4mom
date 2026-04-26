@@ -1,0 +1,86 @@
+# Momentum Transformer Project Configuration
+# DataBento Era (2010-Present)
+
+# Data Settings
+data:
+  exchange: "databento"
+  dataset: "GLBX.MDP3"
+  since: "2010-06-06T00:00:00Z"
+  timeframe: "1d"
+  # New paths to avoid overwriting existing data
+  raw_path: "data/raw/futures_v2/" 
+  processed_path: "data/processed/futures_2010_present.parquet"
+  
+  # Symbol Mapping: DataBento -> yfinance (for future hybrid use)
+  symbols:
+    # Equities
+    "ES.c.0": "ES=F"
+    "NQ.c.0": "NQ=F"
+    "RTY.c.0": "RTY=F"
+    "YM.c.0": "YM=F"
+    # Fixed Income
+    "ZT.c.0": "ZT=F"
+    "ZF.c.0": "ZF=F"
+    "ZN.c.0": "ZN=F"
+    "ZB.c.0": "ZB=F"
+    # Energy
+    "CL.c.0": "CL=F"
+    "NG.c.0": "NG=F"
+    "RB.c.0": "RB=F"
+    "HO.c.0": "HO=F"
+    # Metals
+    "GC.c.0": "GC=F"
+    "SI.c.0": "SI=F"
+    "HG.c.0": "HG=F"
+    # Agriculture
+    "ZC.c.0": "ZC=F"
+    "ZW.c.0": "ZW=F"
+    "ZS.c.0": "ZS=F"
+    # FX
+    "6E.c.0": "6E=F"
+    "6J.c.0": "6J=F"
+    "6B.c.0": "6B=F"
+    "6A.c.0": "6A=F"
+    "6C.c.0": "6C=F"
+    "6S.c.0": "6S=F"
+
+# Asset Classification for Static Context
+asset_map:
+  EQUITY: ["ES.c.0", "NQ.c.0", "RTY.c.0", "YM.c.0"]
+  FIXED_INCOME: ["ZT.c.0", "ZF.c.0", "ZN.c.0", "ZB.c.0"]
+  ENERGY: ["CL.c.0", "NG.c.0", "RB.c.0", "HO.c.0"]
+  METALS: ["GC.c.0", "SI.c.0", "HG.c.0"]
+  AGRICULTURE: ["ZC.c.0", "ZW.c.0", "ZS.c.0"]
+  FX: ["6E.c.0", "6J.c.0", "6B.c.0", "6A.c.0", "6C.c.0", "6S.c.0"]
+
+# Feature Engineering
+features:
+  return_windows: [1, 21, 63, 126, 252]
+  macd_pairs: [[8, 24], [16, 48], [32, 96]]
+  vol_span: 60
+  clean_outliers: true
+  outlier_threshold: 5.0
+
+# Model Hyperparameters
+model:
+  hidden_dim: 128
+  num_heads: 4
+  num_layers: 1
+  dropout: 0.3
+
+# Training Hyperparameters
+training:
+  epochs: 200
+  batch_size: 128
+  lr: 0.0001
+  trans_cost: 0.002
+  smoothing_beta: 0.2
+  annualization: 252.0
+  seed: 42
+
+# HPC Settings
+hpc:
+  use_gpu: true
+  distributed: false
+  num_nodes: 1
+  gpus_per_node: 1

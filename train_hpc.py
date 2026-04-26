@@ -22,6 +22,33 @@ def get_annualization_factor(timeframe: str) -> float:
         return (1 / value) * 365
     return 252.0 # Default fallback
 
+def prepare_hpc_data(df, feat_cols, seq_len=64):
+    """
+    Reshapes data for multi-asset training, similar to train_cross_sectional.py
+    """
+    symbols = df['symbol'].unique()
+    num_assets = len(symbols)
+    
+    # Pivot to align assets by timestamp
+    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['scaled_returns', 'spread'])
+    pivoted = pivoted.sort_index().ffill().bfill()
+    
+    # features: (time, assets, num_features)
+    x_list = [pivoted[f].values for f in feat_cols]
+    x_vals = np.stack(x_list, axis=-1) 
+    y_vals = pivoted['scaled_returns'].values 
+    s_vals = pivoted['spread'].values 
+    
+    all_x, all_y, all_s = [], [], []
+    for i in range(len(pivoted) - seq_len):
+        all_x.append(x_vals[i:i+seq_len])
+        all_y.append(y_vals[i:i+seq_len])
+        all_s.append(s_vals[i:i+seq_len])
+        
+    return (torch.tensor(np.array(all_x), dtype=torch.float32), 
+            torch.tensor(np.array(all_y), dtype=torch.float32),
+            torch.tensor(np.array(all_s), dtype=torch.float32))
+
 def main():
     parser = argparse.ArgumentParser(description="HPC Training Script for Momentum Transformer")
     parser.add_argument("--config", type=str, default="config.yaml", help="Path to config.yaml")
@@ -41,10 +68,8 @@ def main():
     # 3. Load Data
     data_path = data_cfg['processed_path']
     if not os.path.exists(data_path):
-        print(f"Data not found at {data_path}. Generating toy data for script verification...")
-        num_assets = len(data_cfg['symbols'])
-        x_toy = torch.randn(100, 64, len(feat_cfg['window_sizes']), 1) 
-        y_toy = torch.randn(100, 64, num_assets)
+        print(f"Data not found at {data_path}. Error.")
+        return
     else:
         print(f"Loading real data from {data_path}...")
         df = pd.read_parquet(data_path)
@@ -54,46 +79,27 @@ def main():
         df = df[df.index <= train_end]
         print(f"Training on data up to {train_end} ({len(df)} rows)")
         
-        # Simple Pivot/Reshape for Transformer
-        # Required format: (batch, time, num_vars, input_dim)
-        # For this demo, we'll slice into sequences of length 64
         seq_len = 64
-        num_assets = len(df['symbol'].unique())
+        symbols = df['symbol'].unique()
+        num_assets = len(symbols)
         
         # Extract features (macd_*), targets (scaled_returns), and dynamic costs (spread)
-        features = [f'macd_{w}' for w in feat_cfg['window_sizes']]
+        features = [f'ret_{k}' for k in feat_cfg['return_windows']] + \
+                   [f'macd_{S}_{L}' for S, L in feat_cfg['macd_pairs']]
         
-        all_x, all_y, all_s = [], [], []
-        for sym, group in df.groupby('symbol'):
-            group = group.sort_index()
-            x_vals = group[features].values
-            y_vals = group[['scaled_returns']].values
-            s_vals = group[['spread']].values
-            
-            # Create sliding windows
-            for i in range(len(group) - seq_len):
-                all_x.append(x_vals[i:i+seq_len])
-                all_y.append(y_vals[i:i+seq_len])
-                all_s.append(s_vals[i:i+seq_len])
-        
-        x_toy = torch.tensor(np.array(all_x), dtype=torch.float32).unsqueeze(-1)
-        y_toy = torch.tensor(np.array(all_y), dtype=torch.float32) # (N, 64, 1)
-        s_toy = torch.tensor(np.array(all_s), dtype=torch.float32) # (N, 64, 1)
-        num_assets = 1 # Each sample is a single asset sequence
-        print(f"Prepared {x_toy.shape[0]} sequences of length {seq_len}")
-
-
+        x_toy, y_toy, s_toy = prepare_hpc_data(df, features, seq_len=seq_len)
+        print(f"Prepared {x_toy.shape[0]} sequences of length {seq_len} for {num_assets} assets")
 
     # 4. Setup Hyperparameters for Trainer
     ann_factor = get_annualization_factor(data_cfg['timeframe'])
     print(f"Using annualization factor: {ann_factor:.2f} for timeframe: {data_cfg['timeframe']}")
 
     hparams = {
-        'input_dim': model_cfg['input_dim'],
-        'num_vars': len(feat_cfg['window_sizes']),
+        'input_dim': len(features),
+        'num_vars': num_assets, # Multi-asset cross-sectional dimension
         'hidden_dim': model_cfg['hidden_dim'],
         'num_heads': model_cfg['num_heads'],
-        'num_assets': num_assets if 'num_assets' in locals() else len(data_cfg['symbols']),
+        'num_assets': num_assets,
         'lr': train_cfg['lr'],
         'trans_cost': train_cfg['trans_cost'],
         'annualization': ann_factor,

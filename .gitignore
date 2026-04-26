@@ -1,14 +1,35 @@
-*.md
-docs/
+# Data & Weights
 weights/
 outputs/
 *.parquet
+data/raw/
+data/processed/
+
+# Ignore all markdown files (as requested: no claude plan, no gemini)
+*.md
+
+# Explicitly include research images
+!research/*.png
+!docs/Figures/*.png
+
+# Python & Environment
 __pycache__/
 .ipynb_checkpoints/
-*.parquet
-*.png
-
-# Local secrets
 .env
 .env.*
 
+# LaTeX auxiliary files
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.bcf
+*.blg
+*.run.xml

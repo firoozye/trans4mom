@@ -1,7 +1,8 @@
 import os
 import yaml
 import pandas as pd
-from datetime import datetime
+import numpy as np
+from datetime import datetime, timedelta
 from data.ingestion import DataIngestor
 from data.processor import FeatureProcessor
 
@@ -34,76 +35,101 @@ def main():
     # 3. Initialize Tools
     ingestor = DataIngestor()
     processor = FeatureProcessor(
-        window_sizes=feat_cfg['window_sizes'],
-        outlier_threshold=feat_cfg['outlier_threshold'],
-        impute_nans=feat_cfg['impute_nans']
+        return_windows=feat_cfg['return_windows'],
+        macd_pairs=[tuple(p) for p in feat_cfg['macd_pairs']],
+        vol_span=feat_cfg['vol_span']
     )
 
     all_assets = []
 
-    # 4. Download and Process
-    if data_cfg['exchange'] == 'databento':
-        print(f"--- Fetching Macro Basket from DataBento ({data_cfg['dataset']}) ---")
-        from datetime import timedelta
-        end_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
-        
-        for symbol in data_cfg['symbols']:
-            raw_file = os.path.join(raw_dir, f"{symbol.replace('.', '_')}.parquet")
-            if os.path.exists(raw_file):
-                print(f"  Skipping {symbol} (already exists).")
-                df_raw = pd.read_parquet(raw_file)
-                df_processed = processor.process_features(df_raw)
-                df_processed['symbol'] = symbol
-                all_assets.append(df_processed)
-                continue
+    # 4. Processing Loop
+    symbols_map = data_cfg['symbols']
+    print(f"--- Starting Pipeline for {len(symbols_map)} symbols (Hybrid Mode) ---")
+    
+    # Dates
+    start_date = data_cfg['since']
+    db_start = data_cfg['databento_start']
+    end_date = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
 
-            print(f"  Downloading {symbol}...")
+    for db_symbol, yf_symbol in symbols_map.items():
+        safe_sym = db_symbol.replace('.', '_')
+        raw_file = os.path.join(raw_dir, f"{safe_sym}.parquet")
+        
+        # Determine if we need to fetch data
+        needs_fetch = False
+        df_raw = pd.DataFrame()
+
+        if not os.path.exists(raw_file):
+            needs_fetch = True
+            print(f"  No existing data for {db_symbol}. Starting full download...")
+        else:
+            df_raw = pd.read_parquet(raw_file)
+            last_date = df_raw.index.max()
+            # Ensure both are timezone-aware (UTC) for comparison
+            now_utc = datetime.now(last_date.tz) if last_date.tz else datetime.now()
+            # If data is older than 2 days, update it
+            if last_date < (now_utc - timedelta(days=2)):
+                needs_fetch = True
+                print(f"  Existing data for {db_symbol} ends at {last_date}. Updating...")
+            else:
+                print(f"  Data for {db_symbol} is up to date.")
+
+        if needs_fetch:
             try:
-                df_raw = ingestor.fetch_databento(
-                    symbols=[symbol],
-                    start=data_cfg['since'],
-                    end=end_date,
-                    dataset=data_cfg['dataset'],
-                    schema='ohlcv-1d',
-                    stype_in='continuous'
-                )
-                if df_raw.empty: 
-                    print(f"    Warning: No data for {symbol}")
-                    continue
+                if df_raw.empty:
+                    # Full download (Hybrid)
+                    print(f"    Fetching yfinance ({start_date} to {db_start})...")
+                    df_early = ingestor.fetch_yfinance(yf_symbol, start=start_date, end=db_start)
+                    
+                    print(f"    Fetching Databento ({db_start} to {end_date})...")
+                    df_recent = ingestor.fetch_databento(
+                        symbols=[db_symbol],
+                        start=db_start,
+                        end=end_date,
+                        dataset=data_cfg['dataset'],
+                        schema='ohlcv-1d',
+                        stype_in='continuous'
+                    )
+                    df_recent.columns = [c.lower() for c in df_recent.columns]
+                    df_raw = pd.concat([df_early, df_recent])
+                else:
+                    # Incremental update (Databento only for recent)
+                    update_start = (df_raw.index.max() + timedelta(days=1)).strftime('%Y-%m-%dT00:00:00Z')
+                    if update_start < end_date:
+                        print(f"    Fetching Databento update ({update_start} to {end_date})...")
+                        df_new = ingestor.fetch_databento(
+                            symbols=[db_symbol],
+                            start=update_start,
+                            end=end_date,
+                            dataset=data_cfg['dataset'],
+                            schema='ohlcv-1d',
+                            stype_in='continuous'
+                        )
+                        df_new.columns = [c.lower() for c in df_new.columns]
+                        df_raw = pd.concat([df_raw, df_new])
                 
-                # Save Raw
-                raw_file = os.path.join(raw_dir, f"{symbol.replace('.', '_')}.parquet")
+                df_raw = df_raw[~df_raw.index.duplicated(keep='last')].sort_index()
                 df_raw.to_parquet(raw_file)
-                
-                # Process
-                df_processed = processor.process_features(df_raw)
-                df_processed['symbol'] = symbol
-                all_assets.append(df_processed)
-                print(f"    Success: {len(df_raw)} rows.")
+                print(f"    Raw data saved/updated ({len(df_raw)} rows).")
             except Exception as e:
-                print(f"    Error fetching {symbol}: {e}")
-    else:
-        for symbol in data_cfg['symbols']:
-            # ... existing CCXT logic ...
-            df_raw = ingestor.fetch_ccxt_ohlcv(
-                exchange_id=data_cfg['exchange'],
-                symbol=symbol,
-                timeframe=data_cfg['timeframe'],
-                since=data_cfg['since']
-            )
-            # ... process and save ...
-            raw_file = os.path.join(raw_dir, f"{symbol.replace('/', '_')}.parquet")
-            df_raw.to_parquet(raw_file)
-            df_processed = processor.process_features(df_raw)
-            df_processed['symbol'] = symbol
-            all_assets.append(df_processed)
+                print(f"    Error updating {db_symbol}: {e}")
+                if df_raw.empty: continue
+
+        # Step B: Process Features
+        print(f"    Processing features...")
+        df_raw['symbol'] = db_symbol # Use DataBento symbol as canonical
+        df_processed = processor.process_features(df_raw, config=config)
+        all_assets.append(df_processed)
 
     # 5. Combine and Save Final Parquet
-    final_df = pd.concat(all_assets)
-    final_df.to_parquet(processed_path)
-    print(f"\nSUCCESS: Combined processed data saved to {processed_path}")
-    print(f"Total rows: {len(final_df)}")
-    print(f"Symbols: {final_df['symbol'].unique()}")
+    if all_assets:
+        final_df = pd.concat(all_assets)
+        final_df.to_parquet(processed_path)
+        print(f"\nSUCCESS: Combined processed data saved to {processed_path}")
+        print(f"Total rows: {len(final_df)}")
+        print(f"Symbols: {final_df['symbol'].unique()}")
+    else:
+        print("\nERROR: No assets processed.")
 
 if __name__ == "__main__":
     main()

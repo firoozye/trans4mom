@@ -77,22 +77,24 @@ def main():
     symbols = df['symbol'].unique()
     num_assets = len(symbols)
     print(f"Detected {num_assets} symbols for visualization.")
-    feat_cols = [f'macd_{w}' for w in [10, 21, 63, 126, 252]]
-    
-    model = EnsembleMomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=32, num_heads=4, output_dim=num_assets)
-    model.load_state_dict(torch.load('weights/model_macro_ensemble_latest.pt', map_location='cpu'))
+    feat_cols = [c for c in df.columns if c.startswith('ret_') or c.startswith('macd_')]
+
+    model = EnsembleMomentumTransformer(input_dim=len(feat_cols), num_vars=num_assets, hidden_dim=64, num_heads=4, output_dim=num_assets, num_static_vars=5)
+    model.load_state_dict(torch.load('weights/model_ensemble_seed_0.pt', map_location='cpu'))
     
     # 2. Re-run small inference for visuals
-    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['returns', 'spread'])
+    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['returns', 'spread', 'asset_id'])
     pivoted = pivoted.sort_index().ffill().bfill()
     
     x_list = [pivoted[f].values for f in feat_cols]
     x_vals = np.stack(x_list, axis=-1)
+    aids = pivoted['asset_id'].values[0, :]
     
-    seq_len = 64
+    seq_len = 252
     # Just take the last 500 days for clear attention visuals
     sample_x = x_vals[-seq_len:]
     sample_tensor = torch.tensor(sample_x, dtype=torch.float32).unsqueeze(0)
+    aid_tensor = torch.tensor(aids, dtype=torch.long).unsqueeze(0)
     
     # Full inference for heatmap
     windows = []
@@ -109,8 +111,9 @@ def main():
         full_x = torch.tensor(np.array(windows), dtype=torch.float32)
         all_pos = []
         for b in range(0, len(full_x), 128):
-            out = model(full_x[b:b+128])
-            all_pos.append(out[:, -1, :].numpy())
+            batch_aid = aid_tensor.expand(min(128, full_x.size(0)-b), -1).to(full_x.device)
+            out = model(full_x[b:b+128], asset_id=batch_aid)
+            all_pos.append(out[:, -1, :].cpu().numpy())
         positions = np.concatenate(all_pos)
 
     # 3. Generate Visuals

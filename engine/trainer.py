@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 from torch.nn.parallel import DistributedDataParallel as DDP
-from models.architecture import MomentumTransformer
+from models.architecture import EnsembleMomentumTransformer
 from engine.loss import SharpeLoss
 from tqdm import tqdm
 from typing import Optional, Dict
@@ -99,7 +99,7 @@ def run_training_job(
         is_dist = False
 
     # 2. Build Model
-    model = MomentumTransformer(
+    model = EnsembleMomentumTransformer(
         input_dim=hparams['input_dim'],
         num_vars=hparams['num_vars'],
         hidden_dim=hparams['hidden_dim'],

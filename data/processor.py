@@ -1,109 +1,117 @@
 import pandas as pd
 import numpy as np
-from typing import List, Union
+from typing import List, Optional
 
 class FeatureProcessor:
     """
-    Feature Engineering for Momentum Transformer.
-    Includes Vol-scaling and Multi-scale Momentum features.
+    Academic-grade feature processor aligned with Wood et al. (2022).
+    Implements 60-day EWMA volatility scaling and multi-scale MACD crossovers.
     """
+    def __init__(
+        self, 
+        return_windows: List[int] = [1, 21, 63, 126, 252],
+        macd_pairs: List[tuple] = [(8, 24), (16, 48), (32, 96)],
+        vol_span: int = 60
+    ):
+        self.return_windows = return_windows
+        self.macd_pairs = macd_pairs
+        self.vol_span = vol_span
 
-    def __init__(self, window_sizes: List[int] = [10, 21, 63, 126, 252], 
-                 outlier_threshold: float = 5.0, 
-                 impute_nans: bool = True):
-        self.window_sizes = window_sizes
-        self.outlier_threshold = outlier_threshold
-        self.impute_nans = impute_nans
+    def compute_volatility(self, df: pd.DataFrame) -> pd.DataFrame:
+        """60-day EWMA volatility as per Lim et al. (2019). Lagged by 1 for ex-ante."""
+        # Shift(1) is critical to ensure no lookahead bias in volatility estimation
+        df['sigma_d'] = df['returns'].ewm(span=self.vol_span).std().shift(1)
+        return df
 
-    def clean_outliers(self, df: pd.DataFrame, col: str = 'returns') -> pd.DataFrame:
-        """
-        Identify and clip outliers based on a Z-score threshold.
-        """
-        if col not in df.columns:
-            return df
+    def compute_normalized_returns(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Returns scaled by vol and sqrt(k) for multi-scale stationarity."""
+        for k in self.return_windows:
+            # Cumulative log returns over window k
+            roll_ret = df['returns'].rolling(window=k).sum()
+            df[f'ret_{k}'] = roll_ret / (df['sigma_d'] * np.sqrt(k) + 1e-9)
+        return df
+
+    def compute_macd_signals(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Volatility-normalized EWMA crossovers."""
+        for S, L in self.macd_pairs:
+            ema_s = df['close'].ewm(span=S).mean()
+            ema_l = df['close'].ewm(span=L).mean()
+            macd = ema_s - ema_l
+            # Normalize by daily vol to ensure scale-invariance
+            df[f'macd_{S}_{L}'] = macd / (df['sigma_d'] * df['close'] + 1e-9)
+        return df
+
+    # --- OLD CODE (Commented out per instructions) ---
+    # def process_features(self, df: pd.DataFrame) -> pd.DataFrame:
+    #     df = df.sort_index()
+    #     df['returns'] = np.log(df['close'] / df['close'].shift(1))
+    #     
+    #     # Categorical mapping for Static VSN Context
+    #     asset_map = {
+    #         'ES.c.0': 0, 'NQ.c.0': 0, 'RTY.c.0': 0,
+    #         'ZT.c.0': 1, 'ZF.c.0': 1, 'ZN.c.0': 1, 'ZB.c.0': 1,
+    #         'CL.c.0': 2, 'NG.c.0': 2, 'GC.c.0': 2, 'SI.c.0': 2, 'HG.c.0': 2,
+    #         '6E.c.0': 3, '6J.c.0': 3, '6B.c.0': 3
+    #     }
+    #     symbol = df['symbol'].iloc[0] if 'symbol' in df.columns else None
+    #     df['asset_id'] = asset_map.get(symbol, 4) # Default to 4 if unknown
+    #     
+    #     df = self.compute_volatility(df)
+    #     df = self.compute_normalized_returns(df)
+    #     df = self.compute_macd_signals(df)
+    #     
+    #     # Volatility target scaling for the target returns (y)
+    #     # We target 15% annualised vol
+    #     sigma_tgt = 0.15 / np.sqrt(252)
+    #     df['scaled_returns'] = df['returns'] * (sigma_tgt / (df['sigma_d'] + 1e-9))
+    #     
+    #     # Simple bid-ask spread estimation
+    #     mid = (df['high'] + df['low']) / 2.0
+    #     df['spread'] = np.abs(df['close'] - mid) / (mid + 1e-9)
+    #     
+    #     return df.dropna()
+
+    def process_features(self, df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:
+        df = df.sort_index()
+        df['returns'] = np.log(df['close'] / df['close'].shift(1))
         
-        # Calculate Z-score for returns
-        z_scores = (df[col] - df[col].mean()) / df[col].std()
+        # 1. Asset ID Mapping from Config
+        symbol = df['symbol'].iloc[0] if 'symbol' in df.columns else "UNKNOWN"
+        asset_id = 4 # Default category
         
-        # Clip outliers to threshold
-        df[col] = df[col].clip(
-            lower=df[col].mean() - self.outlier_threshold * df[col].std(),
-            upper=df[col].mean() + self.outlier_threshold * df[col].std()
-        )
-        return df
-
-    def handle_nans(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Handle missing values via imputation or removal.
-        """
-        if self.impute_nans:
-            # Forward fill followed by backward fill
-            df = df.ffill().bfill()
-        else:
-            # Remove all rows with any NaNs
-            df = df.dropna()
-        return df
-
-    def compute_returns(self, df: pd.DataFrame, col: str = 'close') -> pd.DataFrame:
-        """Compute daily log returns."""
-        df['returns'] = np.log(df[col] / df[col].shift(1))
-        return df
-
-    def compute_vol_scaling(self, df: pd.DataFrame, window: int = 22) -> pd.DataFrame:
-        """
-        Compute rolling 22-day standard deviation and scale returns.
-        Scaled Return = r_t / (sigma_t * sqrt(window))
-        """
-        # Daily rolling volatility
-        df['sigma_d'] = df['returns'].rolling(window=window).std()
+        if config and 'asset_map' in config:
+            for idx, (category, syms) in enumerate(config['asset_map'].items()):
+                if symbol in syms:
+                    asset_id = idx
+                    break
+        df['asset_id'] = asset_id
         
-        # Scale to unit annualised volatility
-        df['scaled_returns'] = df['returns'] / (df['sigma_d'] * np.sqrt(window))
-        return df
+        # 2. Volatility and Multi-scale Returns
+        df = self.compute_volatility(df)
+        
+        # Outlier cleaning for robust training (especially with hybrid data)
+        if config and config.get('features', {}).get('clean_outliers', False):
+            thresh = config['features'].get('outlier_threshold', 5.0)
+            df['returns'] = df['returns'].clip(lower=-thresh*df['sigma_d'], upper=thresh*df['sigma_d'])
 
-    def compute_macd_signals(self, df: pd.DataFrame, col: str = 'close') -> pd.DataFrame:
-        """
-        Compute MACD-style trend signals at multiple lookback windows.
-        Calculates the ratio of two moving averages.
-        """
-        for window in self.window_sizes:
-            # Simple MACD-like signal: Price relative to rolling average
-            df[f'macd_{window}'] = df[col] / df[col].rolling(window=window).mean() - 1
-            
-        return df
-
-    def compute_spread(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Estimate bid-ask spread using Abdi & Ranaldo (2017) HLC method.
-        """
-        if all(c in df.columns for c in ['high', 'low', 'close']):
-            mid = (df['high'] + df['low']) / 2.0
-            term = (df['close'] - mid) * (df['close'] - mid.shift(1))
-            spread_raw = 2 * np.sqrt(term.clip(lower=0))
-            df['spread'] = spread_raw / mid
-            df['spread'] = df['spread'].fillna(df['spread'].mean())
-        else:
-            df['spread'] = 0.0
-        return df
-
-    def process_features(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Complete feature processing pipeline."""
-        df = self.compute_returns(df)
-        df = self.clean_outliers(df)
-        df = self.compute_vol_scaling(df)
+        df = self.compute_normalized_returns(df)
         df = self.compute_macd_signals(df)
-        df = self.compute_spread(df)
-        df = self.handle_nans(df)
         
-        return df
+        # 3. Volatility Target Scaling (Target: 15% Annualized)
+        sigma_tgt = 0.15 / np.sqrt(252)
+        df['scaled_returns'] = df['returns'] * (sigma_tgt / (df['sigma_d'] + 1e-9))
+        
+        # 4. Feature Set and Cleanup
+        # Simple bid-ask spread estimation from High-Low range
+        mid = (df['high'] + df['low']) / 2.0
+        df['spread'] = np.abs(df['close'] - mid) / (mid + 1e-9)
+        
+        # Impute NaNs if requested (Forward fill then zero)
+        if config and config.get('features', {}).get('impute_nans', False):
+            df = df.ffill().fillna(0)
+            return df
+            
+        return df.dropna()
 
 if __name__ == "__main__":
-    # Example toy data
-    dates = pd.date_range(start='2020-01-01', periods=500, freq='D')
-    prices = np.exp(np.cumsum(np.random.normal(0, 0.01, size=500)))
-    toy_df = pd.DataFrame({'close': prices}, index=dates)
-    
-    processor = FeatureProcessor()
-    processed_df = processor.process_features(toy_df)
-    print("Features processed.")
-    print(processed_df.tail())
+    print("FeatureProcessor configured for paper-aligned reproduction.")

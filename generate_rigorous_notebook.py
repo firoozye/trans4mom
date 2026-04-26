@@ -1,0 +1,118 @@
+import json
+
+notebook = {
+    "cells": [
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "# Architectural Evolution: From Recurrence to Attention\n",
+                "### A Comparative Analysis of Neural Architectures in Time-Series Momentum\n",
+                "\n",
+                "This analysis critically evaluates the transition from Long Short-Term Memory (LSTM) networks, as formalised by Lim, Zohren, and Roberts (2019) in *Deep Momentum Networks*, to the attention-based *Momentum Transformer* proposed by Wood et al. (2022).\n",
+                "\n",
+                "The objective is to delineate the structural limitations of recurrent topologies in high-noise financial time-series and to examine how self-attention mechanisms resolve the inherent 'memory bottleneck'."
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 1. Deep Momentum Networks (Lim, Zohren, Roberts 2019)\n",
+                "\n",
+                "Prior to 2019, momentum strategies relied on static lookbacks (e.g., 12-month returns). Lim et al. introduced an end-to-end deep learning framework that directly optimised the Sharpe ratio. Their primary architecture was the LSTM.\n",
+                "\n",
+                "### The Structural Bottleneck:\n",
+                "While LSTMs theoretically resolve the vanishing gradient problem in standard RNNs via a cell state ($c_t$), they remain sequential. The entire history of the lookback window $\\tau$ must be compressed into the hidden state $h_t$.\n",
+                "\n",
+                "**Extract from Lim et al. (2019) demonstrating position sizing:**\n",
+                "*(See Figure below for the mapping of trend estimates to position bounds)*"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "![Lim et al. Position Sizing](figures/lim_exhibit_1_sizing.png)"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 2. The Information Compression Problem\n",
+                "\n",
+                "In a momentum context, particularly when evaluating a 252-day lookback, the sequential nature of LSTMs introduces two primary failure modes:\n",
+                "\n",
+                "1. **Information Decay:** The gradient must backpropagate through $\\tau$ recurrent steps (BPTT). Even with forget gates, the Jacobian matrix product limits the effective capture of dependencies beyond 50--100 time steps.\n",
+                "2. **State Saturation:** In highly non-stationary regimes, the latent representation $h_t$ becomes overly sensitive to recent variance, effectively 'forgetting' structural macro breakpoints."
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 3. The Momentum Transformer (Wood et al. 2022)\n",
+                "\n",
+                "The Momentum Transformer mitigates these issues by discarding recurrent connections entirely in favour of a Decoder-Only Temporal Fusion Transformer (TFT) architecture.\n",
+                "\n",
+                "### Exhibit 1: Recurrent vs. Attention Mechanisms\n",
+                "*(Extracted from Wood et al., 2022)*"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "![Wood et al. Exhibit 1](figures/wood_exhibit_1_lstm_vs_attn.png)"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "### Structural Advantages:\n",
+                "\n",
+                "1. **$O(1)$ Path Length:** The self-attention mechanism connects the current time step (Query) directly to all previous time steps (Keys) independently of their temporal distance. The gradient path is constant, eliminating the vanishing gradient problem for long (e.g., 252-day) dependencies.\n",
+                "2. **Variable Selection Network (VSN):** Rather than blindly feeding all MACD indicators, the VSN learns to assign a softmax probability distribution over the input features, actively gating out noise."
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "## 4. Resolving Out-of-Sample Decay\n",
+                "\n",
+                "A significant challenge in deep momentum is the severe degradation of Out-of-Sample (OOS) performance. Financial time-series exhibit low Signal-to-Noise Ratios (SNR), making high-capacity models prone to overfitting the training distribution.\n",
+                "\n",
+                "### Regularization Techniques Employed by Wood et al.:\n",
+                "\n",
+                "1. **High Dropout:** A dropout rate of $0.3$ to $0.4$ is requisite. (Our earlier tests at $0.1$ were insufficient for a 64-dimensional hidden layer).\n",
+                "2. **Capacity Restriction:** The `hidden_dim` must be carefully bounded. Wood et al. benchmarked dimensions from $16$ to $160$; $64$ is a standard median for medium-sized portfolios.\n",
+                "3. **Multi-Seed Ensembling:** Due to the non-convex optimization surface, the standard deviation of performance across different random initializations is high. Wood et al. aggregate (ensemble) the signal outputs across multiple seeds. This is not the 'guided ensemble' (modulating a prior) discussed earlier, but an architectural ensemble over initializations to derive a stable mean prediction.\n",
+                "\n",
+                "### Architecture Schematic\n",
+                "*(Exhibit 2 from Wood et al., 2022)*"
+            ]
+        },
+        {
+            "cell_type": "markdown",
+            "metadata": {},
+            "source": [
+                "![Wood et al. Exhibit 2](figures/wood_exhibit_2_architecture.png)"
+            ]
+        }
+    ],
+    "metadata": {
+        "kernelspec": {
+            "display_name": "Python 3",
+            "language": "python",
+            "name": "python3"
+        }
+    },
+    "nbformat": 4,
+    "nbformat_minor": 4
+}
+
+with open('research/Architectural_Evolution_Momentum.ipynb', 'w') as f:
+    json.dump(notebook, f, indent=2)

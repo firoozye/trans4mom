@@ -1,0 +1,78 @@
+# Momentum Transformer Project Configuration
+# yfinance Era (1990-Present)
+
+# Data Settings
+data:
+  exchange: "yfinance"
+  since: "1990-01-01T00:00:00Z"
+  timeframe: "1d"
+  # New paths to avoid overwriting existing data
+  raw_path: "data/raw/futures_1990/" 
+  processed_path: "data/processed/futures_1990_present.parquet"
+  
+  # yfinance symbols
+  symbols:
+    # Equities
+    "ES=F": "S&P 500"
+    "NQ=F": "Nasdaq 100"
+    "RTY=F": "Russell 2000"
+    "YM=F": "Dow 30"
+    # Fixed Income
+    "ZT=F": "2yr Note"
+    "ZF=F": "5yr Note"
+    "ZN=F": "10yr Note"
+    "ZB=F": "30yr Bond"
+    # Energy
+    "CL=F": "Crude Oil"
+    "NG=F": "Natural Gas"
+    "RB=F": "Gasoline"
+    "HO=F": "Heating Oil"
+    # Metals
+    "GC=F": "Gold"
+    "SI=F": "Silver"
+    "HG=F": "Copper"
+    # Agriculture
+    "ZC=F": "Corn"
+    "ZW=F": "Wheat"
+    "ZS=F": "Soybeans"
+    # FX
+    "6E=F": "EUR/USD"
+    "6J=F": "JPY/USD"
+    "6B=F": "GBP/USD"
+    "6A=F": "AUD/USD"
+    "6C=F": "CAD/USD"
+    "6S=F": "CHF/USD"
+
+# Asset Classification for Static Context (Mapping yfinance symbols)
+asset_map:
+  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F"]
+  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F"]
+  ENERGY: ["CL=F", "NG=F", "RB=F", "HO=F"]
+  METALS: ["GC=F", "SI=F", "HG=F"]
+  AGRICULTURE: ["ZC=F", "ZW=F", "ZS=F"]
+  FX: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F"]
+
+# Feature Engineering
+features:
+  return_windows: [1, 21, 63, 126, 252]
+  macd_pairs: [[8, 24], [16, 48], [32, 96]]
+  vol_span: 60
+  clean_outliers: true
+  outlier_threshold: 5.0
+
+# Model Hyperparameters
+model:
+  hidden_dim: 128
+  num_heads: 4
+  num_layers: 1
+  dropout: 0.3
+
+# Training Hyperparameters
+training:
+  epochs: 200
+  batch_size: 128
+  lr: 0.0001
+  trans_cost: 0.002
+  smoothing_beta: 0.2
+  annualization: 252.0
+  seed: 42

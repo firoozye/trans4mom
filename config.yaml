@@ -1,55 +1,65 @@
 # Momentum Transformer Project Configuration
+# Full-Scale Paper Reproduction (Wood et al. 2022)
 
 # Data Settings
 data:
   exchange: "databento"
   dataset: "GLBX.MDP3"
+  databento_start: "2017-01-01T00:00:00Z"
   symbols: 
-    - "ES.c.0"
-    - "NQ.c.0"
-    - "RTY.c.0"
-    - "ZT.c.0"
-    - "ZF.c.0"
-    - "ZN.c.0"
-    - "ZB.c.0"
-    - "CL.c.0"
-    - "NG.c.0"
-    - "GC.c.0"
-    - "SI.c.0"
-    - "HG.c.0"
-    - "6E.c.0"
-    - "6J.c.0"
-    - "6B.c.0"
+    "ES.c.0": "ES=F"
+    "NQ.c.0": "NQ=F"
+    "RTY.c.0": "RTY=F"
+    "YM.c.0": "YM=F"
+    "ZT.c.0": "ZT=F"
+    "ZF.c.0": "ZF=F"
+    "ZN.c.0": "ZN=F"
+    "ZB.c.0": "ZB=F"
+    "CL.c.0": "CL=F"
+    "NG.c.0": "NG=F"
+    "GC.c.0": "GC=F"
+    "SI.c.0": "SI=F"
+    "HG.c.0": "HG=F"
+    "6E.c.0": "6E=F"
+    "6J.c.0": "6J=F"
+    "6B.c.0": "6B=F"
   timeframe: "1d"
-  since: "2018-01-01T00:00:00Z"
+  since: "2000-01-01T00:00:00Z"
   raw_path: "data/raw/futures/"
-  processed_path: "data/processed/futures_1d.parquet"
+  processed_path: "data/processed/futures_full_scale.parquet"
+
+# Asset Class Mapping for Static Context
+asset_map:
+  equity: ["ES.c.0", "NQ.c.0", "RTY.c.0", "YM.c.0", "EMD.c.0", "NKD.c.0"]
+  fixed_income: ["ZT.c.0", "ZF.c.0", "ZN.c.0", "ZB.c.0", "TN.c.0", "UB.c.0", "GE.c.0", "SR3.c.0", "ZQ.c.0"]
+  commodity: ["CL.c.0", "NG.c.0", "RB.c.0", "HO.c.0", "GC.c.0", "SI.c.0", "HG.c.0", "PL.c.0", "PA.c.0", "ZC.c.0", "ZW.c.0", "ZS.c.0", "ZL.c.0", "ZM.c.0", "LE.c.0", "HE.c.0", "GF.c.0", "KE.c.0", "ZO.c.0"]
+  fx: ["6E.c.0", "6J.c.0", "6B.c.0", "6A.c.0", "6C.c.0", "6S.c.0", "6N.c.0", "6M.c.0", "6Z.c.0", "6L.c.0"]
+  crypto: ["BTC.c.0", "ETH.c.0"]
 
 # Feature Engineering
 features:
-  window_sizes: [10, 21, 63, 126, 252]
-  vol_window: 22
+  return_windows: [1, 21, 63, 126, 252]
+  macd_pairs: [[8, 24], [16, 48], [32, 96]]
+  vol_span: 60
   clean_outliers: true
-  outlier_threshold: 5.0  # Z-score threshold
-  impute_nans: true      # If true, forward fill + backward fill. If false, drop.
+  outlier_threshold: 5.0
+  impute_nans: true
 
 # Model Hyperparameters
 model:
-  input_dim: 1
-  num_vars: 5
-  hidden_dim: 64
+  hidden_dim: 160
   num_heads: 4
   num_layers: 1
-  dropout: 0.1
+  dropout: 0.3
 
 # Training Hyperparameters
 training:
-  epochs: 150
-  batch_size: 64
+  epochs: 300
+  batch_size: 128
   lr: 0.0001
-  trans_cost: 0.01
-  smoothing_beta: 1.0
-  annualization: 365.0
+  trans_cost: 0.002
+  smoothing_beta: 0.2
+  annualization: 252.0
   seed: 42
 
 # HPC Settings
