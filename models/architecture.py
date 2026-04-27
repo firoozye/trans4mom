@@ -52,21 +52,24 @@ class EnsembleMomentumTransformer(nn.Module):
 
     def forward(self, x: torch.Tensor, asset_id: Optional[torch.Tensor] = None, return_attention: bool = False) -> torch.Tensor:
         """
-        x: (batch, time, num_assets, num_features)
+        x: (batch, time, num_assets, num_features) OR (batch, time, num_features)
         asset_id: (batch, num_assets) or (batch,) - static context
         """
         # --- 1. Calculate the TSMOM Prior ---
-        tsmom_prior = torch.mean(x, dim=-1) # (B, T, N_assets)
+        # Handle both Cross-Sectional (4D) and Pooled (3D) inputs
+        if x.dim() == 4:
+            tsmom_prior = torch.mean(x, dim=-1) # (B, T, N_assets)
+        else:
+            # Pooled Strategy: x is (B, T, D)
+            # We must keep the dimension to ensure correct broadcasting with alpha (B, T, 1)
+            tsmom_prior = torch.mean(x, dim=-1, keepdim=True) # (B, T, 1)
         
         # --- 2. Static Context ---
         static_context = None
         if asset_id is not None:
-            # We take the embedding of the first asset or mean if multiple. 
-            # In our implementation, we feed assets as 'variables' in VSN.
-            # For simplicity, we use the first asset's ID or broadcast.
-            static_context = self.static_embedding(asset_id) # (B, N_assets, hidden_dim)
+            static_context = self.static_embedding(asset_id) 
             if static_context.dim() == 3:
-                static_context = static_context.mean(dim=1) # (B, hidden_dim)
+                static_context = static_context.mean(dim=1) 
         
         # --- 3. Transformer Feature Extraction ---
         vsn_out = self.vsn(x, context=static_context) # (B, T, hidden_dim)
@@ -83,9 +86,10 @@ class EnsembleMomentumTransformer(nn.Module):
         )
         
         # --- 4. Modulation ---
-        alpha = self.modulation_head(attn_out) # (B, T, N_assets)
+        alpha = self.modulation_head(attn_out) # (B, T, output_dim)
         
         # Final position calculation
+        # Broadcasters correctly now: (B, T, 1) * (B, T, 1) or (B, T, N) * (B, T, N)
         positions = torch.tanh(tsmom_prior * alpha)
         
         if return_attention:

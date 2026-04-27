@@ -106,6 +106,8 @@ def run_training_job(
         num_heads=hparams['num_heads'],
         output_dim=hparams['num_assets']
     )
+    total_params = sum(p.numel() for p in model.parameters())
+    print(f"Model Initialized on CPU. Total Parameters: {total_params:,}")
     
     # 3. Setup Engine
     optimizer = optim.Adam(model.parameters(), lr=hparams['lr'])
@@ -115,6 +117,8 @@ def run_training_job(
         smoothing_beta=hparams.get('smoothing_beta', 0.01),
         bias_beta=hparams.get('bias_beta', 0.01)
     )
+    
+    print(f"Moving model to {device}...")
     trainer = Trainer(model, optimizer, loss_fn, device, is_dist)
     
     # 4. DataLoaders
@@ -123,7 +127,8 @@ def run_training_job(
     else:
         train_set = TensorDataset(train_data, train_returns)
         
-    train_loader = DataLoader(train_set, batch_size=hparams['batch_size'], shuffle=True)
+    # Explicitly disable pin_memory to save driver overhead
+    train_loader = DataLoader(train_set, batch_size=hparams['batch_size'], shuffle=True, pin_memory=False)
     
     # 5. Training Loop
     best_val_loss = float('inf')

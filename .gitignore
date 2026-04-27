@@ -1,9 +1,10 @@
 # Data & Weights
 weights/
 outputs/
-*.parquet
 data/raw/
-data/processed/
+data/processed/*
+!data/processed/futures_1990_present.parquet
+*.parquet
 
 # Ignore all markdown files (as requested: no claude plan, no gemini)
 *.md

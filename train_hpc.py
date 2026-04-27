@@ -24,11 +24,9 @@ def get_annualization_factor(timeframe: str) -> float:
 
 def prepare_hpc_data(df, feat_cols, config, seq_len=64):
     """
-    Reshapes data for multi-asset training, similar to train_cross_sectional.py
+    Reshapes data for 'Universal/Pooled' training (Wood et al., 2022).
+    Each asset's sequence is treated as an independent sample in the batch.
     """
-    symbols = df['symbol'].unique()
-    num_assets = len(symbols)
-    
     # 1. Asset ID Mapping (if not already in df)
     if 'asset_id' not in df.columns:
         asset_id_map = {}
@@ -40,27 +38,36 @@ def prepare_hpc_data(df, feat_cols, config, seq_len=64):
 
     # 2. Spread Fallback (if not in df)
     if 'spread' not in df.columns:
-        # Default to a conservative 5bps spread for futures
-        df['spread'] = 0.0005
-    
-    # Pivot to align assets by timestamp
-    pivoted = df.pivot_table(index=df.index, columns='symbol', values=feat_cols + ['scaled_returns', 'spread', 'asset_id'])
-    pivoted = pivoted.sort_index().ffill().bfill()
-    
-    # features: (time, assets, num_features)
-    x_list = [pivoted[f].values for f in feat_cols]
-    x_vals = np.stack(x_list, axis=-1) 
-    y_vals = pivoted['scaled_returns'].values 
-    s_vals = pivoted['spread'].values 
-    aid_vals = pivoted['asset_id'].values # (time, assets)
-    
-    all_x, all_y, all_s, all_aid = [], [], [], []
-    for i in range(len(pivoted) - seq_len):
-        all_x.append(x_vals[i:i+seq_len])
-        all_y.append(y_vals[i:i+seq_len])
-        all_s.append(s_vals[i:i+seq_len])
-        all_aid.append(aid_vals[i:i+seq_len])
+        df['spread'] = 0.0005 # 5bps default fallback
         
+    all_x, all_y, all_s, all_aid = [], [], [], []
+    
+    # Process each asset independently
+    for sym, group in df.groupby('symbol'):
+        group = group.sort_index()
+        group = group.dropna(subset=feat_cols + ['scaled_returns', 'spread'])
+        
+        if len(group) <= seq_len:
+            continue
+            
+        x_vals = group[feat_cols].values
+        y_vals = group[['scaled_returns']].values
+        s_vals = group[['spread']].values
+        aid_vals = group['asset_id'].values
+        
+        # Create sliding windows for this specific asset
+        for i in range(len(group) - seq_len):
+            all_x.append(x_vals[i:i+seq_len])
+            all_y.append(y_vals[i:i+seq_len])
+            all_s.append(s_vals[i:i+seq_len])
+            # Asset ID is static for the sequence, just take the first value
+            all_aid.append(aid_vals[i])
+            
+    # Stack all independent sequences together
+    # Shapes:
+    # X: (Total_Samples, Seq_Len, Num_Features)
+    # Y, S: (Total_Samples, Seq_Len, 1)
+    # AID: (Total_Samples,)
     return (torch.tensor(np.array(all_x), dtype=torch.float32), 
             torch.tensor(np.array(all_y), dtype=torch.float32),
             torch.tensor(np.array(all_s), dtype=torch.float32),
@@ -112,11 +119,11 @@ def main():
     print(f"Using annualization factor: {ann_factor:.2f} for timeframe: {data_cfg['timeframe']}")
 
     hparams = {
-        'input_dim': len(features),
-        'num_vars': num_assets, # Multi-asset cross-sectional dimension
+        'input_dim': 1, # Each variable (MACD, return) is a 1D scalar
+        'num_vars': len(features), # 8 MACD/return signals per asset
         'hidden_dim': model_cfg['hidden_dim'],
         'num_heads': model_cfg['num_heads'],
-        'num_assets': num_assets,
+        'num_assets': 1, # Model outputs a single position sizing value
         'lr': train_cfg['lr'],
         'trans_cost': train_cfg['trans_cost'],
         'annualization': ann_factor,
@@ -126,6 +133,17 @@ def main():
 
     # 5. Launch Training
     print(f"Launching HPC Training from config: {args.config}")
+    
+    # CRITICAL: Ensure tensors are on CPU before passing to trainer
+    # to avoid driver-level OOM during model initialization.
+    x_toy = x_toy.cpu()
+    y_toy = y_toy.cpu()
+    s_toy = s_toy.cpu()
+    
+    import gc
+    gc.collect()
+    torch.cuda.empty_cache()
+    
     run_training_job(x_toy, y_toy, train_spreads=s_toy, hparams=hparams)
 
 if __name__ == "__main__":

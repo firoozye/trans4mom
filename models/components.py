@@ -77,7 +77,7 @@ class GatedResidualNetwork(nn.Module):
 class VariableSelectionNetwork(nn.Module):
     """
     Variable Selection Network (VSN) for feature weighting.
-    Determines which features are most relevant at each timestep.
+    Optimized for memory by sharing the feature GRN across assets.
     """
     def __init__(
         self,
@@ -90,11 +90,9 @@ class VariableSelectionNetwork(nn.Module):
         super().__init__()
         self.num_vars = num_vars
         
-        # Individual GRNs for each feature
-        self.feature_grns = nn.ModuleList([
-            GatedResidualNetwork(input_dim, hidden_dim, hidden_dim, dropout)
-            for _ in range(num_vars)
-        ])
+        # Shared GRN for all features/assets
+        # This drastically reduces parameters and memory for large asset sets
+        self.feature_grn = GatedResidualNetwork(input_dim, hidden_dim, hidden_dim, dropout)
         
         # Global GRN for weighting
         # Flattened features as input
@@ -108,31 +106,33 @@ class VariableSelectionNetwork(nn.Module):
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         # x shape: (batch, time, num_vars, input_dim)
+        num_vars = self.num_vars
         
         if x.dim() == 4:
-            batch, time, num_vars, input_dim = x.shape
+            batch, time, _, input_dim = x.shape
             x_flat = x.view(batch, time, -1)
         else:
             # Fallback for (batch, time, flattened_features)
             x_flat = x
             batch, time, _ = x.shape
-            input_dim = x_flat.shape[-1] // self.num_vars
-            x = x.view(batch, time, self.num_vars, input_dim)
+            input_dim = x_flat.shape[-1] // num_vars
+            x = x.view(batch, time, num_vars, input_dim)
         
-        # Compute weights
+        hidden_dim = self.feature_grn.output_dim
+        
+        # 1. Compute variable importance weights
         weights = self.weight_grn(x_flat, context) # (batch, time, num_vars)
         weights = torch.softmax(weights, dim=-1).unsqueeze(-1) # (batch, time, num_vars, 1)
         
-        # Process individual features
-        processed_features = []
-        for i in range(self.num_vars):
-            # Extract i-th variable: (batch, time, input_dim)
-            var_i = x[:, :, i, :]
-            processed_features.append(self.feature_grns[i](var_i))
-            
-        processed_features = torch.stack(processed_features, dim=2) # (batch, time, num_vars, hidden_dim)
+        # 2. Process all features using the shared GRN
+        # x_all: (batch * time * num_vars, input_dim)
+        x_all = x.reshape(-1, input_dim)
+        processed_all = self.feature_grn(x_all) # (batch * time * num_vars, hidden_dim)
         
-        # Weighted sum of processed features
+        # Reshape back: (batch, time, num_vars, hidden_dim)
+        processed_features = processed_all.view(batch, time, num_vars, hidden_dim)
+        
+        # 3. Weighted sum of processed features
         return (weights * processed_features).sum(dim=2) # (batch, time, hidden_dim)
 
 if __name__ == "__main__":

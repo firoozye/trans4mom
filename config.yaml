@@ -47,7 +47,7 @@ features:
 
 # Model Hyperparameters
 model:
-  hidden_dim: 160
+  hidden_dim: 64
   num_heads: 4
   num_layers: 1
   dropout: 0.3
@@ -55,7 +55,7 @@ model:
 # Training Hyperparameters
 training:
   epochs: 300
-  batch_size: 128
+  batch_size: 64
   lr: 0.0001
   trans_cost: 0.002
   smoothing_beta: 0.2
