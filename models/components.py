@@ -120,12 +120,21 @@ class VariableSelectionNetwork(nn.Module):
         
         hidden_dim = self.feature_grn.output_dim
         
+        # Prepare context for broadcasting (batch, 1, context_dim) if present
+        if context is not None:
+            if context.dim() == 2:
+                context_vsn = context.unsqueeze(1) 
+            else:
+                context_vsn = context
+        else:
+            context_vsn = None
+
         # 1. Compute variable importance weights
-        weights = self.weight_grn(x_flat, context) # (batch, time, num_vars)
+        # weight_grn handles (batch, time, input) + (batch, 1, context) broadcasting
+        weights = self.weight_grn(x_flat, context=context_vsn) # (batch, time, num_vars)
         weights = torch.softmax(weights, dim=-1).unsqueeze(-1) # (batch, time, num_vars, 1)
         
         # 2. Process all features using the shared GRN
-        # x_all: (batch * time * num_vars, input_dim)
         x_all = x.reshape(-1, input_dim)
         processed_all = self.feature_grn(x_all) # (batch * time * num_vars, hidden_dim)
         

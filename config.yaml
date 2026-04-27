@@ -47,9 +47,9 @@ features:
 
 # Model Hyperparameters
 model:
-  hidden_dim: 64
+  hidden_dim: 160
   num_heads: 4
-  num_layers: 1
+  num_layers: 2
   dropout: 0.3
 
 # Training Hyperparameters

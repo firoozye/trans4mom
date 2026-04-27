@@ -41,35 +41,22 @@ class FeatureProcessor:
             df[f'macd_{S}_{L}'] = macd / (df['sigma_d'] * df['close'] + 1e-9)
         return df
 
-    # --- OLD CODE (Commented out per instructions) ---
-    # def process_features(self, df: pd.DataFrame) -> pd.DataFrame:
-    #     df = df.sort_index()
-    #     df['returns'] = np.log(df['close'] / df['close'].shift(1))
-    #     
-    #     # Categorical mapping for Static VSN Context
-    #     asset_map = {
-    #         'ES.c.0': 0, 'NQ.c.0': 0, 'RTY.c.0': 0,
-    #         'ZT.c.0': 1, 'ZF.c.0': 1, 'ZN.c.0': 1, 'ZB.c.0': 1,
-    #         'CL.c.0': 2, 'NG.c.0': 2, 'GC.c.0': 2, 'SI.c.0': 2, 'HG.c.0': 2,
-    #         '6E.c.0': 3, '6J.c.0': 3, '6B.c.0': 3
-    #     }
-    #     symbol = df['symbol'].iloc[0] if 'symbol' in df.columns else None
-    #     df['asset_id'] = asset_map.get(symbol, 4) # Default to 4 if unknown
-    #     
-    #     df = self.compute_volatility(df)
-    #     df = self.compute_normalized_returns(df)
-    #     df = self.compute_macd_signals(df)
-    #     
-    #     # Volatility target scaling for the target returns (y)
-    #     # We target 15% annualised vol
-    #     sigma_tgt = 0.15 / np.sqrt(252)
-    #     df['scaled_returns'] = df['returns'] * (sigma_tgt / (df['sigma_d'] + 1e-9))
-    #     
-    #     # Simple bid-ask spread estimation
-    #     mid = (df['high'] + df['low']) / 2.0
-    #     df['spread'] = np.abs(df['close'] - mid) / (mid + 1e-9)
-    #     
-    #     return df.dropna()
+    def compute_additional_priors(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Add Range and Mean features for broader prior modulation."""
+        # 1. Vol-scaled Range: (High - Low) / Sigma
+        # Normalized by price to keep it scale-invariant
+        df['range_60'] = (df['high'] - df['low']).rolling(60).mean() / (df['sigma_d'] * df['close'] + 1e-9)
+        
+        # 2. Vol-scaled Mean: Rolling average of returns / Sigma
+        df['mean_60'] = df['returns'].rolling(60).mean() / (df['sigma_d'] + 1e-9)
+        
+        # 3. Target Priors (The baseline signals to be modulated)
+        # We use the 252-day return and the average of MACD signals as our two "priors"
+        df['prior_mom'] = df['ret_252']
+        macd_cols = [f'macd_{S}_{L}' for S, L in self.macd_pairs]
+        df['prior_trend'] = df[macd_cols].mean(axis=1)
+        
+        return df
 
     def process_features(self, df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:
         df = df.sort_index()
@@ -89,13 +76,14 @@ class FeatureProcessor:
         # 2. Volatility and Multi-scale Returns
         df = self.compute_volatility(df)
         
-        # Outlier cleaning for robust training (especially with hybrid data)
+        # Outlier cleaning for robust training
         if config and config.get('features', {}).get('clean_outliers', False):
             thresh = config['features'].get('outlier_threshold', 5.0)
             df['returns'] = df['returns'].clip(lower=-thresh*df['sigma_d'], upper=thresh*df['sigma_d'])
 
         df = self.compute_normalized_returns(df)
         df = self.compute_macd_signals(df)
+        df = self.compute_additional_priors(df)
         
         # 3. Volatility Target Scaling (Target: 15% Annualized)
         sigma_tgt = 0.15 / np.sqrt(252)
@@ -106,7 +94,7 @@ class FeatureProcessor:
         mid = (df['high'] + df['low']) / 2.0
         df['spread'] = np.abs(df['close'] - mid) / (mid + 1e-9)
         
-        # Impute NaNs if requested (Forward fill then zero)
+        # Impute NaNs if requested
         if config and config.get('features', {}).get('impute_nans', False):
             df = df.ffill().fillna(0)
             return df
@@ -114,4 +102,4 @@ class FeatureProcessor:
         return df.dropna()
 
 if __name__ == "__main__":
-    print("FeatureProcessor configured for paper-aligned reproduction.")
+    print("FeatureProcessor configured for paper-aligned reproduction with Broader Priors.")
