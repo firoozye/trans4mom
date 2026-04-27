@@ -16,5 +16,342 @@
   {}
 \endgroup
 
+
+\refsection{0}
+  \datalist[entry]{nyt/global//global/global/global}
+    \entry{abdi2017simple}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=1af38c0b9a01ca0229f49fe6b601a76f}{%
+           family={Abdi},
+           familyi={A\bibinitperiod},
+           given={Farshid},
+           giveni={F\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=9f7229a3033bdb98d9e1d931e71b341a}{%
+           family={Ranaldo},
+           familyi={R\bibinitperiod},
+           given={Angelo},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{fullhash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{fullhashraw}{448ce84f892bc62d706a95e3fb215140}
+      \strng{bibnamehash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{authorbibnamehash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{authornamehash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{authorfullhash}{448ce84f892bc62d706a95e3fb215140}
+      \strng{authorfullhashraw}{448ce84f892bc62d706a95e3fb215140}
+      \field{sortinit}{A}
+      \field{sortinithash}{2f401846e2029bad6b3ecc16d50031e2}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Review of Financial Studies}
+      \field{title}{A Simple Estimation of Bid-Ask Spreads from Daily Close, High, and Low Prices}
+      \field{year}{2017}
+      \true{nocite}
+      \keyw{microstructure}
+    \endentry
+    \entry{jegadeesh1993returns}{article}{}{}
+      \name{author}{2}{}{%
+        {{un=0,uniquepart=base,hash=425b7ee57b586395fc3a1bec6511c1c8}{%
+           family={Jegadeesh},
+           familyi={J\bibinitperiod},
+           given={Narasimhan},
+           giveni={N\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=b04b73173bde12f6affb3df7b9d475c1}{%
+           family={Titman},
+           familyi={T\bibinitperiod},
+           given={Sheridan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{fullhash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{fullhashraw}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{bibnamehash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{authorbibnamehash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{authornamehash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{authorfullhash}{68b842eefb0fe3530a0311863c2ed17f}
+      \strng{authorfullhashraw}{68b842eefb0fe3530a0311863c2ed17f}
+      \field{sortinit}{J}
+      \field{sortinithash}{b2f54a9081ace9966a7cb9413811edb4}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Finance}
+      \field{number}{1}
+      \field{title}{Returns to Buying Winners and Selling Losers: Implications for Stock Market Efficiency}
+      \field{volume}{48}
+      \field{year}{1993}
+      \true{nocite}
+      \field{pages}{65\bibrangedash 91}
+      \range{pages}{27}
+      \keyw{foundational}
+    \endentry
+    \entry{lemperiere2014two}{article}{}{}
+      \name{author}{5}{}{%
+        {{un=0,uniquepart=base,hash=d9fe179b8c5ce9653c668902d6719c11}{%
+           family={Lempérière},
+           familyi={L\bibinitperiod},
+           given={Yves},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=df5d23888e6fa3c469b18ecb5f1ce54f}{%
+           family={Deremble},
+           familyi={D\bibinitperiod},
+           given={Cyril},
+           giveni={C\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=362b0b8bf91012da1197e0cf26c6b1c8}{%
+           family={Seager},
+           familyi={S\bibinitperiod},
+           given={Philip},
+           giveni={P\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=23600a80255ae4e38e5c6abc4c58e6a3}{%
+           family={Potters},
+           familyi={P\bibinitperiod},
+           given={Marc},
+           giveni={M\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=55f6389369d7164d5dbdb0e2a08c874d}{%
+           family={Bouchaud},
+           familyi={B\bibinitperiod},
+           given={Jean-Philippe},
+           giveni={J\bibinithyphendelim P\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{2378910842c4be651fd835f9dc6dfdf8}
+      \strng{fullhash}{886bc5f4435f1d9841a625b257705f5b}
+      \strng{fullhashraw}{886bc5f4435f1d9841a625b257705f5b}
+      \strng{bibnamehash}{2378910842c4be651fd835f9dc6dfdf8}
+      \strng{authorbibnamehash}{2378910842c4be651fd835f9dc6dfdf8}
+      \strng{authornamehash}{2378910842c4be651fd835f9dc6dfdf8}
+      \strng{authorfullhash}{886bc5f4435f1d9841a625b257705f5b}
+      \strng{authorfullhashraw}{886bc5f4435f1d9841a625b257705f5b}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Investment Strategies}
+      \field{number}{3}
+      \field{title}{Two Centuries of Trend Following}
+      \field{volume}{3}
+      \field{year}{2014}
+      \true{nocite}
+      \field{pages}{41\bibrangedash 61}
+      \range{pages}{21}
+      \keyw{foundational}
+    \endentry
+    \entry{lim2019deep}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=ae79ceb303df628c5461fb3fda3f01e2}{%
+           family={Lim},
+           familyi={L\bibinitperiod},
+           given={Bryan},
+           giveni={B\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7bcfc3a5e6df217d673644bbe887698e}{%
+           family={Zohren},
+           familyi={Z\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=05bb95ccbf018512823b22dffd9503bb}{%
+           family={Roberts},
+           familyi={R\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{fullhash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{fullhashraw}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{bibnamehash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{authorbibnamehash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{authornamehash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{authorfullhash}{a743f1875a55d2d98098b2a3e619e680}
+      \strng{authorfullhashraw}{a743f1875a55d2d98098b2a3e619e680}
+      \field{sortinit}{L}
+      \field{sortinithash}{7c47d417cecb1f4bd38d1825c427a61a}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Financial Data Science}
+      \field{number}{4}
+      \field{title}{Enhancing Time-Series Momentum Strategies Using Deep Neural Networks}
+      \field{volume}{1}
+      \field{year}{2019}
+      \true{nocite}
+      \field{pages}{19\bibrangedash 38}
+      \range{pages}{20}
+      \keyw{transformer}
+    \endentry
+    \entry{moskowitz2012time}{article}{}{}
+      \name{author}{3}{}{%
+        {{un=0,uniquepart=base,hash=d5ea389c5c00164cdcb5d8e3ba0cb909}{%
+           family={Moskowitz},
+           familyi={M\bibinitperiod},
+           given={Tobias\bibnamedelima J},
+           giveni={T\bibinitperiod\bibinitdelim J\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=25a6d67819a25335cbf641c15b7c8bf5}{%
+           family={Hua},
+           familyi={H\bibinitperiod},
+           given={Yao},
+           giveni={Y\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=07123ce41f03a63251aed38e35aa6029}{%
+           family={Pedersen},
+           familyi={P\bibinitperiod},
+           given={Lasse\bibnamedelima Heje},
+           giveni={L\bibinitperiod\bibinitdelim H\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{fullhash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{fullhashraw}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{bibnamehash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{authorbibnamehash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{authornamehash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{authorfullhash}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \strng{authorfullhashraw}{8950fb83055ce29e87fe5a695b4b5a5c}
+      \field{sortinit}{M}
+      \field{sortinithash}{4625c616857f13d17ce56f7d4f97d451}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Financial Economics}
+      \field{number}{2}
+      \field{title}{Time Series Momentum}
+      \field{volume}{104}
+      \field{year}{2012}
+      \true{nocite}
+      \field{pages}{228\bibrangedash 250}
+      \range{pages}{23}
+      \keyw{foundational}
+    \endentry
+    \entry{roll1984measure}{article}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=751bfa7d3d8bacf865d8d98f5afe222b}{%
+           family={Roll},
+           familyi={R\bibinitperiod},
+           given={Richard},
+           giveni={R\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{fullhash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{fullhashraw}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{bibnamehash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{authorbibnamehash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{authornamehash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{authorfullhash}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \strng{authorfullhashraw}{751bfa7d3d8bacf865d8d98f5afe222b}
+      \field{sortinit}{R}
+      \field{sortinithash}{5e1c39a9d46ffb6bebd8f801023a9486}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Finance}
+      \field{number}{4}
+      \field{title}{A Simple Implicit Measure of the Effective Bid-Ask Spread in an Efficient Market}
+      \field{volume}{39}
+      \field{year}{1984}
+      \true{nocite}
+      \field{pages}{1127\bibrangedash 1139}
+      \range{pages}{13}
+      \keyw{microstructure}
+    \endentry
+    \entry{wood2022momentum}{article}{}{}
+      \name{author}{4}{}{%
+        {{un=0,uniquepart=base,hash=1d4ff5d01a3d289d827c32175a98b955}{%
+           family={Wood},
+           familyi={W\bibinitperiod},
+           given={Kieran},
+           giveni={K\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=104417ba380c72dedccfcd9987f696c0}{%
+           family={Geyer-Schulz},
+           familyi={G\bibinithyphendelim S\bibinitperiod},
+           given={Axel},
+           giveni={A\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=7bcfc3a5e6df217d673644bbe887698e}{%
+           family={Zohren},
+           familyi={Z\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+        {{un=0,uniquepart=base,hash=05bb95ccbf018512823b22dffd9503bb}{%
+           family={Roberts},
+           familyi={R\bibinitperiod},
+           given={Stephen},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \strng{namehash}{233c01b63f67a535f12691184a18c72e}
+      \strng{fullhash}{cabc799919cbf0e9aa13de00fa589ce7}
+      \strng{fullhashraw}{cabc799919cbf0e9aa13de00fa589ce7}
+      \strng{bibnamehash}{233c01b63f67a535f12691184a18c72e}
+      \strng{authorbibnamehash}{233c01b63f67a535f12691184a18c72e}
+      \strng{authornamehash}{233c01b63f67a535f12691184a18c72e}
+      \strng{authorfullhash}{cabc799919cbf0e9aa13de00fa589ce7}
+      \strng{authorfullhashraw}{cabc799919cbf0e9aa13de00fa589ce7}
+      \field{sortinit}{W}
+      \field{sortinithash}{4315d78024d0cea9b57a0c6f0e35ed0d}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{journaltitle}{Journal of Financial Data Science}
+      \field{title}{Momentum Transformer: Closing the Gating Gap in Time-Series Momentum}
+      \field{year}{2022}
+      \true{nocite}
+      \keyw{transformer}
+    \endentry
+    \entry{zohren2024deep}{book}{}{}
+      \name{author}{1}{}{%
+        {{un=0,uniquepart=base,hash=7bcfc3a5e6df217d673644bbe887698e}{%
+           family={Zohren},
+           familyi={Z\bibinitperiod},
+           given={Stefan},
+           giveni={S\bibinitperiod},
+           givenun=0}}%
+      }
+      \list{publisher}{1}{%
+        {Oxford University Press}%
+      }
+      \strng{namehash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{fullhash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{fullhashraw}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{bibnamehash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{authorbibnamehash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{authornamehash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{authorfullhash}{7bcfc3a5e6df217d673644bbe887698e}
+      \strng{authorfullhashraw}{7bcfc3a5e6df217d673644bbe887698e}
+      \field{sortinit}{Z}
+      \field{sortinithash}{96892c0b0a36bb8557c40c49813d48b3}
+      \field{extradatescope}{labelyear}
+      \field{labeldatesource}{}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{title}{Deep Learning in Finance}
+      \field{year}{2024}
+      \true{nocite}
+      \keyw{transformer}
+    \endentry
+  \enddatalist
+\endrefsection
 \endinput
 

@@ -30,7 +30,8 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
-*.bbl
+# Keep .bbl to ensure bibliography is portable
+!*.bbl
 *.bcf
 *.blg
 *.run.xml
