@@ -1,12 +1,22 @@
 # Data & Weights
 weights/
 outputs/
-data/raw/
-data/processed/*
-!data/processed/futures_1990_present.parquet
+
+# Ignore all parquet by default
 *.parquet
 
-# Ignore all markdown files (as requested: no claude plan, no gemini)
+# Explicitly allow yfinance/crypto datasets (non-DataBento)
+!data/raw/*.parquet
+!data/raw/futures_1990/
+!data/raw/futures_1990/*.parquet
+!data/processed/futures_1990_present.parquet
+
+# Explicitly keep DataBento data ignored (License restricted)
+data/raw/futures/
+data/raw/futures_v2/
+data/processed/futures_2010_present.parquet
+
+# Ignore all markdown files
 *.md
 
 # Explicitly include research images

@@ -1,0 +1,4 @@
+data/raw/*.parquet filter=lfs diff=lfs merge=lfs -text
+ filter=lfs diff=lfs merge=lfs -text
+data/raw/futures_1990/*.parquet filter=lfs diff=lfs merge=lfs -text
+data/processed/futures_1990_present.parquet filter=lfs diff=lfs merge=lfs -text
