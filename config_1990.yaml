@@ -10,47 +10,75 @@ data:
   raw_path: "data/raw/futures_1990/" 
   processed_path: "data/processed/futures_1990_present.parquet"
   
-  # yfinance symbols
+  # Expanded yfinance symbols (50+ assets)
   symbols:
-    # Equities
+    # Equities (13)
     "ES=F": "S&P 500"
     "NQ=F": "Nasdaq 100"
     "RTY=F": "Russell 2000"
     "YM=F": "Dow 30"
-    # Fixed Income
+    "ER2=F": "Russell 2000 Mini"
+    "DX=F": "US Dollar Index"
+    "^N225": "Nikkei 225"
+    "^FTSE": "FTSE 100"
+    "^GDAXI": "DAX Performance Index"
+    "^FCHI": "CAC 40"
+    "^HSI": "Hang Seng Index"
+    "^AXJO": "S&P/ASX 200"
+    "^SSMI": "SMI PR"
+    # Fixed Income (8)
     "ZT=F": "2yr Note"
     "ZF=F": "5yr Note"
     "ZN=F": "10yr Note"
     "ZB=F": "30yr Bond"
-    # Energy
+    "FGBL=F": "Euro Bund"
+    "FGBM=F": "Euro Bobl"
+    "FGBS=F": "Euro Schatz"
+    "TWE=F": "Ultra 10yr Note"
+    # Energy (6)
     "CL=F": "Crude Oil"
     "NG=F": "Natural Gas"
     "RB=F": "Gasoline"
     "HO=F": "Heating Oil"
-    # Metals
+    "BZ=F": "Brent Crude"
+    "QM=F": "E-mini Crude"
+    # Metals (5)
     "GC=F": "Gold"
     "SI=F": "Silver"
     "HG=F": "Copper"
-    # Agriculture
+    "PL=F": "Platinum"
+    "PA=F": "Palladium"
+    # Agriculture (11)
     "ZC=F": "Corn"
     "ZW=F": "Wheat"
     "ZS=F": "Soybeans"
-    # FX
+    "CC=F": "Cocoa"
+    "KC=F": "Coffee"
+    "CT=F": "Cotton"
+    "SB=F": "Sugar"
+    "OJ=F": "Orange Juice"
+    "LE=F": "Live Cattle"
+    "GF=F": "Feeder Cattle"
+    "HE=F": "Lean Hogs"
+    # FX (9)
     "6E=F": "EUR/USD"
     "6J=F": "JPY/USD"
     "6B=F": "GBP/USD"
     "6A=F": "AUD/USD"
     "6C=F": "CAD/USD"
     "6S=F": "CHF/USD"
+    "6N=F": "NZD/USD"
+    "6M=F": "MXN/USD"
+    "6L=F": "BRL/USD"
 
 # Asset Classification for Static Context (Mapping yfinance symbols)
 asset_map:
-  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F"]
-  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F"]
-  ENERGY: ["CL=F", "NG=F", "RB=F", "HO=F"]
-  METALS: ["GC=F", "SI=F", "HG=F"]
-  AGRICULTURE: ["ZC=F", "ZW=F", "ZS=F"]
-  FX: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F"]
+  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F", "ER2=F", "DX=F", "^N225", "^FTSE", "^GDAXI", "^FCHI", "^HSI", "^AXJO", "^SSMI"]
+  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F", "FGBL=F", "FGBM=F", "FGBS=F", "TWE=F"]
+  ENERGY: ["CL=F", "NG=F", "RB=F", "HO=F", "BZ=F", "QM=F"]
+  METALS: ["GC=F", "SI=F", "HG=F", "PL=F", "PA=F"]
+  AGRICULTURE: ["ZC=F", "ZW=F", "ZS=F", "CC=F", "KC=F", "CT=F", "SB=F", "OJ=F", "LE=F", "GF=F", "HE=F"]
+  FX: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F", "6N=F", "6M=F", "6L=F"]
 
 # Feature Engineering
 features:
@@ -62,17 +90,18 @@ features:
 
 # Model Hyperparameters
 model:
-  hidden_dim: 128
+  hidden_dim: 160
   num_heads: 4
-  num_layers: 1
+  num_layers: 2
   dropout: 0.3
+  seq_len: 252
 
 # Training Hyperparameters
 training:
-  epochs: 200
-  batch_size: 128
+  epochs: 300
+  batch_size: 64
   lr: 0.0001
-  trans_cost: 0.002
+  trans_cost: 0.0001
   smoothing_beta: 0.2
   annualization: 252.0
   seed: 42

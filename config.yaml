@@ -1,40 +1,83 @@
-# Momentum Transformer Project Configuration
-# Full-Scale Paper Reproduction (Wood et al. 2022)
+# Momentum Transformer Project Configuration (HPC Master Config)
+# Upgraded for 46 Assets & 252-day Sequences
 
 # Data Settings
 data:
-  exchange: "databento"
-  dataset: "GLBX.MDP3"
-  databento_start: "2017-01-01T00:00:00Z"
-  symbols: 
-    "ES.c.0": "ES=F"
-    "NQ.c.0": "NQ=F"
-    "RTY.c.0": "RTY=F"
-    "YM.c.0": "YM=F"
-    "ZT.c.0": "ZT=F"
-    "ZF.c.0": "ZF=F"
-    "ZN.c.0": "ZN=F"
-    "ZB.c.0": "ZB=F"
-    "CL.c.0": "CL=F"
-    "NG.c.0": "NG=F"
-    "GC.c.0": "GC=F"
-    "SI.c.0": "SI=F"
-    "HG.c.0": "HG=F"
-    "6E.c.0": "6E=F"
-    "6J.c.0": "6J=F"
-    "6B.c.0": "6B=F"
-  timeframe: "1d"
+  exchange: "yfinance"
   since: "1990-01-01T00:00:00Z"
-  raw_path: "data/raw/futures_1990/"
+  timeframe: "1d"
+  raw_path: "data/raw/futures_1990/" 
   processed_path: "data/processed/futures_1990_present.parquet"
+  
+  # yfinance symbols (50+ assets)
+  symbols:
+    # Equities (13)
+    "ES=F": "S&P 500"
+    "NQ=F": "Nasdaq 100"
+    "RTY=F": "Russell 2000"
+    "YM=F": "Dow 30"
+    "ER2=F": "Russell 2000 Mini"
+    "DX=F": "US Dollar Index"
+    "^N225": "Nikkei 225"
+    "^FTSE": "FTSE 100"
+    "^GDAXI": "DAX Performance Index"
+    "^FCHI": "CAC 40"
+    "^HSI": "Hang Seng Index"
+    "^AXJO": "S&P/ASX 200"
+    "^SSMI": "SMI PR"
+    # Fixed Income (8)
+    "ZT=F": "2yr Note"
+    "ZF=F": "5yr Note"
+    "ZN=F": "10yr Note"
+    "ZB=F": "30yr Bond"
+    "FGBL=F": "Euro Bund"
+    "FGBM=F": "Euro Bobl"
+    "FGBS=F": "Euro Schatz"
+    "TWE=F": "Ultra 10yr Note"
+    # Energy (6)
+    "CL=F": "Crude Oil"
+    "NG=F": "Natural Gas"
+    "RB=F": "Gasoline"
+    "HO=F": "Heating Oil"
+    "BZ=F": "Brent Crude"
+    "QM=F": "E-mini Crude"
+    # Metals (5)
+    "GC=F": "Gold"
+    "SI=F": "Silver"
+    "HG=F": "Copper"
+    "PL=F": "Platinum"
+    "PA=F": "Palladium"
+    # Agriculture (11)
+    "ZC=F": "Corn"
+    "ZW=F": "Wheat"
+    "ZS=F": "Soybeans"
+    "CC=F": "Cocoa"
+    "KC=F": "Coffee"
+    "CT=F": "Cotton"
+    "SB=F": "Sugar"
+    "OJ=F": "Orange Juice"
+    "LE=F": "Live Cattle"
+    "GF=F": "Feeder Cattle"
+    "HE=F": "Lean Hogs"
+    # FX (9)
+    "6E=F": "EUR/USD"
+    "6J=F": "JPY/USD"
+    "6B=F": "GBP/USD"
+    "6A=F": "AUD/USD"
+    "6C=F": "CAD/USD"
+    "6S=F": "CHF/USD"
+    "6N=F": "NZD/USD"
+    "6M=F": "MXN/USD"
+    "6L=F": "BRL/USD"
 
-# Asset Class Mapping for Static Context (Expanded for 24 assets)
+# Asset Classification for Static Context
 asset_map:
-  equity: ["ES=F", "NQ=F", "RTY=F", "YM=F"]
-  fixed_income: ["ZT=F", "ZF=F", "ZN=F", "ZB=F"]
-  commodity: ["CL=F", "NG=F", "RB=F", "HO=F", "GC=F", "SI=F", "HG=F", "ZC=F", "ZW=F", "ZS=F"]
-  fx: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F"]
-  crypto: ["BTC.c.0", "ETH.c.0"]
+  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F", "ER2=F", "DX=F", "^N225", "^FTSE", "^GDAXI", "^FCHI", "^HSI", "^AXJO", "^SSMI"]
+  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F", "FGBL=F", "FGBM=F", "FGBS=F", "TWE=F"]
+  ENERGY: ["CL=F", "NG=F", "RB=F", "HO=F", "BZ=F", "QM=F"]
+  METALS: ["GC=F", "SI=F", "HG=F", "PL=F", "PA=F"]
+  AGRICULTURE: ["ZC=F", "ZW=F", "ZS=F", "CC=F", "KC=F", "CT=F", "SB=F", "OJ=F", "LE=F", "GF=F", "HE=F"]
+  FX: ["6E=F", "6J=F", "6B=F", "6A=F", "6C=F", "6S=F", "6N=F", "6M=F", "6L=F"]
 
 # Feature Engineering
 features:
@@ -51,13 +94,14 @@ model:
   num_heads: 4
   num_layers: 2
   dropout: 0.3
+  seq_len: 252
 
 # Training Hyperparameters
 training:
   epochs: 300
   batch_size: 64
   lr: 0.0001
-  trans_cost: 0.002
+  trans_cost: 0.0001
   smoothing_beta: 0.2
   annualization: 252.0
   seed: 42
