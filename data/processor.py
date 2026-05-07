@@ -42,21 +42,9 @@ class FeatureProcessor:
         return df
 
     def compute_additional_priors(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add Range and Mean features for broader prior modulation. Lagged for ex-ante."""
-        # 1. Vol-scaled Range (Lagged)
-        df['range_60'] = ((df['high'] - df['low']).rolling(60).mean() / (df['sigma_d'] * df['close'] + 1e-9)).shift(1)
-        
-        # 2. Vol-scaled Mean (Lagged)
-        df['mean_60'] = (df['returns'].rolling(60).mean() / (df['sigma_d'] + 1e-9)).shift(1)
-        
-        # 3. Target Priors (Lagged)
-        # prior_mom uses the already lagged ret_252
+        """Add baseline TSMOM signal as the sole prior modulation. Lagged for ex-ante."""
+        # Baseline Prior (TSMOM) = 12-month return (ret_252)
         df['prior_mom'] = df['ret_252']
-        
-        # prior_trend uses the already lagged macd columns
-        macd_cols = [f'macd_{S}_{L}' for S, L in self.macd_pairs]
-        df['prior_trend'] = df[macd_cols].mean(axis=1)
-        
         return df
 
     def process_features(self, df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:
