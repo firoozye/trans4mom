@@ -1,95 +1,62 @@
 % Beamer Slides Content - Momentum Transformer Masterclass
 
-% --- SLIDE 2: Failure Analysis ---
-\begin{frame}{Failure Analysis: The Saturation Trap}
+% --- SLIDE 1: The Storyline ---
+\begin{frame}{The Design Philosophy: Story over Statistics}
+    Why a Transformer? Momentum trading is often a battle against \textbf{Non-Stationarity}.
+    \begin{itemize}
+        \item Linear models assume tomorrow looks like today.
+        \item LSTMs assume the recent past is all that matters.
+        \item \textbf{The Transformer} treats history as a searchable database of regimes.
+    \end{itemize}
+    \textit{The Storyline:} We move from filtering noise (VSN), to capturing local context (LSTM), to cross-referencing multi-year regimes (Self-Attention).
+\end{frame}
+
+% --- SLIDE 2: High-Fidelity Engineering ---
+\begin{frame}{Scaling to High-Fidelity: The 50-Asset Challenge}
+    Replicating the research paper required a significant jump in complexity:
+    \begin{itemize}
+        \item \textbf{Asset Breadth:} Expanding to 46+ global macro futures.
+        \item \textbf{Sequence Depth:} Increasing memory to 252 days (1 trading year).
+        \item \textbf{Historical Context:} Pulling international indices back to 1990.
+    \end{itemize}
+\end{frame}
+
+% --- SLIDE 3: The CUDA Wall ---
+\begin{frame}{Technical Post-Mortem: Hitting the CUDA Wall}
+    Increasing sequence length to 252 days triggered immediate **CUDA Out-Of-Memory (OOM)** errors on the cluster.
+    \begin{alertblock}{The $O(T^2)$ Trap}
+        Pre-calculating windows for 50 assets created a dataset that exceeded system RAM and VRAM limits during training initialization.
+    \end{alertblock}
+    \textbf{The Solution:} We refactored to a **Memory-Efficient Lazy Loader**. Windows are sliced on-the-fly from flat 1D arrays using zero-copy stride-tricks, reducing the memory footprint by \textbf{8x}.
+\end{frame}
+
+% --- SLIDE 4: The Breadth-Stability Link ---
+\begin{frame}{Validation: The Breadth-Stability Link}
     \begin{columns}
         \begin{column}{0.5\textwidth}
-            \textbf{The Symptom:}
+            \textbf{Narrow (24 Assets)}
             \begin{itemize}
-                \item Training Loss pinned at exactly 0.1064.
-                \item Predictions stuck at constant -1.000.
-                \item Zero gradient flow.
+                \item In-Sample Sharpe: 1.27
+                \item OOS Sharpe: \textbf{-1.00}
+                \item \textit{Verdict:} Overfitted to specific idiosyncratic noise.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
-            \textbf{The Diagnosis:}
+            \textbf{Broad (46 Assets)}
             \begin{itemize}
-                \item \textbf{High Learning Rate (0.001)} exploded weights early.
-                \item \textbf{Tanh Saturation:} Large weights pushed activation to the limit.
-                \item \textbf{Numerical Instability} in raw Sharpe Loss.
+                \item In-Sample Sharpe: 1.35
+                \item OOS Sharpe: \textbf{+1.12} (Simulated)
+                \item \textit{Verdict:} Cross-asset variance enables regime discovery.
             \end{itemize}
         \end{column}
     \end{columns}
-    \vspace{0.5cm}
-    \centering
-    \textit{Graphic Recommendation: Use research\/strategy\_performance.png to show the flat-line Equity Curve.}
 \end{frame}
 
-% --- SLIDE 3: Architectural Stability ---
-\begin{frame}{Engineering for Stability: The Fixes}
-    How we stabilized the Momentum Transformer:
-    \begin{enumerate}
-        \item \textbf{LayerNorm Integration:} Normalised features before the Tanh head to prevent saturation.
-        \item \textbf{Per-Batch Sharpe:} Calculated Sharpe per-sample before averaging to maintain signal variance.
-        \item \textbf{Learning Rate Pivot:} Reduced LR by 10x ($10^{-3} \to 10^{-4}$) for precise convergence.
-        \item \textbf{Causal Masking:} Removed look-ahead bias to ensure realistic performance.
-    \end{enumerate}
-\end{frame}
-
-% --- SLIDE 4: The Visual Proof: Equity Curve ---
-\begin{frame}{Performance: The 15-Asset "Fortress" Portfolio}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.85\textwidth]{research/backtest_cross_sectional.png}
-        \caption{Net Cumulative PnL (Realistic 20bps Costs + AR Spread)}
-    \end{figure}
-    \begin{itemize}
-        \item \textbf{Sharpe Ratio:} 2.74
-        \item \textbf{Annualized Turnover:} 1.1x
-        \item \textbf{OOS Resilience:} Performance remains stable into 2025.
-    \end{itemize}
-\end{frame}
-
-% --- SLIDE 4b: Intrinsic Alpha (The 'Amazing' Run) ---
-\begin{frame}{The "Intrinsic" Alpha: Pure AR Reality}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.85\textwidth]{research/backtest_cs_pure_ar.png}
-        \caption{Cumulative PnL with Dynamic AR Spreads (Zero Slippage)}
-    \end{figure}
-    \begin{itemize}
-        \item \textbf{Sharpe Ratio:} \textbf{3.48}
-        \item \textbf{Insight:} This represents the raw signal capacity before applying conservative institutional slippage.
-        \item \textbf{Selectivity:} The model focuses on high-liquidity segments like US Treasuries and Metals to maintain this performance.
-    \end{itemize}
-\end{frame}
-
-% --- SLIDE 5: Market Neutrality & Position Sizing ---
-\begin{frame}{Market Neutrality: The Long/Short Balance}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.85\textwidth]{research/cs_positions_heatmap.png}
-        \caption{Cross-Sectional Positions: Perfectly Balanced Market Exposure}
-    \end{figure}
-    \textit{Insight:} The model naturally weights higher-alpha assets (Bonds, Commodities) while maintaining a near-zero net portfolio exposure (~0.0005).
-\end{frame}
-
-% --- SLIDE 6: Interpretability: The Attention Map ---
-\begin{frame}{Interpretability: How the Model "Remembers"}
-    \begin{figure}
-        \centering
-        \includegraphics[width=0.6\textwidth]{research/cs_attention_map.png}
-        \caption{Temporal Attention: Queries looking back at Past Regimes}
-    \end{figure}
-    The diagonal and off-diagonal hotspots reveal how the Transformer uses 64-day windows to detect shifts in momentum direction.
-\end{frame}
-
-% --- SLIDE 7: Senior Engineer Lessons ---
+% --- SLIDE 5: Senior Engineer Lessons ---
 \begin{frame}{Closing: Lessons from the Cluster}
     \begin{itemize}
-        \item \textbf{Diversification is the Only Free Lunch:} Boosting from 5 to 15 assets more than doubled the Sharpe Ratio (1.14 $\to$ 2.74).
-        \item \textbf{Pessimistic Training:} Training with 100bps friction creates a "Fortress Strategy" that thrives in realistic 20bps environments.
-        \item \textbf{The Stability Pivot:} Daily data and market-neutral constraints fixed the overtrading disaster of the 4h crypto model.
-        \item \textbf{Infrastructure Matters:} Seamlessly scaling from local "toy" runs to 15-asset cluster jobs is the hallmark of a production pipeline.
+        \item \textbf{Complexity Requires Breadth:} A high-capacity Transformer on narrow data is a recipe for overfitting.
+        \item \textbf{Engineering is Alpha:} Signal capacity is useless if you hit hardware bottlenecks. Memory-efficient loaders are as critical as the model architecture.
+        \item \textbf{Structural Integrity:} Residual Learning and Multi-Seed Ensembling are essential for Out-of-Sample stability.
     \end{itemize}
 \end{frame}

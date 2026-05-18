@@ -12,4 +12,4 @@
 #$ -wd /home/firoozye/dev/trans4mom
 
 source /home/firoozye/mome_cluster_env/bin/activate
-PYTHONPATH=. python research/backtest_upgraded_v2.py
+PYTHONPATH=. python research/backtest_upgraded_v2.py --final

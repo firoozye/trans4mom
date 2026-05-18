@@ -72,27 +72,7 @@
 
 \section{Part III: The Momentum Transformer: Structural Innovations}
 
-\begin{frame}{Variable Selection Networks (VSN)}
-    The VSN automates feature selection, assigning importance weights $v$ to each input:
-    \begin{equation}
-        \tilde{x}_t = \sum_{i=1}^m v_t^{(i)} \cdot \tilde{x}_t^{(i)}
-    \end{equation}
-    \begin{itemize}
-        \item Allows the model to dynamically prioritize specific MACD scales or asset classes.
-        \item Effectively filters out uninformative or noisy inputs in low signal-to-noise environments.
-    \end{itemize}
-\end{frame}
-
-\begin{frame}{Residual Learning: Constraining High-Capacity Models}
-    To prevent unconstrained overfitting, we adopt a \textbf{Residual Learning} approach. The Transformer modulates a robust empirical prior:
-    \begin{equation}
-        X_t = \tanh(\alpha_t \cdot \text{Prior}_t)
-    \end{equation}
-    \begin{itemize}
-        \item \textbf{The "Handcuffs" Principle:} A Transformer is a high-capacity learner. By forcing it to scale a known prior, we prevent it from "inventing" trades from noise.
-        \item \textbf{Guided Learning:} The model focuses on the \textit{residual} alpha---the intelligent sizing and timing of a proven trend-following rule.
-    \end{itemize}
-\end{frame}
+\input{docs/dnn_storyline.tex}
 
 \section{Part IV: Empirical Rigor and Robustness}
 

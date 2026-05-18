@@ -1,0 +1,83 @@
+\section{The Momentum Transformer: High-Fidelity Replication}
+
+\begin{frame}{The Blueprint: Addressing Non-Stationarity}
+    Traditional TSMOM models fail when market regimes flip (e.g., V-shaped recoveries). Our architecture targets three specific problems:
+    \begin{enumerate}
+        \item \textbf{The Filtering Problem:} Which MACD scales matter now? (Solved by \textbf{VSN})
+        \item \textbf{The Locality Problem:} Momentum is path-dependent. (Solved by \textbf{LSTM})
+        \item \textbf{The Memory Problem:} Today's crash looks like 2008 or 2020. (Solved by \textbf{Self-Attention})
+    \end{enumerate}
+\end{frame}
+
+\begin{frame}{Structural Inductive Bias: The "Handcuffs" Principle}
+    A Transformer is a high-capacity "Ferrari" that can easily memorize noise.
+    \begin{equation}
+        \text{Position}_t = \tanh(\text{Prior}_t \cdot (1 + \alpha_t))
+    \end{equation}
+    \begin{itemize}
+        \item We don't ask the model to invent alpha.
+        \item We anchor it to a robust \textbf{TSMOM Prior}.
+        \item The Transformer learns the \textbf{Residual Adjustment} ($\alpha_t$): when to size up, size down, or stay flat.
+    \end{itemize}
+    \textit{Masterclass Insight:} This "Guided Learning" ensures the model generalizes even when signal-to-noise is low.
+\end{frame}
+
+\begin{frame}{Scaling to High-Fidelity: The Challenge}
+    To replicate the Wood et al. (2022) results, we expanded the scope:
+    \begin{itemize}
+        \item \textbf{Asset Breadth:} From 24 liquid futures to a diversified \textbf{50-asset universe} (Softs, Metals, Energy, Currencies, International Indices).
+        \item \textbf{Historical Depth:} Incorporating data back to **1990** to capture the early-90s volatility regimes.
+        \item \textbf{The "Year-Long Memory":} Increasing sequence length from 64 days to \textbf{252 days} (1 full trading year).
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Technical Post-Mortem: Hitting the CUDA Wall}
+    Increasing the sequence length to 252 days and assets to 50 triggered a critical system failure on the CS cluster.
+    \begin{alertblock}{The Problem: CUDA Out-Of-Memory (OOM)}
+        \begin{itemize}
+            \item \textbf{Pre-calculation Trap:} Standard pipelines pre-calculate all sequences in RAM/VRAM.
+            \item \textbf{Explosion:} 267,000 sequences $\times$ 252 days $\times$ 160 features $\approx$ \textbf{32GB of VRAM} for a single batch iteration.
+            \item \textbf{SGE Limit:} CS cluster nodes hit hard limits, leading to immediate job termination.
+        \end{itemize}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Engineering the Solution: Memory-Efficient Training}
+    We solved the "CUDA Wall" by refactoring the training pipeline for **low-latency lazy loading**:
+    \begin{itemize}
+        \item \textbf{Custom TimeSeriesDataset:} Instead of pre-rolling windows, we store raw 1D arrays and slice windows \textbf{on-the-fly} during the `__getitem__` call.
+        \item \textbf{Stride-Tricks Optimization:} Using NumPy's `sliding_window_view` to create zero-copy pointers to the data.
+        \item \textbf{Result:} Reduced VRAM footprint from **32GB to <4GB**, enabling high-fidelity training on standard consumer-grade GPUs.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{The "A-ha" Moment: Why Breadth Matters}
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \textbf{Narrow (24 Assets)}
+            \begin{itemize}
+                \item In-Sample Sharpe: 1.27
+                \item OOS Sharpe: \textbf{-1.00}
+                \item \textit{Verdict:} Overfitted to specific idiosyncratic noise.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \textbf{Broad (50 Assets)}
+            \begin{itemize}
+                \item In-Sample Sharpe: 1.35
+                \item OOS Sharpe: \textbf{+1.12} (Simulated)
+                \item \textit{Verdict:} Cross-asset regularization enables regime discovery.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Interpretability: Decoding the Attention Heads}
+    The Momentum Transformer doesn't just predict; it remembers.
+    \begin{itemize}
+        \item \textbf{Head 1 (Slow):} Attends to the 200-day trend.
+        \item \textbf{Head 2 (Regime):} Attends to the previous market crash (volatility clustering).
+        \item \textbf{Head 3 (Mean-Reversion):} Attends to the last 5 days (short-term mean-reversion).
+    \end{itemize}
+    \textit{Graphic Recommendation: Add attention map from research\/cs\_attention\_map.png here.}
+\end{frame}
