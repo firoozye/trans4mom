@@ -90,11 +90,8 @@ def main():
     if all_assets:
         final_df = pd.concat(all_assets)
         final_df.to_parquet(processed_path)
-        print(f"\nSUCCESS: Combined processed data saved to {processed_path}")
+        print(f"\nSUCCESS: Combined and volatility-scaled data saved to {processed_path}")
         print(f"Total rows: {len(final_df)}")
-        print(f"Symbols: {final_df['symbol'].unique()}")
-    else:
-        print("\nERROR: No assets processed.")
 
 if __name__ == "__main__":
     main()

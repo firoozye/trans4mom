@@ -6,7 +6,7 @@ import pandas as pd
 import numpy as np
 import torch.nn as nn
 import torch.optim as optim
-from torch.utils.data import DataLoader, TensorDataset
+from torch.utils.data import DataLoader, Dataset
 from engine.loss import SharpeLoss
 from models.architecture import EnsembleMomentumTransformer
 
@@ -14,14 +14,11 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-from torch.utils.data import Dataset, DataLoader
-
 class TimeSeriesDataset(Dataset):
     def __init__(self, df, feat_cols, seq_len=252):
         self.seq_len = seq_len
         self.feat_cols = feat_cols
         
-        # Mapping for Asset IDs (matching config_1990 symbols)
         asset_id_map = {
             "ES=F": 0, "NQ=F": 0, "RTY=F": 0, "YM=F": 0, "ER2=F": 0, "^N225": 0, "^FTSE": 0, "^GDAXI": 0, "^FCHI": 0, "^HSI": 0, "^AXJO": 0, "^SSMI": 0, "DX=F": 0,
             "ZT=F": 1, "ZF=F": 1, "ZN=F": 1, "ZB=F": 1, "FGBL=F": 1, "FGBM=F": 1, "FGBS=F": 1, "TWE=F": 1,
@@ -37,7 +34,6 @@ class TimeSeriesDataset(Dataset):
             group = group.sort_index().ffill().bfill()
             if len(group) <= seq_len: continue
             
-            # Pre-extract numpy arrays for fast access
             vals = {
                 'x': group[feat_cols].values.astype(np.float32),
                 'y': group['scaled_returns'].values.astype(np.float32),
@@ -51,7 +47,6 @@ class TimeSeriesDataset(Dataset):
             group_idx = len(self.data_groups)
             self.data_groups.append(vals)
             
-            # Valid start indices for this group
             for i in range(len(group) - seq_len + 1):
                 self.indices.append((group_idx, i))
 
@@ -74,78 +69,100 @@ class TimeSeriesDataset(Dataset):
         )
 
 def main():
-    parser = argparse.ArgumentParser(description="HPC Training: Strict Momentum Transformer Reproduction")
+    parser = argparse.ArgumentParser(description="HPC Training: Wood et al. 2022 Exact Replication")
     parser.add_argument("--config", type=str, default="config_1990.yaml")
     parser.add_argument("--load_weights", type=str, default=None, help="Path to weights to resume from")
-    parser.add_argument("--start_epoch", type=int, default=1, help="Epoch to start/resume from")
     args = parser.parse_args()
 
     config = load_config(args.config)
-    data_cfg = config['data']
-    feat_cfg = config['features']
-    model_cfg = config['model']
-    train_cfg = config['training']
+    data_cfg, feat_cfg = config['data'], config['features']
+    model_cfg, train_cfg = config['model'], config['training']
 
     # 1. Load Data
     print(f"Loading data from {data_cfg['processed_path']}...")
     df = pd.read_parquet(data_cfg['processed_path'])
-    # Train/Validation split: 1990-2024 for training
-    train_df = df[df.index <= '2024-12-31']
+    
+    # 2. Chronological Split (Wood et al. Strategy)
+    train_df = df[df.index <= train_cfg['train_split']]
+    val_df = df[(df.index > train_cfg['train_split']) & (df.index <= train_cfg['val_split'])]
     
     feat_cols = [f'ret_{k}' for k in feat_cfg['return_windows']] + \
                 [f'macd_{S}_{L}' for S, L in feat_cfg['macd_pairs']]
     
-    # 2. Prepare Dataset
-    print("Initializing memory-efficient dataset...")
-    dataset = TimeSeriesDataset(train_df, feat_cols, seq_len=model_cfg['seq_len'])
-    loader = DataLoader(dataset, batch_size=train_cfg['batch_size'], shuffle=True, num_workers=4)
+    # 3. Datasets
+    print(f"Initializing datasets: Train <= {train_cfg['train_split']} | Val <= {train_cfg['val_split']}")
+    train_ds = TimeSeriesDataset(train_df, feat_cols, seq_len=model_cfg['seq_len'])
+    val_ds = TimeSeriesDataset(val_df, feat_cols, seq_len=model_cfg['seq_len'])
     
-    print(f"Starting Training: {len(dataset)} sequences | {model_cfg['seq_len']} days | {len(train_df['symbol'].unique())} assets")
+    train_loader = DataLoader(train_ds, batch_size=train_cfg['batch_size'], shuffle=True, num_workers=4)
+    val_loader = DataLoader(val_ds, batch_size=train_cfg['batch_size'], shuffle=False, num_workers=4)
     
-    # 3. Setup Model
+    # 4. Model Setup
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    num_vars = len(feat_cols) # Exactly 8
-    
     model = EnsembleMomentumTransformer(
-        input_dim=1,
-        num_vars=num_vars,
-        hidden_dim=model_cfg['hidden_dim'],
-        num_heads=model_cfg['num_heads'],
-        num_layers=model_cfg['num_layers'],
-        dropout=model_cfg['dropout'],
-        output_dropout=0.5, # Fixed at 0.5 as per reproduction plan
-        num_static_vars=5
+        input_dim=1, num_vars=len(feat_cols), hidden_dim=model_cfg['hidden_dim'],
+        num_heads=model_cfg['num_heads'], num_layers=model_cfg['num_layers'],
+        dropout=model_cfg['dropout'], output_dropout=model_cfg['dropout'], num_static_vars=5
     ).to(device)
     
     if args.load_weights:
-        print(f"Resuming from weights: {args.load_weights}")
         model.load_state_dict(torch.load(args.load_weights, map_location=device))
     
-    # Optimizer with Weight Decay
-    wd = float(train_cfg.get('weight_decay', 1e-5))
-    optimizer = optim.Adam(model.parameters(), lr=train_cfg['lr'], weight_decay=wd)
+    # 5. Optimizer: AdamW + High WD (Exact Replication)
+    optimizer = optim.AdamW(model.parameters(), lr=train_cfg['lr'], weight_decay=train_cfg['weight_decay'])
     loss_fn = SharpeLoss(trans_cost=train_cfg['trans_cost'], annualization=train_cfg['annualization'])
     
-    print(f"--- Starting Strict Reproduction (Hidden: {model_cfg['hidden_dim']}, Seq: {model_cfg['seq_len']}, Layers: {model_cfg['num_layers']}) ---")
-    for epoch in range(args.start_epoch, train_cfg['epochs'] + 1):
+    # 6. Training Loop with Early Stopping
+    best_val_loss = float('inf')
+    patience_counter = 0
+    patience = train_cfg['patience']
+    
+    print(f"--- Starting Exact Replication (Layers: {model_cfg['num_layers']}, Hidden: {model_cfg['hidden_dim']}) ---")
+    
+    for epoch in range(1, train_cfg['epochs'] + 1):
+        # TRAIN
         model.train()
-        total_loss = 0
-        for batch in loader:
+        train_loss = 0
+        for batch in train_loader:
             bx, by, bs, baid, bpm, bmon, bday = [b.to(device) for b in batch]
-            
             optimizer.zero_grad()
             out = model(bx, asset_id=baid, month=bmon, day=bday, prior_mom=bpm)
             loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1))
             loss.backward()
             optimizer.step()
-            total_loss += loss.item()
-            
-        avg_loss = total_loss / len(loader)
+            train_loss += loss.item()
+        
+        avg_train_loss = train_loss / len(train_loader)
+        
+        # VALIDATE
+        model.eval()
+        val_loss = 0
+        with torch.no_grad():
+            for batch in val_loader:
+                bx, by, bs, baid, bpm, bmon, bday = [b.to(device) for b in batch]
+                out = model(bx, asset_id=baid, month=bmon, day=bday, prior_mom=bpm)
+                loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1))
+                val_loss += loss.item()
+        
+        avg_val_loss = val_loss / len(val_loader)
+        
+        print(f"Epoch {epoch}: Train Loss {avg_train_loss:.4f} | Val Loss {avg_val_loss:.4f}")
+        
+        # Early Stopping Logic
+        if avg_val_loss < best_val_loss:
+            best_val_loss = avg_val_loss
+            patience_counter = 0
+            torch.save(model.state_dict(), "weights/reproduction_v3_best.pt")
+            print("  --> New Best Model Saved.")
+        else:
+            patience_counter += 1
+            if patience_counter >= patience:
+                print(f"Early stopping triggered at epoch {epoch}")
+                break
+        
         if epoch % 10 == 0:
-            print(f"Epoch {epoch}: Loss {avg_loss:.4f}")
-            torch.save(model.state_dict(), f"weights/strict_v2_epoch_{epoch}.pt")
+            torch.save(model.state_dict(), f"weights/reproduction_v3_epoch_{epoch}.pt")
 
-    torch.save(model.state_dict(), "weights/strict_v2_final.pt")
     print("Training Complete.")
 
 if __name__ == "__main__":

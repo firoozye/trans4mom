@@ -6,19 +6,14 @@ data:
   exchange: "yfinance"
   since: "1990-01-01T00:00:00Z"
   timeframe: "1d"
-  # New paths to avoid overwriting existing data
   raw_path: "data/raw/futures_1990/" 
   processed_path: "data/processed/futures_1990_present.parquet"
   
-  # Expanded yfinance symbols (50+ assets)
   symbols:
-    # Equities (13)
     "ES=F": "S&P 500"
     "NQ=F": "Nasdaq 100"
     "RTY=F": "Russell 2000"
     "YM=F": "Dow 30"
-    "ER2=F": "Russell 2000 Mini"
-    "DX=F": "US Dollar Index"
     "^N225": "Nikkei 225"
     "^FTSE": "FTSE 100"
     "^GDAXI": "DAX Performance Index"
@@ -26,29 +21,21 @@ data:
     "^HSI": "Hang Seng Index"
     "^AXJO": "S&P/ASX 200"
     "^SSMI": "SMI PR"
-    # Fixed Income (8)
     "ZT=F": "2yr Note"
     "ZF=F": "5yr Note"
     "ZN=F": "10yr Note"
     "ZB=F": "30yr Bond"
-    "FGBL=F": "Euro Bund"
-    "FGBM=F": "Euro Bobl"
-    "FGBS=F": "Euro Schatz"
-    "TWE=F": "Ultra 10yr Note"
-    # Energy (6)
     "CL=F": "Crude Oil"
     "NG=F": "Natural Gas"
     "RB=F": "Gasoline"
     "HO=F": "Heating Oil"
     "BZ=F": "Brent Crude"
     "QM=F": "E-mini Crude"
-    # Metals (5)
     "GC=F": "Gold"
     "SI=F": "Silver"
     "HG=F": "Copper"
     "PL=F": "Platinum"
     "PA=F": "Palladium"
-    # Agriculture (11)
     "ZC=F": "Corn"
     "ZW=F": "Wheat"
     "ZS=F": "Soybeans"
@@ -60,7 +47,6 @@ data:
     "LE=F": "Live Cattle"
     "GF=F": "Feeder Cattle"
     "HE=F": "Lean Hogs"
-    # FX (9)
     "6E=F": "EUR/USD"
     "6J=F": "JPY/USD"
     "6B=F": "GBP/USD"
@@ -71,10 +57,10 @@ data:
     "6M=F": "MXN/USD"
     "6L=F": "BRL/USD"
 
-# Asset Classification for Static Context (Mapping yfinance symbols)
+# Asset Classification for Static Context
 asset_map:
-  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F", "ER2=F", "DX=F", "^N225", "^FTSE", "^GDAXI", "^FCHI", "^HSI", "^AXJO", "^SSMI"]
-  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F", "FGBL=F", "FGBM=F", "FGBS=F", "TWE=F"]
+  EQUITY: ["ES=F", "NQ=F", "RTY=F", "YM=F", "^N225", "^FTSE", "^GDAXI", "^FCHI", "^HSI", "^AXJO", "^SSMI"]
+  FIXED_INCOME: ["ZT=F", "ZF=F", "ZN=F", "ZB=F"]
   ENERGY: ["CL=F", "NG=F", "RB=F", "HO=F", "BZ=F", "QM=F"]
   METALS: ["GC=F", "SI=F", "HG=F", "PL=F", "PA=F"]
   AGRICULTURE: ["ZC=F", "ZW=F", "ZS=F", "CC=F", "KC=F", "CT=F", "SB=F", "OJ=F", "LE=F", "GF=F", "HE=F"]
@@ -88,7 +74,7 @@ features:
   clean_outliers: true
   outlier_threshold: 5.0
 
-# Model Hyperparameters
+# Model Hyperparameters (Official Wood et al. 2022 Specs)
 model:
   hidden_dim: 64
   num_heads: 4
@@ -96,13 +82,15 @@ model:
   dropout: 0.1
   seq_len: 252
 
-# Training Hyperparameters
+# Training Hyperparameters (Exact Replication V8 - Stability)
 training:
-  epochs: 300
-  batch_size: 64
+  epochs: 100
+  batch_size: 128
   lr: 0.0001
-  weight_decay: 0.00001
+  weight_decay: 0.0001
+  patience: 25
   trans_cost: 0.0001
-  smoothing_beta: 0.2
   annualization: 252.0
   seed: 42
+  train_split: '2022-12-31'
+  val_split: '2024-12-31'

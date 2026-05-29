@@ -153,24 +153,26 @@ def main():
         num_heads=4,
         num_layers=1,
         dropout=0.1,
-        output_dropout=0.5,
+        output_dropout=0.1,
         num_static_vars=5
     ).to(device)
     
     if args.final:
-        weight_path = 'weights/strict_v2_final.pt'
+        # Check for V9/V3 best weights first
+        paths = ['weights/reproduction_v3_best.pt', 'weights/strict_v2_final.pt']
+        weight_path = next((p for p in paths if os.path.exists(p)), paths[0])
     elif args.epoch:
         weight_path = f'weights/strict_v2_epoch_{args.epoch}.pt'
     else:
-        # Auto-detect latest strict weight
-        weight_files = [f for f in os.listdir('weights') if f.startswith('strict_v2_epoch_')]
+        # Auto-detect latest weights
+        weight_files = [f for f in os.listdir('weights') if 'reproduction_v3' in f or 'strict_v2' in f]
         if not weight_files:
-            print("No strict weights found.")
+            print("No suitable weights found.")
             return
-        latest = sorted(weight_files, key=lambda x: int(x.split('_')[-1].split('.')[0]))[-1]
+        latest = sorted(weight_files)[-1]
         weight_path = os.path.join('weights', latest)
-        print(f"Auto-detected latest weights: {weight_path}")
-
+    
+    print(f"Loading weights from: {weight_path}")
     if not os.path.exists(weight_path):
         print(f"Error: {weight_path} not found.")
         return
@@ -182,11 +184,15 @@ def main():
     print(f"--- Auditing Momentum Transformer (Weights: {weight_path}) ---")
     results = run_upgraded_backtest(model, df, feat_cols, ann_factor=252, seq_len=252)
     
-    # ... (rest of the plotting/audit logic)
+    # 3. Baseline TSMOM (For comparison)
+    print("  Calculating Baseline TSMOM (ret_252 sign)...")
+    prior_rets = (np.sign(df['ret_252']) * df['scaled_returns'].shift(-1)).dropna()
+    sr_prior = (prior_rets.mean() / (prior_rets.std() + 1e-9)) * np.sqrt(252)
 
-    print(f"\n--- 46-Asset Upgraded V2 Audit ---")
-    print(f"  Full Period Net Sharpe: {results['sr']:.2f}")
-    print(f"  OOS (2025+) Net Sharpe: {results['sr_oos']:.2f}")
+    print(f"\n--- 46-Asset V9 AUDIT RESULTS ---")
+    print(f"  Model Full Period Net Sharpe: {results['sr']:.2f}")
+    print(f"  Model OOS (2025+) Net Sharpe: {results['sr_oos']:.2f}")
+    print(f"  Baseline TSMOM Sharpe:        {sr_prior:.2f}")
 
     # Plot
     plt.figure(figsize=(12, 6))

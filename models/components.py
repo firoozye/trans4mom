@@ -11,6 +11,11 @@ class GatedLinearUnit(nn.Module):
     def __init__(self, input_dim: int):
         super().__init__()
         self.fc = nn.Linear(input_dim, 2 * input_dim)
+        self._init_weights()
+
+    def _init_weights(self):
+        nn.init.xavier_uniform_(self.fc.weight)
+        nn.init.zeros_(self.fc.bias)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.fc(x)
@@ -55,6 +60,15 @@ class GatedResidualNetwork(nn.Module):
             self.project_fc = nn.Linear(hidden_dim, output_dim)
         else:
             self.project_fc = nn.Identity()
+            
+        self._init_weights()
+
+    def _init_weights(self):
+        for m in [self.fc1, self.fc2, self.context_fc, self.skip_fc, self.project_fc]:
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_uniform_(m.weight)
+                if m.bias is not None:
+                    nn.init.zeros_(m.bias)
 
     def forward(self, x: torch.Tensor, context: Optional[torch.Tensor] = None) -> torch.Tensor:
         # First layer

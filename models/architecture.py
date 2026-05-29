@@ -43,6 +43,10 @@ class EnsembleMomentumTransformer(nn.Module):
             nn.LayerNorm(hidden_dim),
             nn.Linear(hidden_dim, 1)
         )
+        
+        # CRITICAL: Initialize alpha_head to zero so we start with the TSMOM prior
+        nn.init.zeros_(self.alpha_head[-1].weight)
+        nn.init.zeros_(self.alpha_head[-1].bias)
 
     def forward(
         self, 

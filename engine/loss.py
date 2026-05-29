@@ -21,51 +21,41 @@ class SharpeLoss(nn.Module):
         spreads: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
-        positions: (batch, time, num_assets) - Action at time t
-        returns: (batch, time, num_assets) - Returns at time t
+        positions: (batch, time, 1) - Action at time t
+        returns: (batch, time, 1) - Returns at time t
         """
-        # CRITICAL FIX: To avoid lookahead bias, positions taken at time t 
-        # must be multiplied by returns earned from t to t+1.
-        # If 'returns' at index i is the move from i-1 to i, then positions[i] 
-        # earns returns[i+1].
-        
         # Earned returns: pos[t] * returns[t+1]
         active_pos = positions[:, :-1, :]
         active_rets = returns[:, 1:, :]
-        port_returns = active_pos * active_rets
+        port_returns = (active_pos * active_rets).sum(dim=-1, keepdim=True)
         
-        # Transaction costs calculation (based on change in position)
-        # diff[t] = pos[t] - pos[t-1]
+        # Linear Transaction costs: cost * |pos[t] - pos[t-1]|
         shifted_positions = torch.cat([torch.zeros_like(positions[:, :1, :]), positions[:, :-1, :]], dim=1)
-        diff = positions - shifted_positions
+        pos_diff = torch.abs(positions - shifted_positions)
         
         if spreads is not None:
+            # spreads are per-asset, average them for the portfolio
             costs = self.trans_cost + (spreads / 2.0)
-            trading_costs = (torch.abs(diff) * costs).sum(dim=-1, keepdim=True)
+            trading_costs = (pos_diff * costs).sum(dim=-1, keepdim=True)
         else:
-            trading_costs = self.trans_cost * torch.abs(diff).sum(dim=-1, keepdim=True)
+            trading_costs = self.trans_cost * pos_diff.sum(dim=-1, keepdim=True)
             
         # Align costs with returns (index 1 onwards)
         trading_costs = trading_costs[:, 1:, :]
         
-        # 1. Smoothing Penalty (Quadratic Turnover)
-        smooth_penalty = self.smoothing_beta * torch.pow(diff, 2).sum(dim=-1, keepdim=True)
-        smooth_penalty = smooth_penalty[:, 1:, :]
-        
-        # 2. Bias Penalty (Encourage Market Neutrality / Shorting)
-        bias_penalty = self.bias_beta * torch.abs(torch.mean(positions[:, :-1, :], dim=1, keepdim=True))
-        
         # Net returns
-        net_returns = port_returns.sum(dim=-1, keepdim=True) - trading_costs - smooth_penalty - bias_penalty
+        net_returns = port_returns - trading_costs
         
-        # Calculate mean and std
-        mean_ret = torch.mean(net_returns, dim=1)
-        std_ret = torch.std(net_returns, dim=1, unbiased=False) + 1e-6
+        # POOLED SHARPE (V7 FIX): Calculate mean and std across the entire batch
+        # This is much more stable and represents the total strategy performance
+        mean_ret = torch.mean(net_returns)
+        std_ret = torch.std(net_returns, unbiased=False) + 1e-6
         
-        # Negative Sharpe Ratio per batch item
+        # Negative Sharpe Ratio for the whole batch
         sharpe = (mean_ret / std_ret) * self.annualization.to(returns.device)
         
-        return -torch.mean(sharpe)
+        # We minimize Negative Sharpe
+        return -sharpe
 
 if __name__ == "__main__":
     # Toy example
