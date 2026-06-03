@@ -5,6 +5,9 @@ import numpy as np
 from datetime import datetime, timedelta
 from data.ingestion import DataIngestor
 from data.processor import FeatureProcessor
+from engine.cpd import add_cpd_features
+
+# ... (rest of imports)
 
 # Use the specific config for the 1990-Present run
 CONFIG_PATH = "config_1990.yaml"
@@ -89,8 +92,12 @@ def main():
     # 5. Combine and Save Final Parquet
     if all_assets:
         final_df = pd.concat(all_assets)
+        
+        # Step C: Add Regime-Aware CPD Features (Wood et al. 2022)
+        final_df = add_cpd_features(final_df, fast_len=21, slow_len=126)
+        
         final_df.to_parquet(processed_path)
-        print(f"\nSUCCESS: Combined and volatility-scaled data saved to {processed_path}")
+        print(f"\nSUCCESS: Combined, volatility-scaled and CPD-enhanced data saved to {processed_path}")
         print(f"Total rows: {len(final_df)}")
 
 if __name__ == "__main__":

@@ -87,7 +87,8 @@ def main():
     val_df = df[(df.index > train_cfg['train_split']) & (df.index <= train_cfg['val_split'])]
     
     feat_cols = [f'ret_{k}' for k in feat_cfg['return_windows']] + \
-                [f'macd_{S}_{L}' for S, L in feat_cfg['macd_pairs']]
+                [f'macd_{S}_{L}' for S, L in feat_cfg['macd_pairs']] + \
+                ['cpd_sev_21', 'cpd_sev_126']
     
     # 3. Datasets
     print(f"Initializing datasets: Train <= {train_cfg['train_split']} | Val <= {train_cfg['val_split']}")

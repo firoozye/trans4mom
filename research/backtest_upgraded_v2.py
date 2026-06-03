@@ -142,7 +142,8 @@ def main():
     df = pd.read_parquet(data_path)
     
     feat_cols = [f'ret_{k}' for k in [1, 21, 63, 126, 252]] + \
-                [f'macd_{S}_{L}' for S, L in [[8, 24], [16, 48], [32, 96]]]
+                [f'macd_{S}_{L}' for S, L in [[8, 24], [16, 48], [32, 96]]] + \
+                ['cpd_sev_21', 'cpd_sev_126']
     
     # 2. Load Model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
