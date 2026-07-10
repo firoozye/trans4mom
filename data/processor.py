@@ -18,33 +18,34 @@ class FeatureProcessor:
         self.vol_span = vol_span
 
     def compute_volatility(self, df: pd.DataFrame) -> pd.DataFrame:
-        """60-day EWMA volatility as per Lim et al. (2019). Lagged by 1 for ex-ante."""
-        df['sigma_d'] = df['returns'].ewm(span=self.vol_span).std().shift(1)
+        """60-day EWMA volatility as per Lim et al. (2019). No shift here, loss function handles alignment."""
+        df['sigma_d'] = df['returns'].ewm(span=self.vol_span).std()
         return df
 
     def compute_normalized_returns(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Returns scaled by vol and sqrt(k) for multi-scale stationarity."""
+        """Returns scaled by vol and sqrt(k) for multi-scale stationarity. No shift here."""
         for k in self.return_windows:
-            # We must shift(1) here to ensure these features are available at time t
-            # to decide the position for t -> t+1.
-            roll_ret = df['returns'].rolling(window=k).sum().shift(1)
+            roll_ret = df['returns'].rolling(window=k).sum()
             df[f'ret_{k}'] = roll_ret / (df['sigma_d'] * np.sqrt(k) + 1e-9)
         return df
 
     def compute_macd_signals(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Volatility-normalized EWMA crossovers. Lagged for ex-ante."""
+        """Volatility-normalized MACD scaled to unit variance (Baz et al. 2015). No shift here."""
         for S, L in self.macd_pairs:
             ema_s = df['close'].ewm(span=S).mean()
             ema_l = df['close'].ewm(span=L).mean()
-            macd = ema_s - ema_l
-            # Shift(1) ensures no lookahead
-            df[f'macd_{S}_{L}'] = (macd / (df['sigma_d'] * df['close'] + 1e-9)).shift(1)
+            macd = (ema_s - ema_l) / (df['sigma_d'] * df['close'] + 1e-9)
+            
+            # Scale to unit variance using 252-day rolling std
+            macd_std = macd.rolling(252).std() + 1e-9
+            df[f'macd_{S}_{L}'] = macd / macd_std
         return df
 
     def compute_additional_priors(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Add baseline TSMOM signal as the sole prior modulation. Lagged for ex-ante."""
-        # Baseline Prior (TSMOM) = 12-month return (ret_252)
-        df['prior_mom'] = df['ret_252']
+        """Use the average of 3 MACD signals as the baseline TSMOM prior (Baz et al. 2015)."""
+        macd_cols = [f'macd_{S}_{L}' for S, L in self.macd_pairs]
+        # Baseline Prior (TSMOM) = Average of normalized MACD signals
+        df['prior_mom'] = df[macd_cols].mean(axis=1)
         return df
 
     def process_features(self, df: pd.DataFrame, config: Optional[dict] = None) -> pd.DataFrame:

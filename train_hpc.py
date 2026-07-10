@@ -72,11 +72,20 @@ def main():
     parser = argparse.ArgumentParser(description="HPC Training: Wood et al. 2022 Exact Replication")
     parser.add_argument("--config", type=str, default="config_1990.yaml")
     parser.add_argument("--load_weights", type=str, default=None, help="Path to weights to resume from")
+    parser.add_argument("--seed", type=int, default=None, help="Random seed for this run")
     args = parser.parse_args()
 
     config = load_config(args.config)
     data_cfg, feat_cfg = config['data'], config['features']
     model_cfg, train_cfg = config['model'], config['training']
+
+    # Set Seed
+    seed = args.seed if args.seed is not None else train_cfg.get('seed', 42)
+    torch.manual_seed(seed)
+    np.random.seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+    print(f"Set Global Seed: {seed}")
 
     # 1. Load Data
     print(f"Loading data from {data_cfg['processed_path']}...")
@@ -153,8 +162,8 @@ def main():
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             patience_counter = 0
-            torch.save(model.state_dict(), "weights/reproduction_v3_best.pt")
-            print("  --> New Best Model Saved.")
+            torch.save(model.state_dict(), f"weights/ensemble_best_seed_{seed}.pt")
+            print(f"  --> New Best Model Saved (Seed: {seed}).")
         else:
             patience_counter += 1
             if patience_counter >= patience:
@@ -162,7 +171,7 @@ def main():
                 break
         
         if epoch % 10 == 0:
-            torch.save(model.state_dict(), f"weights/reproduction_v3_epoch_{epoch}.pt")
+            torch.save(model.state_dict(), f"weights/ensemble_epoch_{epoch}_seed_{seed}.pt")
 
     print("Training Complete.")
 
