@@ -41,7 +41,8 @@ class TimeSeriesDataset(Dataset):
                 'pm': group['prior_mom'].values.astype(np.float32),
                 'mon': group.index.month.values.astype(np.int64),
                 'day': group.index.dayofweek.values.astype(np.int64),
-                'aid': asset_id_map.get(sym, 0)
+                'aid': asset_id_map.get(sym, 0),
+                'vs': group['vol_scale'].values.astype(np.float32)
             }
             
             group_idx = len(self.data_groups)
@@ -65,7 +66,8 @@ class TimeSeriesDataset(Dataset):
             torch.tensor(g['aid'], dtype=torch.long),
             torch.from_numpy(g['pm'][start:end]).unsqueeze(-1),
             torch.from_numpy(g['mon'][start:end]),
-            torch.from_numpy(g['day'][start:end])
+            torch.from_numpy(g['day'][start:end]),
+            torch.from_numpy(g['vs'][start:end])
         )
 
 def main():
@@ -134,10 +136,10 @@ def main():
         model.train()
         train_loss = 0
         for batch in train_loader:
-            bx, by, bs, baid, bpm, bmon, bday = [b.to(device) for b in batch]
+            bx, by, bs, baid, bpm, bmon, bday, bvs = [b.to(device) for b in batch]
             optimizer.zero_grad()
             out = model(bx, asset_id=baid, month=bmon, day=bday, prior_mom=bpm)
-            loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1))
+            loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1), vol_scales=bvs.unsqueeze(-1))
             loss.backward()
             optimizer.step()
             train_loss += loss.item()
@@ -149,9 +151,9 @@ def main():
         val_loss = 0
         with torch.no_grad():
             for batch in val_loader:
-                bx, by, bs, baid, bpm, bmon, bday = [b.to(device) for b in batch]
+                bx, by, bs, baid, bpm, bmon, bday, bvs = [b.to(device) for b in batch]
                 out = model(bx, asset_id=baid, month=bmon, day=bday, prior_mom=bpm)
-                loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1))
+                loss = loss_fn(out, by.unsqueeze(-1), spreads=bs.unsqueeze(-1), vol_scales=bvs.unsqueeze(-1))
                 val_loss += loss.item()
         
         avg_val_loss = val_loss / len(val_loader)

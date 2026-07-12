@@ -77,7 +77,8 @@ class FeatureProcessor:
         
         # 4. Volatility Target Scaling (Target: 15% Annualized)
         sigma_tgt = 0.15 / np.sqrt(252)
-        df['scaled_returns'] = df['returns'] * (sigma_tgt / (df['sigma_d'] + 1e-9))
+        df['vol_scale'] = sigma_tgt / (df['sigma_d'] + 1e-9)
+        df['scaled_returns'] = df['returns'] * df['vol_scale']
         
         # 5. Spread Estimation
         mid = (df['high'] + df['low']) / 2.0

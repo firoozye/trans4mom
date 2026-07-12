@@ -67,10 +67,13 @@ def run_modulated_backtest(model, df, feat_cols, ann_factor, seq_len=64, base_co
             
             positions = np.concatenate(pos_list).flatten()
             
-            # 3. Returns (t earns t+1)
+            # 3. Returns (t earns t+1) and physical transaction costs
+            vol_scale = group['vol_scale'].values
+            physical_positions = positions * vol_scale
+            
             shifted_rets = np.roll(rets, -1)
             shifted_rets[-1] = 0
-            pos_diff = np.abs(np.diff(positions, prepend=0))
+            pos_diff = np.abs(np.diff(physical_positions, prepend=0))
             costs = pos_diff * base_cost
             
             net_rets = (positions * shifted_rets) - costs

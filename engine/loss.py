@@ -18,7 +18,8 @@ class SharpeLoss(nn.Module):
         self,
         positions: torch.Tensor,
         returns: torch.Tensor,
-        spreads: Optional[torch.Tensor] = None
+        spreads: Optional[torch.Tensor] = None,
+        vol_scales: Optional[torch.Tensor] = None
     ) -> torch.Tensor:
         """
         positions: (batch, time, 1) - Action at time t
@@ -29,9 +30,15 @@ class SharpeLoss(nn.Module):
         active_rets = returns[:, 1:, :]
         port_returns = (active_pos * active_rets).sum(dim=-1, keepdim=True)
         
+        # Scale positions to actual traded sizing for physical transaction cost calculation
+        if vol_scales is not None:
+            physical_pos = positions * vol_scales
+        else:
+            physical_pos = positions
+
         # Linear Transaction costs: cost * |pos[t] - pos[t-1]|
-        shifted_positions = torch.cat([torch.zeros_like(positions[:, :1, :]), positions[:, :-1, :]], dim=1)
-        pos_diff = torch.abs(positions - shifted_positions)
+        shifted_positions = torch.cat([torch.zeros_like(physical_pos[:, :1, :]), physical_pos[:, :-1, :]], dim=1)
+        pos_diff = torch.abs(physical_pos - shifted_positions)
         
         if spreads is not None:
             # spreads are per-asset, average them for the portfolio
