@@ -1,73 +1,106 @@
 import numpy as np
 import pandas as pd
+import torch
 from typing import Tuple
 
-class ChangepointDetector:
+class GPChangepointDetector:
     """
-    Generalized Likelihood Ratio (GLR) based Changepoint Detector.
-    Identifies structural breaks in mean and variance of returns.
-    Aligned with the 'Regime Awareness' requirements of Wood et al. (2022).
+    Gaussian Process based Changepoint Detector (GP-CPD) using Matern 3/2 kernel.
+    Compares the marginal log-likelihood of a stationary GP vs a split (two-regime) GP.
+    Aligned with Wood et al. (2022).
     """
-    def __init__(self, window_len: int = 126, min_regime_len: int = 10):
+    def __init__(self, window_len: int = 126, min_regime_len: int = 10, lengthscale: float = 20.0):
         self.window_len = window_len
         self.min_regime_len = min_regime_len
+        self.lengthscale = lengthscale
+        self.signal_variance = 1.0
+        self.noise_variance = 0.5
+
+    def _gp_mll(self, y: torch.Tensor, lengthscale: float) -> float:
+        n = len(y)
+        if n == 0:
+            return 0.0
+        t = torch.arange(n, dtype=torch.float32, device=y.device).unsqueeze(1)
+        d = torch.abs(t - t.T)
+        
+        # Matern 3/2 Kernel
+        sqrt3 = np.sqrt(3.0)
+        K = self.signal_variance * (1.0 + (sqrt3 * d / lengthscale)) * torch.exp(-sqrt3 * d / lengthscale)
+        K = K + self.noise_variance * torch.eye(n, device=y.device)
+        
+        try:
+            L = torch.linalg.cholesky(K)
+            y_col = y.unsqueeze(1)
+            alpha = torch.cholesky_solve(y_col, L)
+            fit_term = -0.5 * torch.matmul(y_col.T, alpha)
+            complexity_term = -torch.sum(torch.log(torch.diagonal(L)))
+            constant_term = -0.5 * n * np.log(2.0 * np.pi)
+            return (fit_term + complexity_term + constant_term).item()
+        except RuntimeError:
+            # Fallback if Cholesky fails (add jitter)
+            K = K + 1e-4 * torch.eye(n, device=y.device)
+            try:
+                L = torch.linalg.cholesky(K)
+                y_col = y.unsqueeze(1)
+                alpha = torch.cholesky_solve(y_col, L)
+                fit_term = -0.5 * torch.matmul(y_col.T, alpha)
+                complexity_term = -torch.sum(torch.log(torch.diagonal(L)))
+                constant_term = -0.5 * n * np.log(2.0 * np.pi)
+                return (fit_term + complexity_term + constant_term).item()
+            except RuntimeError:
+                return -9999.0
 
     def compute_severity(self, returns: np.ndarray) -> float:
-        """
-        Calculates the changepoint severity (Log-Likelihood Ratio).
-        Compares: H0 (Single stationary regime) vs H1 (Two regimes).
-        """
         n = len(returns)
         if n < self.min_regime_len * 2:
             return 0.0
 
-        # H0: Constant Mean and Variance
-        mu_full = np.mean(returns)
-        var_full = np.var(returns) + 1e-9
-        ll_h0 = -0.5 * n * (np.log(2 * np.pi * var_full) + 1)
+        # Normalize returns in the window for numerical stability
+        ret_mean = np.mean(returns)
+        ret_std = np.std(returns) + 1e-9
+        norm_returns = (returns - ret_mean) / ret_std
+
+        y = torch.from_numpy(norm_returns).float()
+
+        # H0: Single stationary GP regime
+        ll_h0 = self._gp_mll(y, self.lengthscale)
 
         # H1: Search for optimal split point tau
         max_ll_h1 = -np.inf
         
-        for tau in range(self.min_regime_len, n - self.min_regime_len):
-            r1 = returns[:tau]
-            r2 = returns[tau:]
+        # Grid search step optimization for execution speed
+        step = 1 if self.window_len <= 30 else (2 if self.window_len <= 100 else 5)
+        
+        for tau in range(self.min_regime_len, n - self.min_regime_len, step):
+            y1 = y[:tau]
+            y2 = y[tau:]
             
-            var1 = np.var(r1) + 1e-9
-            var2 = np.var(r2) + 1e-9
-            
-            ll_tau = -0.5 * (
-                tau * (np.log(2 * np.pi * var1) + 1) + 
-                (n - tau) * (np.log(2 * np.pi * var2) + 1)
-            )
+            # Combined marginal likelihood of independent GP models
+            ll_tau = self._gp_mll(y1, self.lengthscale) + self._gp_mll(y2, self.lengthscale)
             
             if ll_tau > max_ll_h1:
                 max_ll_h1 = ll_tau
 
         # Severity = Log Likelihood Ratio
         severity = max_ll_h1 - ll_h0
-        return max(0.0, severity)
+        return float(max(0.0, severity))
 
     def run_online(self, series: pd.Series) -> pd.Series:
-        """Vectorized-ish rolling severity calculation."""
-        # Use a rolling window and apply the severity calculation
+        """Rolling window severity calculation."""
         return series.rolling(window=self.window_len).apply(
             lambda x: self.compute_severity(x.values),
             raw=False
         )
 
 def add_cpd_features(df: pd.DataFrame, fast_len: int = 21, slow_len: int = 126) -> pd.DataFrame:
-    """Add multi-scale CPD severity features to the dataframe."""
-    print(f"  Computing CPD features (Fast: {fast_len}, Slow: {slow_len})...")
+    """Add multi-scale GP-CPD severity features to the dataframe."""
+    print(f"  Computing GP-CPD features (Fast: {fast_len}, Slow: {slow_len})...")
     
-    fast_detector = ChangepointDetector(window_len=fast_len, min_regime_len=5)
-    slow_detector = ChangepointDetector(window_len=slow_len, min_regime_len=20)
+    fast_detector = GPChangepointDetector(window_len=fast_len, min_regime_len=5, lengthscale=5.0)
+    slow_detector = GPChangepointDetector(window_len=slow_len, min_regime_len=20, lengthscale=30.0)
     
-    # Apply per symbol
     def process_group(group):
         group = group.sort_index()
-        # Scale severity to roughly [0, 1] using a softplus or normalization
-        # In practice, we take the sqrt of the LLR as per standard detection theory
         f_sev = fast_detector.run_online(group['returns'])
         s_sev = slow_detector.run_online(group['returns'])
         
@@ -78,9 +111,9 @@ def add_cpd_features(df: pd.DataFrame, fast_len: int = 21, slow_len: int = 126) 
     return df.groupby('symbol', group_keys=False).apply(process_group)
 
 if __name__ == "__main__":
-    # Quick test
+    # Test script execution
     data = np.random.normal(0, 1, 100)
-    data[50:] = data[50:] * 3 + 2 # Massive shift
+    data[50:] = data[50:] * 3 + 2 # Mean and variance shift
     
-    detector = ChangepointDetector(window_len=100)
-    print(f"Detection Severity: {detector.compute_severity(data):.4f}")
+    detector = GPChangepointDetector(window_len=100, min_regime_len=10, lengthscale=20.0)
+    print(f"GP-CPD Detection Severity: {detector.compute_severity(data):.4f}")
