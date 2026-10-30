@@ -666,7 +666,7 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{figure}
 \end{frame}
 
-\begin{frame}{HPC Implementation: Overcoming the $O(T^2)$ Memory Wall}
+\begin{frame}[fragile]{HPC Implementation: Overcoming the $O(T^2)$ Memory Wall}
   \begin{alertblock}{The CUDA Out-Of-Memory (OOM) Trap}
     Naively pre-generating sliding windows for 46 assets over 30 years with 252-day lookbacks and 20+ features creates 260,000+ full tensors, requiring $>32\text{ GB}$ of RAM/VRAM during batch initialization and immediately crashing cluster compute nodes.
   \end{alertblock}
