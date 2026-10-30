@@ -87,8 +87,12 @@ def run_ensemble_backtest(model_paths, df, feat_cols, ann_factor, seq_len=252, b
                 ensemble_pos[b:b+batch_size] = np.mean(batch_preds, axis=0)
 
             # Performance
+            # Performance and physical transaction costs
+            vol_scale = group['vol_scale'].values.astype(np.float32) if 'vol_scale' in group.columns else np.ones_like(rets)
+            physical_positions = ensemble_pos * vol_scale
+            
             shifted_rets = np.roll(rets, -1); shifted_rets[-1] = 0
-            costs = np.abs(np.diff(ensemble_pos, prepend=0)) * (base_cost + spreads/2.0)
+            costs = np.abs(np.diff(physical_positions, prepend=0)) * (base_cost + spreads/2.0)
             portfolio_rets[sym] = pd.Series((ensemble_pos * shifted_rets) - costs, index=group.index)
 
     # Aggregate
