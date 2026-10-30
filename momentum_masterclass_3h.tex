@@ -8,26 +8,41 @@
 \usepackage{graphicx}
 \usepackage{listings}
 \usepackage{hyperref}
+\usepackage{booktabs}
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows,positioning,calc}
+\usetikzlibrary{shapes,arrows.meta,positioning,calc,fit,backgrounds}
 
 % Graphic search paths
 \graphicspath{{../book/Figures/}{../../trans4mom/research/}{../../trans4mom/docs/Figures/}}
 
-% Font sizing & layout adjustments to prevent footer banner collisions
+% Understated, compact academic font sizing to eliminate overlaps
 \setbeamerfont{frametitle}{size=\small,series=\bfseries}
 \setbeamerfont{framesubtitle}{size=\footnotesize}
-\setbeamerfont{block title}{size=\footnotesize,series=\bfseries}
+\setbeamerfont{block title}{size=\scriptsize,series=\bfseries}
 \setbeamerfont{block body}{size=\scriptsize}
+\setbeamerfont{block title alerted}{size=\scriptsize,series=\bfseries}
+\setbeamerfont{block body alerted}{size=\scriptsize}
+\setbeamerfont{block title example}{size=\scriptsize,series=\bfseries}
+\setbeamerfont{block body example}{size=\scriptsize}
 \setbeamerfont{caption}{size=\tiny}
 \setbeamerfont{caption name}{size=\tiny}
 
-% Academic Teal Palette
+% Sober Academic Teal Palette
 \definecolor{lightteal}{RGB}{236, 246, 246}
 \definecolor{mediumteal}{RGB}{115, 186, 186}
 \definecolor{darkteal}{RGB}{0, 110, 110}
 \definecolor{highlightcolor}{RGB}{0, 80, 120}
 \definecolor{alertred}{RGB}{160, 40, 40}
+
+% System diagram palette
+\definecolor{sysblue}{RGB}{30, 64, 115}
+\definecolor{syslightblue}{RGB}{238, 244, 252}
+\definecolor{sysslate}{RGB}{50, 60, 75}
+\definecolor{syslightslate}{RGB}{244, 245, 248}
+\definecolor{systeal}{RGB}{15, 118, 110}
+\definecolor{syslightteal}{RGB}{234, 246, 246}
+\definecolor{sysamber}{RGB}{180, 80, 10}
+\definecolor{syslightamber}{RGB}{255, 244, 230}
 
 \setbeamercolor{background canvas}{bg=white}
 \setbeamercolor{normal text}{fg=black}
@@ -55,92 +70,165 @@
   rulecolor=\color{mediumteal}
 }
 
-\title{The Foundations of Momentum and the Transition to AI}
-\subtitle{A Three-Hour Masterclass on Systematic Trend Following, Deep Learning, and Transformers}
+\title{The Foundations of Systematic Momentum and the Transition to AI}
+\subtitle{Mechanics, Asymmetries, Deep Momentum Networks, and the Momentum Transformer}
 \author{Nick Firoozye}
 \institute{UCL Computer Science \& Financial Computing}
 \date{\today}
 
 \begin{document}
 
-% Title slide
+% -------------------------------------------------------------
+% Slide 1: Title Page
+% -------------------------------------------------------------
 \begin{frame}
   \titlepage
 \end{frame}
 
-% Masterclass Overview
-\begin{frame}{Masterclass Syllabus}
+% -------------------------------------------------------------
+% Slide 2: Masterclass Thematic Agenda
+% -------------------------------------------------------------
+\begin{frame}{Masterclass Thematic Structure}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Day 1: Foundations \& Shift to AI (1.5 h)}
+      \textbf{Part I: Systematic Momentum Foundations}
       \begin{itemize}\scriptsize
-        \item \textbf{Part 1 (45 mins): Anatomy of Momentum}
-        \begin{itemize}\tiny
-          \item Philosophy \& behavioural origins
-          \item Classical TSMOM formulation
-          \item Crisis alpha \& systemic shocks
-          \item Limitations of fixed heuristics
-        \end{itemize}
-        \item \textbf{Part 2 (45 mins): Shift to Deep Learning}
-        \begin{itemize}\tiny
-          \item Deep Momentum Networks (DMNs)
-          \item Direct optimization of Sharpe \& Sortino
-          \item Turnover penalization \& differentiability
-          \item Day 1 Review \& Discussion
-        \end{itemize}
+        \item Canonical algorithmic trading architecture
+        \item Behavioural origins \& heuristic deconstruction
+        \item Classical TSMOM vs. XSMOM
+        \item Filter equivalence \& multi-century persistence
+        \item Skewness, straddle convexity \& factor momentum
+        \item Momentum crashes \& heuristic failure
+      \end{itemize}
+      \vspace{0.1cm}
+      \textbf{Part II: The Shift to Deep Learning}
+      \begin{itemize}\scriptsize
+        \item Deep Momentum Networks (Lim et al.)
+        \item Why MSE fails: optimizing for Sharpe \& Sortino
+        \item Turnover penalisation \& differentiable trading
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Day 2: Transformers \& Practice (1.5 h)}
+      \textbf{Part III: The Momentum Transformer}
       \begin{itemize}\scriptsize
-        \item \textbf{Part 1 (45 mins): Momentum Transformer}
-        \begin{itemize}\tiny
-          \item Trans4mom architecture (VSN, LSTM, Attention)
-          \item Inductive bias \& residual prior modulation
-          \item Attention interpretability \& regime decoding
-        \end{itemize}
-        \item \textbf{Part 2 (45 mins): Trends, Data \& Practice}
-        \begin{itemize}\tiny
-          \item Modern architectures (TFT, PatchTST, Informer)
-          \item Data reality: continuous futures rolls \& pitfalls
-          \item Execution costs, sizing \& memory walls ($O(T^2)$)
-          \item Day 2 Synthesis \& Q\&A
-        \end{itemize}
+        \item The non-stationarity trilemma
+        \item Trans4mom architecture: VSN, LSTM, Attention
+        \item Inductive bias: residual prior modulation
+        \item Decoding multi-head attention \& macro regimes
+      \end{itemize}
+      \vspace{0.1cm}
+      \textbf{Part IV: Systems, Engineering \& Code Review}
+      \begin{itemize}\scriptsize
+        \item Modern architectures: TFT, PatchTST, Informer
+        \item Data bottlenecks: continuous futures roll gaps
+        \item Overfitting extremes: the $\pm 19$ Sharpe phenomenon
+        \item HPC engineering: solving the CUDA memory wall
+        \item Code review of core \texttt{trans4mom} modules
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
-% =========================================================================
-% DAY 1 - PART 1
-% =========================================================================
-\section{Day 1 - Part 1: Classical Momentum \& Trend Following}
+% -------------------------------------------------------------
+% Slide 3: Canonical Algorithmic Trading Systems Architecture
+% -------------------------------------------------------------
+\begin{frame}{Algorithmic Trading Systems Architecture}
+  \begin{center}
+  \begin{tikzpicture}[
+    >=Stealth,
+    font=\sffamily\tiny,
+    node distance=0.35cm and 0.4cm,
+    box/.style={rectangle, rounded corners=3pt, draw=sysblue!80, fill=syslightblue, thick, align=center, inner sep=4pt, minimum height=0.65cm},
+    modelbox/.style={rectangle, rounded corners=3pt, draw=sysslate!80, fill=syslightslate, thick, align=center, inner sep=3pt, minimum width=1.5cm, minimum height=0.55cm},
+    allocbox/.style={rectangle, rounded corners=3pt, draw=systeal!85, fill=syslightteal, very thick, align=center, inner sep=4pt, minimum height=0.65cm},
+    execbox/.style={rectangle, rounded corners=3pt, draw=sysblue!90, fill=syslightblue, very thick, align=center, inner sep=4pt, minimum height=0.65cm},
+    extbox/.style={rectangle, rounded corners=3pt, draw=sysamber!80, fill=syslightamber, thick, align=center, inner sep=3pt, minimum width=2.4cm, minimum height=0.55cm},
+    backtestloop/.style={draw=alertred, line width=1.2pt, dashed, rounded corners=5pt}
+  ]
+    % Main Horizontal Spine
+    \node[box] (data) at (0, 1.2) {\textbf{Data Sources}\\Market, Macro, Alt};
+    \node[box, right=of data] (clean) {\textbf{Cleaning \& Storage}\\Outliers, Imputation, Rolls};
+    \node[box, right=of clean] (feat) {\textbf{Feature Engineering}\\Norm., Vol-Scaling, Lags};
 
+    % Triad Models
+    \node[modelbox] (alpha) at (6.8, 1.9) {\textbf{Edge / Alpha}\\$\hat{\mu}_t$};
+    \node[modelbox] (risk) at (6.8, 1.2) {\textbf{Risk Model}\\$\hat{\Sigma}_t$};
+    \node[modelbox] (tca) at (6.8, 0.5) {\textbf{TCA Model}\\$\hat{\mathcal{C}}_t$};
+
+    \node[allocbox, right=of risk, xshift=0.9cm] (alloc) {\textbf{Allocation / Sizing}\\Risk Budgeting, Constraints};
+    \node[execbox, right=of alloc] (exec) {\textbf{Execution}\\Slicing, Routing};
+
+    % Spine arrows
+    \draw[->, thick, sysblue!80] (data) -- (clean);
+    \draw[->, thick, sysblue!80] (clean) -- (feat);
+    \draw[->, thick, sysblue!80] (feat.east) -- ++(0.2,0) |- (alpha.west);
+    \draw[->, thick, sysblue!80] (feat.east) -- (risk.west);
+    \draw[->, thick, sysblue!80] (feat.east) -- ++(0.2,0) |- (tca.west);
+    \draw[->, thick, sysslate!80] (alpha.east) -| ($(alloc.west)+(-0.2,0)$) -- (alloc.west);
+    \draw[->, thick, sysslate!80] (risk.east) -- (alloc.west);
+    \draw[->, thick, sysslate!80] (tca.east) -| ($(alloc.west)+(-0.2,0)$) -- (alloc.west);
+    \draw[->, thick, systeal!85] (alloc) -- (exec);
+
+    % Governance / Oversight Side Modules
+    \node[extbox] (perf) at (9.4, -0.6) {\textbf{Performance Analysis}\\PnL Decomposition, Attribution};
+    \node[extbox] (riskmgt) at (5.2, -0.6) {\textbf{Risk Management}\\Limits, VaR, Mandates};
+
+    \draw[->, thick, gray!70] (exec.south) |- (perf.east);
+    \draw[->, thick, gray!70] (exec.south) |- (riskmgt.east);
+    \draw[->, thick, dashed, sysblue!80] (exec.south) -- ++(0,-0.3) -| ($(alloc.south)+(-0.2,0)$)
+      node[pos=0.3, below, font=\tiny] {Positions $w_t$};
+
+    % Backtesting Loop Enclosure
+    \begin{scope}[on background layer]
+      \node[backtestloop, fit=(clean)(feat)(alpha)(risk)(tca)(alloc)(perf), inner sep=7pt] (btbox) {};
+    \end{scope}
+    \node[anchor=north east, font=\tiny\bfseries, text=alertred] at (btbox.north east)
+      {Offline Simulation / Backtesting Loop};
+  \end{tikzpicture}
+  \end{center}
+  \vspace{-0.2cm}
+  \begin{itemize}\scriptsize
+    \item \textbf{Separation of Concerns:} Edge forecasting, covariance risk modelling, and transaction cost estimation operate as distinct inputs to portfolio allocation.
+    \item \textbf{The Backtesting Boundary:} Simulation encloses the pipeline from cleaning to performance attribution; execution models must strictly enforce point-in-time causality.
+  \end{itemize}
+\end{frame}
+
+% =========================================================================
+% PART I: SYSTEMATIC MOMENTUM FOUNDATIONS
+% =========================================================================
+\section{Part I: Systematic Momentum Foundations}
+
+% -------------------------------------------------------------
+% Slide 4: Philosophy of Momentum
+% -------------------------------------------------------------
 \begin{frame}{The Philosophy of Momentum: Buy High, Sell Higher}
   \begin{block}{Deconstructing the Core Heuristic}
-    Standard finance theory posits that asset returns follow a random walk with zero forecastable drift in frictionless markets. Momentum strategies invert the classical value prescription: rather than buying low and selling high, trend following executes the rule \emph{buy high and sell higher, or sell short and cover lower}.
+    Standard finance theory posits that asset returns follow a random walk with zero forecastable drift in frictionless markets. Systematic trend following inverts the classical value heuristic: rather than buying low and selling high, trend following executes the rule \emph{buy high and sell higher, or sell short and cover lower}.
   \end{block}
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Behavioural Underpinnings}
+      \textbf{Behavioural Origins}
       \begin{itemize}\scriptsize
-        \item \textbf{Disposition effect:} Investors realise gains prematurely while holding losers, causing initial underreaction.
-        \item \textbf{Anchoring \& conservatism:} Slow Bayesian updating creates auto-correlated price discovery.
-        \item \textbf{Institutional herding:} Benchmark tracking and delegated mandates produce persistent capital flows.
+        \item \textbf{Disposition effect:} Investors realise gains prematurely while holding losers, causing initial underreaction to fundamental news.
+        \item \textbf{Anchoring \& conservatism:} Slow Bayesian updating creates persistent auto-correlated price discovery.
+        \item \textbf{Institutional herding:} Benchmark tracking and delegated mandates produce sustained capital flows.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Microstructural Mechanics}
+      \textbf{Market Microstructure}
       \begin{itemize}\scriptsize
-        \item \textbf{Liquidity limits:} Capital constraints among market makers prevent instantaneous price convergence.
-        \item \textbf{Feedback loops:} Systematic rebalancing and stop-losses amplify directional displacement.
-        \item \textbf{Multi-horizon diffusion:} Information diffuses at differing speeds across diverse horizons.
+        \item \textbf{Liquidity provision limits:} Capital constraints among market makers prevent instantaneous price adjustment.
+        \item \textbf{Feedback loops:} Systematic portfolio rebalancing and stop-loss execution amplify intermediate directional displacement.
+        \item \textbf{Multi-horizon diffusion:} Information diffuses at differing speeds across diverse participant horizons.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 5: TSMOM vs. XSMOM
+% -------------------------------------------------------------
 \begin{frame}{Two Flavours of Momentum: TSMOM vs. XSMOM}
   \begin{block}{Time-Series Momentum (TSMOM / Absolute Momentum)}
     Evaluates an asset strictly against its own historical trajectory:
@@ -158,23 +246,63 @@
   \end{block}
 \end{frame}
 
-\begin{frame}{Classical Signal Formulations \& The Filter Equivalence Theorem}
-  \begin{block}{Digital Trend Filtering Formulations}
+% -------------------------------------------------------------
+% Slide 6: Digital Trend Filters
+% -------------------------------------------------------------
+\begin{frame}{Classical Signal Formulations}
+  \begin{block}{Digital Filtering Implementations}
     \begin{itemize}\scriptsize
       \item \textbf{SMA Crossover:} $s_t = \text{sign}\left(\text{SMA}_t(k_{\text{fast}}) - \text{SMA}_t(k_{\text{slow}})\right)$
       \item \textbf{EWMA Crossover:} $s_t = \text{sign}\left(\text{EWMA}_t(\lambda_{\text{fast}}) - \text{EWMA}_t(\lambda_{\text{slow}})\right)$
       \item \textbf{Donchian Channel:} $s_t = +1 \text{ if } P_t = \max_{j} P_{t-j}, \quad -1 \text{ if } P_t = \min_{j} P_{t-j}$
+      \item \textbf{MACD Signal:} Normalized difference of exponential moving averages scaled by rolling volatility:
+      \begin{equation*}
+        \text{MACD}_t(S, L) = \frac{\text{EMA}_t(S) - \text{EMA}_t(L)}{\sigma_t \cdot P_t}
+      \end{equation*}
     \end{itemize}
   \end{block}
-  \begin{block}{The Filter Equivalence Theorem (\href{https://ssrn.com/abstract=2465623}{Bruder \& Gaussel 2011}, \href{http://www.thierry-roncalli.com/download/Alternative_Risk_Premia.pdf}{Hamdan et al. 2012})}
-    Any linear trend signal can be expressed as a convolution kernel of past returns:
+  \begin{block}{Position Sizing \& Volatility Scaling}
+    Traditional trend following sizes contracts inversely proportional to recent rolling volatility:
     \begin{equation*}
-      s_{t-1} = \sum_{k=1}^\infty \phi_k r_{t-k}
+      w_{i,t} = \frac{\sigma_{\text{target}}}{\hat{\sigma}_{i,t}} \cdot s_{i,t}
     \end{equation*}
-    Different digital filters (SMA, EWMA, MACD) yield strategy returns with mutual correlations $>0.90$. Classical heuristics represent weighted combinations of autocorrelation lags.
+    ensuring risk parity across volatile commodities and low-volatility fixed income.
   \end{block}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 7: Filter Equivalence Theorem
+% -------------------------------------------------------------
+\begin{frame}{The Filter Equivalence Theorem}
+  \begin{block}{Linear Filter Representation (\href{https://ssrn.com/abstract=2465623}{Bruder \& Gaussel 2011}, \href{http://www.thierry-roncalli.com/download/Alternative_Risk_Premia.pdf}{Hamdan et al. 2012})}
+    Any linear digital trend filter can be expressed as a convolution kernel of historical returns:
+    \begin{equation*}
+      s_{t-1} = \sum_{k=1}^\infty \phi_k r_{t-k}
+    \end{equation*}
+    where $\phi_k$ are the implicit lag weights determined by the filter transfer function.
+  \end{block}
+  \vspace{0.1cm}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \textbf{Core Equivalence Findings}
+      \begin{itemize}\scriptsize
+        \item Different digital filters (SMA, EWMA, MACD) yield strategy positions with mutual correlations $>0.90$.
+        \item Apparent diversity across moving average heuristics is mathematical redundancy.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Key Takeaway}
+      \begin{itemize}\scriptsize
+        \item Classical heuristic tweaking (e.g. testing 50/200 vs 40/180) merely shifts lag weights slightly.
+        \item A fundamentally different paradigm is needed to capture dynamic regimes.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 8: 200 Years of Trend Following
+% -------------------------------------------------------------
 \begin{frame}{Multi-Century Empirical Persistence: The 200-Year Evidence}
   \begin{block}{Long-Horizon Statistical Proof (\href{https://arxiv.org/abs/1404.7797}{Lempérière et al. 2014})}
     Examining two centuries of multi-asset data (1800 to 2014) confirms that time-series momentum has delivered a persistent annualized Sharpe ratio of $\approx 0.70$ across macroeconomic regimes.
@@ -182,39 +310,87 @@
   \vspace{-0.1cm}
   \begin{figure}[ht]
     \centering
-    \includegraphics[height=3.5cm,keepaspectratio]{L5/Trend_Following_200y.png}
+    \includegraphics[height=3.4cm,keepaspectratio]{L5/Trend_Following_200y.png}
     \caption{Two centuries of trend following across global asset classes (Lempérière et al. 2014).}
   \end{figure}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 9: Crisis Alpha
+% -------------------------------------------------------------
 \begin{frame}{The Quant Meltdown Survival: Crisis Alpha}
   \begin{block}{Portfolio Stabilisation During Systemic Shocks}
-    Institutional allocators incorporate trend-following strategies because they generate convex positive returns precisely when long-only equity and credit portfolios suffer severe drawdowns.
+    Institutional allocators allocate to trend-following CTAs because they generate convex positive returns precisely when long-only equity and credit portfolios collapse.
   \end{block}
   \vspace{-0.1cm}
   \begin{figure}[ht]
     \centering
-    \includegraphics[height=3.5cm,keepaspectratio]{L1/sp500_vs_cta_annual.png}
+    \includegraphics[height=3.4cm,keepaspectratio]{L1/sp500_vs_cta_annual.png}
     \caption{Annual returns during major crisis regimes: S\&P 500 equity index versus CTA benchmark.}
   \end{figure}
 \end{frame}
 
-\begin{frame}{Mathematical Convexity \& Lookback Straddle Equivalence}
+% -------------------------------------------------------------
+% Slide 10: Lookback Straddle Equivalence
+% -------------------------------------------------------------
+\begin{frame}{Mathematical Convexity: Fung-Hsieh Straddle Equivalence}
   \begin{block}{Fung-Hsieh Lookback Option Equivalence (\href{https://people.duke.edu/~dah7/RFS2001.pdf}{Fung \& Hsieh 2001})}
-    A continuous-time trend-following strategy with dynamic stop-losses generates an asymmetric return distribution mathematically equivalent to a portfolio of lookback straddles:
+    A continuous-time trend-following strategy with dynamic stop-losses and position flipping generates an asymmetric payoff mathematically equivalent to a portfolio of lookback straddles:
     \begin{equation*}
       \text{Payoff}_{\text{lookback}} = \max_{0 \le t \le T} P_t - \min_{0 \le t \le T} P_t
     \end{equation*}
   \end{block}
+  \vspace{0.1cm}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \textbf{Structural Intuition}
+      \begin{itemize}\scriptsize
+        \item Delivers positive gamma in large directional moves, regardless of market direction.
+        \item Trend followers capture extreme market deviations without paying explicit option premiums.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{The Cost of Convexity}
+      \begin{itemize}\scriptsize
+        \item Whip-saw losses in sideways, range-bound regimes represent the implicit "theta decay" of trend following.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 11: Martin-Zou Skewness Theorem
+% -------------------------------------------------------------
+\begin{frame}{Skewness \& Asymmetric Tail Risk: Martin-Zou Theorem}
   \begin{block}{The Martin-Zou Positive Skewness Theorem (\href{https://www.risk.net/derivatives/structured-products/2194247/momentum-trading-skews-me}{Martin \& Zou 2012})}
-    When filtering i.i.d. Gaussian innovations $X_t \sim \mathcal{N}(0, \sigma^2)$ through an EWMA filter $s_t = c \sum_{k=1}^\infty \rho^k X_{t-k}$, the compounded strategy return has strictly positive skewness:
+    When filtering i.i.d. Gaussian innovations $X_t \sim \mathcal{N}(0, \sigma^2)$ through an EWMA trend filter $s_t = c \sum_{k=1}^\infty \rho^k X_{t-k}$, the compounded strategy return possesses strictly positive skewness:
     \begin{equation*}
       \mathbb{E}\left[R_{t+T}^3\right] = 6 \sum_{j=1}^T (T - j) a_j \gamma_j^a > 0
     \end{equation*}
-    Unlike carry and short-volatility that suffer tail crashes, momentum delivers structural right skewness.
+    Unlike carry and short-volatility strategies that suffer severe negative skewness (tail crashes), momentum delivers structural right skewness.
   \end{block}
+  \vspace{-0.1cm}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.1cm,keepaspectratio]{L5/MartinsSkewnessEWMA1.png}
+        \caption{Analytical positive skewness vs. horizon (Martin \& Zou 2012).}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.1cm,keepaspectratio]{L5/Skew vs Sharpe.png}
+        \caption{Strategy Skewness vs. Sharpe Ratio across horizons (Lempérière et al.).}
+      \end{figure}
+    \end{column}
+  \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 12: Empirical Return Distribution Skewness
+% -------------------------------------------------------------
 \begin{frame}{Empirical Evidence of Asymmetric Skewness}
   \begin{columns}[c]
     \begin{column}{0.48\textwidth}
@@ -225,28 +401,95 @@
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{figure}[ht]
-        \centering
-        \includegraphics[height=3.4cm,keepaspectratio]{L5/MartinsSkewnessEWMA1.png}
-        \caption{Analytical positive skewness vs. horizon (Martin \& Zou 2012).}
-      \end{figure}
+      \begin{block}{Positive vs. Negative Skewness}
+        \begin{itemize}\scriptsize
+          \item \textbf{Trend Following:} Frequent small whipsaw losses compensated by occasional outsized positive windfalls (positive skew).
+          \item \textbf{FX Carry / Vol Selling:} Steady incremental positive carry yields punctuated by catastrophic tail drawdowns (negative skew).
+          \item Blending the two forms the foundation of alternative risk premia investing.
+        \end{itemize}
+      \end{block}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Limitations of Classical Heuristics: Momentum Crashes}
-  \begin{block}{The Rebound Crash Anomaly (\href{https://www.nber.org/papers/w20439}{Daniel \& Moskowitz 2016})}
-    Unhedged momentum strategies suffer devastating crashes during sudden market inflection points, particularly V-shaped recoveries following panics (e.g. 1932, 2008--2009 GFC). The short leg behaves like a written call option with negative gamma on distressed recovery assets.
+% -------------------------------------------------------------
+% Slide 13: Multi-Style Risk Premia: Momentum, Value, Carry
+% -------------------------------------------------------------
+\begin{frame}{Multi-Style Alternative Risk Premia}
+  \begin{block}{Combining Momentum, Value, and Carry (\href{https://ssrn.com/abstract=2695101}{Baz, Rattray, Harvey et al. 2015})}
+    Combining both Cross-Sectional (XS) and Time-Series (TS) momentum with Carry and Value strategies exploits low mutual correlation, enhancing Sharpe and controlling drawdowns.
   \end{block}
   \vspace{-0.1cm}
   \begin{figure}[ht]
     \centering
-    \includegraphics[height=3.2cm,keepaspectratio]{L5/XSMomDDGFC.png}
-    \caption{Cross-sectional momentum drawdown during the 2008--2009 GFC rebound (Daniel \& Moskowitz 2016).}
+    \includegraphics[height=3.3cm,keepaspectratio]{L5/XS_TS_Val_Carry_Mom.png}
+    \caption{Performance enhancement from combining TS and XS Momentum with Value and Carry (Baz et al. 2015).}
   \end{figure}
 \end{frame}
 
-\begin{frame}{Why Fixed Heuristics Break Down}
+% -------------------------------------------------------------
+% Slide 14: Factor Momentum
+% -------------------------------------------------------------
+\begin{frame}{Factor Momentum: The Explanatory Driver}
+  \begin{block}{The Explanatory Factor Finding (\href{https://www.nber.org/papers/w25551}{Ehsani \& Linnainmaa 2022})}
+    Individual stock momentum is largely inherited from momentum in underlying systematic factor returns:
+    \begin{equation*}
+      R_{i,t} = \sum_{k=1}^K \beta_{ik} F_{k,t} + \epsilon_{i,t}
+    \end{equation*}
+    Cross-sectional equity momentum collapses once controlling for the persistence of systematic style and industry factors.
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.1cm,keepaspectratio]{L8/famafrench.pdf}
+        \caption{Systematic Factor Model decomposition driving cross-sectional returns.}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Key Implications}
+      \begin{itemize}\scriptsize
+        \item Momentum is not an idiosyncratic stock anomaly; it is a macro phenomenon driving factor premia.
+        \item Factors (Value, Size, Investment, Profitability) exhibit strong auto-regressive momentum.
+        \item Supports modeling macro multi-asset universes directly.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 15: Momentum Crashes
+% -------------------------------------------------------------
+\begin{frame}{Momentum Crashes: The Rebound Anomaly}
+  \begin{block}{The Rebound Crash Anomaly (\href{https://www.nber.org/papers/w20439}{Daniel \& Moskowitz 2016})}
+    Unhedged momentum strategies suffer devastating crashes during sudden market inflection points, particularly V-shaped recoveries following panics (e.g. 1932, 2008--2009 GFC). The short leg behaves like a written call option with negative gamma on distressed recovery assets.
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.1cm,keepaspectratio]{L5/XSMomDDGFC.png}
+        \caption{Cross-sectional momentum drawdown during the 2008--2009 GFC rebound (Daniel \& Moskowitz 2016).}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{Crash Mechanism}
+      \begin{itemize}\scriptsize
+        \item In a market panic, "losers" become highly levered, distressed assets.
+        \item When the market abruptly rebounds, distressed losers surge dramatically.
+        \item The momentum short leg experiences severe short-squeeze losses.
+        \item \emph{Remedy:} Dynamic volatility scaling and regime-aware positioning.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 16: Limitations of Classical Heuristics
+% -------------------------------------------------------------
+\begin{frame}{Limitations of Fixed Heuristics}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
       \textbf{1. The Lag Drag Dilemma}
@@ -257,32 +500,32 @@
       \vspace{0.1cm}
       \textbf{2. Fixed-Threshold Brittleness}
       \begin{itemize}\scriptsize
-        \item Discrete decisions ($s_t \in \{-1, +1\}$) ignore continuous uncertainty.
+        \item Discrete decisions ($s_t \in \{-1, +1\}$) ignore continuous regime uncertainty.
         \item Linear scaling fails to model cross-asset volatility spillovers.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
       \textbf{3. Classical State-Space Extensions}
       \begin{itemize}\scriptsize
-        \item \textbf{Kalman filtering:} Estimates latent trend slope dynamically, but assumes Gaussian noise innovations:
-        \begin{align*}
-          y_t &= L_t + \epsilon_t, \quad \epsilon_t \sim \mathcal{N}(0, \sigma_\epsilon^2) \\
-          L_t &= L_{t-1} + T_{t-1} + \eta_{1,t} \\
-          T_t &= T_{t-1} + \eta_{2,t}
-        \end{align*}
-        \item \textbf{BOCPD:} Computes run-length hazard rates, but struggles with multi-asset feature interactions.
+        \item \textbf{Kalman filtering:} Estimates latent trend slope dynamically, but assumes Gaussian innovations.
+        \item \textbf{BOCPD:} Computes run-length hazard rates, but struggles with multi-asset interactions.
       \end{itemize}
-      \vspace{0.05cm}
-      \textbf{Conclusion:} Motivates deep learning architectures.
+      \vspace{0.1cm}
+      \begin{alertblock}{Motivation for Deep Learning}
+        Can a neural network learn dynamic position sizing end-to-end directly from multi-asset return history?
+      \end{alertblock}
     \end{column}
   \end{columns}
 \end{frame}
 
 % =========================================================================
-% DAY 1 - PART 2
+% PART II: THE PARADIGM SHIFT TO DEEP LEARNING
 % =========================================================================
-\section{Day 1 - Part 2: Transitioning to Deep Learning}
+\section{Part II: The Shift to Deep Learning}
 
+% -------------------------------------------------------------
+% Slide 17: Deep Momentum Networks
+% -------------------------------------------------------------
 \begin{frame}{From Fixed Rules to Deep Momentum Networks (DMNs)}
   \begin{block}{The Machine Learning Paradigm Shift (\href{https://arxiv.org/abs/1904.04912}{Lim, Zohren, \& Roberts 2019})}
     Traditional systematic pipelines decompose trading into distinct serial modules: signal generation, volatility estimation, and portfolio optimization. Deep Momentum Networks combine these into an end-to-end differentiable computational graph.
@@ -309,6 +552,9 @@
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 18: Why MSE Fails
+% -------------------------------------------------------------
 \begin{frame}{Optimizing for the Right Metric: Why MSE Fails}
   \begin{block}{The Breakdown of Mean Squared Error in Trading}
     Supervised learning architectures trained on point forecasting (minimizing Mean Squared Error $\mathcal{L}_{\text{MSE}} = \frac{1}{N}\sum (\hat{r}_{t+1} - r_{t+1})^2$) exhibit near-zero performance when deployed in live strategy execution.
@@ -337,6 +583,9 @@
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 19: Differentiable Sharpe Loss
+% -------------------------------------------------------------
 \begin{frame}{Formulating Differentiable Sharpe Loss}
   \begin{block}{End-to-End Sharpe Loss}
     Let $z_t \in [-1, 1]$ denote position at time $t$, and $r_{t+1}$ the realized volatility-scaled return. The strategy return net of transaction cost $c$ is:
@@ -354,9 +603,12 @@
   \end{block}
 \end{frame}
 
-\begin{frame}{Differentiable Sharpe vs. Sortino Loss Formulations}
-  \begin{block}{Penalizing Downside Semivariance: Differentiable Sortino Loss}
-    To maintain positive skewness without penalizing upside windfalls, we replace total standard deviation with downside semi-deviation:
+% -------------------------------------------------------------
+% Slide 20: Differentiable Sortino Loss
+% -------------------------------------------------------------
+\begin{frame}{Downside Geometry: Differentiable Sortino Loss}
+  \begin{block}{Penalizing Downside Semivariance: Sortino Formulation}
+    To preserve structural positive return skewness without penalizing upside windfalls, we replace total standard deviation with downside semi-deviation:
     \begin{equation*}
       \hat{\sigma}_{\text{down}}^2 = \frac{1}{B} \sum_{t=1}^B \min(R_t - \tau, 0)^2 + \epsilon
     \end{equation*}
@@ -365,6 +617,20 @@
       \mathcal{L}_{\text{Sortino}}(\theta) = -\sqrt{252} \cdot \frac{\hat{\mu} - \tau}{\hat{\sigma}_{\text{down}}}
     \end{equation*}
   \end{block}
+  \begin{itemize}\scriptsize
+    \item Standard Sharpe penalizes outsized positive trend returns as "volatility".
+    \item Sortino loss guides gradient updates to minimize drawdowns while leaving upside trend runs unrestricted.
+  \end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 21: Turnover Costs & Subgradient Smoothing
+% -------------------------------------------------------------
+\begin{frame}{Transaction Costs \& Turnover Frictions}
+  \begin{block}{Turnover Friction Penalisation}
+    Without transaction cost penalties, neural networks over-trade high-frequency noise, producing strategies with high gross Sharpe but deeply negative net Sharpe after slippage.
+  \end{block}
+  \vspace{0.1cm}
   \begin{block}{Subgradient Smoothing for Turnover Cost}
     Because $|z_t - z_{t-1}|$ has a non-differentiable cusp at zero, production implementations apply smooth approximations:
     \begin{equation*}
@@ -372,8 +638,14 @@
     \end{equation*}
     enabling stable backward passes through AdamW optimizers.
   \end{block}
+  \begin{itemize}\scriptsize
+    \item Penalizing turnover forces the network to hold positions across micro-reversals unless the regime shift signal is overwhelming.
+  \end{itemize}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 22: PyTorch Sharpe Loss Code
+% -------------------------------------------------------------
 \begin{frame}[fragile]{PyTorch Implementation: Differentiable Sharpe Loss}
 \begin{lstlisting}
 import torch
@@ -400,26 +672,54 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{lstlisting}
 \end{frame}
 
-\begin{frame}{Day 1 Summary \& Discussion}
-  \begin{block}{Key Takeaways from Day 1}
-    \begin{itemize}\scriptsize
-      \item \textbf{Economic Anchor:} Momentum is backed by two centuries of persistence and exhibits positive return skewness (Martin-Zou, Fung-Hsieh).
-      \item \textbf{Filter Equivalence:} All linear moving average filters produce highly correlated positions ($>0.90$).
-      \item \textbf{Vulnerability:} Fixed heuristics suffer lag drag and crashes during sharp V-bottom market inflection points (Daniel \& Moskowitz).
-      \item \textbf{Objective Alignment:} Machine learning for trend following requires replacing MSE with differentiable Sharpe/Sortino loss with turnover penalties.
-    \end{itemize}
+% -------------------------------------------------------------
+% Slide 23: State-Space Evolution
+% -------------------------------------------------------------
+\begin{frame}{State-Space Evolution: Kalman vs. BOCPD vs. LSTMs}
+  \begin{columns}[t]
+    \begin{column}{0.32\textwidth}
+      \textbf{Kalman Filter}
+      \begin{itemize}\tiny
+        \item Explicit linear state-space model.
+        \item Assumes Gaussian innovations.
+        \item Optimal for tracking stationary linear velocity.
+        \item Fails on non-linear fat-tailed shock regimes.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \textbf{BOCPD (Changepoint)}
+      \begin{itemize}\tiny
+        \item Computes recursive posterior over run-length $r_t$.
+        \item Detects structural regime shifts instantaneously.
+        \item Resets covariance prior on hazard rate spike.
+        \item Difficult to scale across 50 correlated assets.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \textbf{Recurrent Net (LSTM)}
+      \begin{itemize}\tiny
+        \item Gated hidden states ($h_t, c_t$) capture non-linear memory.
+        \item End-to-end training with Sharpe loss.
+        \item Exponential forgetting over long lookbacks.
+        \item History is overwritten rather than indexed.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vspace{0.2cm}
+  \begin{block}{The Next Frontier}
+    Can we combine the long-range regime memory of associative databases with dynamic feature selection? $\longrightarrow$ \textbf{The Momentum Transformer}.
   \end{block}
-  \begin{alertblock}{Looking Forward to Day 2}
-    While recurrent neural networks (LSTMs) capture local path dependencies, they struggle with multi-year regime shifts. Tomorrow, we examine the \textbf{Momentum Transformer}, its attention mechanism, and practical deployment realities.
-  \end{alertblock}
 \end{frame}
 
 % =========================================================================
-% DAY 2 - PART 1
+% PART III: THE MOMENTUM TRANSFORMER
 % =========================================================================
-\section{Day 2 - Part 1: Inside the Momentum Transformer}
+\section{Part III: Inside the Momentum Transformer}
 
-\begin{frame}{Why Transformers for Momentum? Addressing Non-Stationarity}
+% -------------------------------------------------------------
+% Slide 24: Why Transformers for Momentum?
+% -------------------------------------------------------------
+\begin{frame}{Why Transformers for Momentum? The Non-Stationarity Trilemma}
   \begin{block}{The Non-Stationarity Trilemma in Financial Time Series}
     Financial markets undergo structural regime changes driven by macroeconomic shocks, central bank liquidity shifts, and technological disruptions.
   \end{block}
@@ -443,6 +743,9 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 25: Trans4mom Architecture Overview
+% -------------------------------------------------------------
 \begin{frame}{The Trans4mom Architecture (\href{https://arxiv.org/abs/2112.08534}{Wood et al. 2022})}
   \begin{block}{Architectural Pipeline Overview}
     The Momentum Transformer decomposes regime-inference into four coordinated stages:
@@ -476,7 +779,10 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{columns}
 \end{frame}
 
-\begin{frame}{Variable Selection Networks (VSN) \& Static Context Conditioning}
+% -------------------------------------------------------------
+% Slide 26: Variable Selection Networks (VSN)
+% -------------------------------------------------------------
+\begin{frame}{Variable Selection Networks (VSN) \& Static Conditioning}
   \begin{block}{Feature Sparsity \& Noise Suppression}
     Financial inputs suffer from severe noise. The VSN uses Gated Residual Networks (GRNs) to generate non-linear feature coefficients $v_t^{(j)}$:
     \begin{equation*}
@@ -493,6 +799,9 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{itemize}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 27: Structural Inductive Bias: Handcuffs Principle
+% -------------------------------------------------------------
 \begin{frame}{Structural Inductive Bias: The Residual Prior Anchoring}
   \begin{alertblock}{The Overfitting Hazard of Unconstrained Transformers}
     Unconstrained transformers possess enormous parameter capacity ($O(10^5 \text{ to } 10^7)$ weights). In low signal-to-noise financial environments, unguided transformers readily memorize spurious patterns, yielding catastrophic out-of-sample collapse.
@@ -510,33 +819,86 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Interpretability: Demystifying the Black Box}
-  \begin{block}{Decoding Multi-Head Attention Weights}
-    Transformer attention matrices provide an exact, inspectable record of historical temporal dependencies:
+% -------------------------------------------------------------
+% Slide 28: Interpretability: Causal Query-Key Routing
+% -------------------------------------------------------------
+\begin{frame}{Interpretability: Demystifying Causal Attention Heads}
+  \begin{block}{Mathematical Formulation of Attention Routing}
+    Unlike black-box multilayer perceptrons, transformer attention matrices provide an exact, inspectable record of historical temporal dependencies:
     \begin{equation*}
-      A_{h}(t, \tau) = \text{Softmax}\left((Q_h(t) K_h(\tau)^\top)/\sqrt{d_k} + M_{\text{causal}}\right)
+      A_{h}(t, \tau) = \text{Softmax}\left(\frac{Q_h(t) K_h(\tau)^\top}{\sqrt{d_k}} + M_{\text{causal}}\right)
     \end{equation*}
+    where $M_{\text{causal}}(t, \tau) = -\infty$ for $\tau > t$ prevents look-ahead information leakage.
   \end{block}
-  \begin{columns}[c]
+  \vspace{0.1cm}
+  \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \begin{figure}[ht]
-        \centering
-        \includegraphics[height=3.3cm,keepaspectratio]{attention_ES_F.png}
-        \caption{S\&P 500 futures attention weights across time lags.}
-      \end{figure}
+      \textbf{What the Query Asks}
+      \begin{itemize}\scriptsize
+        \item "What was the market doing during previous drawdowns or breakouts with similar volatility signatures?"
+      \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Emergent Head Specialization}
+      \textbf{What the Keys Provide}
       \begin{itemize}\scriptsize
-        \item \textbf{Slow Trend Head:} Concentrates attention across 180--252 day lookbacks, confirming persistent macro drift.
-        \item \textbf{Mean-Reversion Head:} Places weight on recent 1--5 day shocks, scaling down positions after extensions.
-        \item \textbf{Regime-Matching Head:} Attends to historical inflection points during pullbacks.
+        \item Direct addressing into historical regimes (e.g. 2008 GFC, 2020 COVID shock, 2022 rate cycle).
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
-\begin{frame}{Cross-Sectional Attention Maps \& Strategy Blending}
+% -------------------------------------------------------------
+% Slide 29: Empirical Attention Map (Dedicated Full-Width Slide)
+% -------------------------------------------------------------
+\begin{frame}{Attention Head Specialisation: Empirical S\&P 500 Map}
+  \begin{center}
+    \includegraphics[width=0.95\linewidth,height=4.8cm,keepaspectratio]{attention_ES_F.png}
+  \end{center}
+  \vspace{-0.2cm}
+  \begin{center}
+    \scriptsize \textbf{Figure:} Multi-head attention weights for S\&P 500 futures across lookback time lags (1 to 252 trading days).
+  \end{center}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 30: Head Typology & Regime Decoding
+% -------------------------------------------------------------
+\begin{frame}{Head Typology: Decoding the Learned Attention Roles}
+  \begin{columns}[t]
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Head 1: Slow Macro Trend}
+        \begin{itemize}\scriptsize
+          \item Attends across 180--252 day lookback horizons.
+          \item Confirms persistent, fundamental macroeconomic drift.
+          \item Maintains trend exposure during minor noise pullbacks.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Head 2: Fast Mean-Reversion}
+        \begin{itemize}\scriptsize
+          \item Concentrates weight on recent 1--5 day return shocks.
+          \item Detects short-term exhaustion and overbought/oversold levels.
+          \item Scales down position size following explosive vertical moves.
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Head 3: Crisis Regime}
+        \begin{itemize}\scriptsize
+          \item Attends to volatility spikes and past systemic shocks.
+          \item Triggers rapid de-leveraging when volatility clusters match crash regimes.
+          \item Mitigates classical momentum crash drawdowns.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 31: Cross-Sectional Attention Maps
+% -------------------------------------------------------------
+\begin{frame}{Cross-Sectional Attention: Synchronous Macro Regimes}
   \begin{columns}[c]
     \begin{column}{0.5\textwidth}
       \begin{figure}[ht]
@@ -546,7 +908,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \begin{block}{Interpreting Regime Signatures}
+      \begin{block}{Synchronous Regime Identification}
         When systemic market stress strikes:
         \begin{itemize}\scriptsize
           \item Attention across asset classes aligns synchronously onto shared systemic shocks.
@@ -559,11 +921,14 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % =========================================================================
-% DAY 2 - PART 2
+% PART IV: SYSTEM REALITIES, ENGINEERING & CODE REVIEW
 % =========================================================================
-\section{Day 2 - Part 2: New AI Trends, Data Bottlenecks, \& Implementation}
+\section{Part IV: Systems, Engineering, \& Code Review}
 
-\begin{frame}{Alternative Transformer Architectures for Financial Time Series}
+% -------------------------------------------------------------
+% Slide 32: Alternative Transformer Architectures
+% -------------------------------------------------------------
+\begin{frame}{Alternative Modern Architectures}
   \begin{block}{Comparative Survey of Modern Sequence Models}
     The time-series deep learning landscape has evolved rapidly beyond generic multi-head attention:
   \end{block}
@@ -594,7 +959,10 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{columns}
 \end{frame}
 
-\begin{frame}{The Data Reality Check: Why Model Architecture is Half the Battle}
+% -------------------------------------------------------------
+% Slide 33: The Data Reality Check
+% -------------------------------------------------------------
+\begin{frame}{The Data Reality Check: Why Architecture Cannot Save Bad Data}
   \begin{alertblock}{The Hard Truth of Financial Deep Learning}
     No neural network, regardless of parameter count or attention sophistication, can overcome corrupted, contaminated, or improperly adjusted data inputs.
   \end{alertblock}
@@ -613,12 +981,46 @@ class DifferentiableSharpeLoss(nn.Module):
       \begin{itemize}\scriptsize
         \item \textbf{Panama (Difference) Adjustment:} Preserves absolute price differences; causes negative historical prices in commodities.
         \item \textbf{Ratio Adjustment:} Preserves true compounding percentage returns across rolls. \emph{Mandatory for quantitative Sharpe models.}
-        \item \textbf{Institutional Data Feeds:} Sourcing from professional vendors (Pinnacle, CSI, Databento, Bloomberg) or using total-return ETF proxies (SPY, TLT, GLD).
+        \item \textbf{Institutional Feeds:} Sourcing from professional vendors (Pinnacle, CSI, Databento, Bloomberg) or using total-return ETF proxies.
       \end{itemize}
     \end{column}
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 34: The Overfitting Extreme: +-19 Sharpe
+% -------------------------------------------------------------
+\begin{frame}{The Overfitting Extreme: The $\pm 19$ Sharpe Phenomenon}
+  \begin{alertblock}{The "Double-Lag" \& Unconstrained Capacity Trap}
+    In early experimental runs with high-capacity networks (160-dim, 2-layer transformers) and unaligned feature selection:
+    \begin{itemize}\scriptsize
+      \item The model achieved an astonishing in-sample Sharpe ratio of \textbf{+19.2}.
+      \item When evaluated out-of-sample on unseen market periods, performance collapsed to \textbf{-18.7}.
+    \end{itemize}
+  \end{alertblock}
+  \vspace{0.1cm}
+  \begin{columns}[t]
+    \begin{column}{0.48\textwidth}
+      \textbf{What Happened?}
+      \begin{itemize}\scriptsize
+        \item \textbf{Noise Memorisation:} The unconstrained attention heads memorized specific idiosyncratic noise spikes.
+        \item \textbf{Look-Ahead Leaks:} Unaligned feature normalization leaked future volatility moments into the inputs.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \textbf{The Solution}
+      \begin{itemize}\scriptsize
+        \item \textbf{Domain Feature Selection:} Strict VSN gating with verified ex-ante signals.
+        \item \textbf{Capacity Control:} Reducing hidden dimensions (64-dim, 1-layer).
+        \item \textbf{Residual Anchoring:} Anchoring to the classical prior prevented runaway leverage.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 35: Breadth-Regularisation Link
+% -------------------------------------------------------------
 \begin{frame}{The Breadth-Regularisation Link: 24 vs. 46 Assets}
   \begin{columns}[c]
     \begin{column}{0.48\textwidth}
@@ -640,13 +1042,16 @@ class DifferentiableSharpeLoss(nn.Module):
     \begin{column}{0.5\textwidth}
       \begin{figure}[ht]
         \centering
-        \includegraphics[height=4.0cm,keepaspectratio]{final_audit_results.png}
+        \includegraphics[height=3.8cm,keepaspectratio]{final_audit_results.png}
         \caption{Full-period cumulative net return and out-of-sample audit breakdown.}
       \end{figure}
     \end{column}
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 36: HPC & The CUDA Wall
+% -------------------------------------------------------------
 \begin{frame}[fragile]{HPC Implementation: Overcoming the $O(T^2)$ Memory Wall}
   \begin{alertblock}{The CUDA Out-Of-Memory (OOM) Trap}
     Naively pre-generating sliding windows for 46 assets over 30 years with 252-day lookbacks and 20+ features creates 260,000+ full tensors, requiring $>32\text{ GB}$ of RAM/VRAM during batch initialization and immediately crashing cluster compute nodes.
@@ -678,6 +1083,102 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 37: Code Review 1: Feature Processor
+% -------------------------------------------------------------
+\begin{frame}[fragile]{Code Review: Feature Processing \& Ex-Ante Scaling}
+  \textbf{Module:} \texttt{trans4mom/data/processor.py}
+\begin{lstlisting}
+class FeatureProcessor:
+    def compute_volatility(self, df: pd.DataFrame) -> pd.DataFrame:
+        """60-day EWMA volatility. Computed ex-ante without look-ahead."""
+        df['sigma_d'] = df['returns'].ewm(span=self.vol_span).std()
+        return df
+
+    def compute_macd_signals(self, df: pd.DataFrame) -> pd.DataFrame:
+        for S, L in self.macd_pairs:
+            ema_s = df['close'].ewm(span=S).mean()
+            ema_l = df['close'].ewm(span=L).mean()
+            macd = (ema_s - ema_l) / (df['sigma_d'] * df['close'] + 1e-9)
+            macd_std = macd.rolling(252).std() + 1e-9
+            df[f'macd_{S}_{L}'] = macd / macd_std
+        return df
+
+    def compute_additional_priors(self, df: pd.DataFrame) -> pd.DataFrame:
+        """Baseline Prior = Equal-weighted average of multi-scale MACD."""
+        macd_cols = [f'macd_{S}_{L}' for S, L in self.macd_pairs]
+        df['prior_mom'] = df[macd_cols].mean(axis=1)
+        return df
+\end{lstlisting}
+  \begin{itemize}\tiny
+    \item \textbf{Review Note:} Features must never use full-sample normalisation; EWMA volatility and MACD rolling variances must be strictly causal.
+  \end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 38: Code Review 2: Loss Function
+% -------------------------------------------------------------
+\begin{frame}[fragile]{Code Review: Sharpe Loss \& Friction Penalisation}
+  \textbf{Module:} \texttt{trans4mom/engine/loss.py}
+\begin{lstlisting}
+class SharpeLoss(nn.Module):
+    def forward(self, positions, returns, spreads=None, vol_scales=None):
+        # Active positions at t generate return at t+1
+        active_pos = positions[:, :-1, :]
+        active_rets = returns[:, 1:, :]
+        port_returns = (active_pos * active_rets).sum(dim=-1, keepdim=True)
+        
+        # Scale positions to physical sizing for turnover cost
+        physical_pos = positions * vol_scales if vol_scales is not None else positions
+        pos_diff = torch.abs(physical_pos - torch.roll(physical_pos, 1, dims=1))
+        trading_costs = (self.trans_cost + spreads / 2.0) * pos_diff[:, 1:, :]
+        
+        # Net portfolio return & Pooled Sharpe across batch
+        net_returns = port_returns - trading_costs
+        mean_ret = torch.mean(net_returns)
+        std_ret = torch.std(net_returns, unbiased=False) + 1e-6
+        return - (mean_ret / std_ret) * self.annualization
+\end{lstlisting}
+  \begin{itemize}\tiny
+    \item \textbf{Review Note:} Pooled batch Sharpe prevents single-asset optimization instability and forces cross-asset risk-budget coordination.
+  \end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 39: Code Review 3: Transformer Residual Head
+% -------------------------------------------------------------
+\begin{frame}[fragile]{Code Review: Ensemble Transformer Residual Modulation}
+  \textbf{Module:} \texttt{trans4mom/models/architecture.py}
+\begin{lstlisting}
+class EnsembleMomentumTransformer(nn.Module):
+    def __init__(self, input_dim, num_vars, hidden_dim=64, num_heads=4):
+        # VSN Feature Selection -> LSTM Locality -> Causal Attention
+        self.vsn = VariableSelectionNetwork(input_dim, num_vars, hidden_dim)
+        self.lstm = nn.LSTM(hidden_dim, hidden_dim, batch_first=True)
+        self.attention = nn.MultiheadAttention(hidden_dim, num_heads, batch_first=True)
+        
+        # Signal Modulation Head (alpha)
+        self.alpha_head = nn.Sequential(
+            GatedResidualNetwork(hidden_dim, hidden_dim, hidden_dim),
+            nn.Linear(hidden_dim, 1)
+        )
+        # CRITICAL: Initialize alpha_head to zero so initial output is the TSMOM prior
+        nn.init.zeros_(self.alpha_head[-1].weight)
+        nn.init.zeros_(self.alpha_head[-1].bias)
+
+    def forward(self, x, prior_mom):
+        # ... VSN, LSTM, and Causal Attention routing ...
+        alpha = self.alpha_head(attn_out)
+        return torch.tanh(prior_mom * (1.0 + alpha))
+\end{lstlisting}
+  \begin{itemize}\tiny
+    \item \textbf{Review Note:} Zero-weight initialization of the alpha head guarantees that training begins at the proven classical prior.
+  \end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 40: Rigorous Backtesting Protocol
+% -------------------------------------------------------------
 \begin{frame}{Rigorous Backtesting Protocol: Mitigating Look-Ahead Bias}
   \begin{block}{Three Pillars of Academic Backtest Rigor}
     \begin{enumerate}\scriptsize
@@ -699,7 +1200,10 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{block}
 \end{frame}
 
-\begin{frame}{Masterclass Synthesis: From Classical Rules to AI Trend Following}
+% -------------------------------------------------------------
+% Slide 41: Masterclass Synthesis
+% -------------------------------------------------------------
+\begin{frame}{Masterclass Synthesis: From Heuristics to AI Momentum}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
       \textbf{What Survived 200 Years}
@@ -724,12 +1228,15 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
       \vspace{0.1cm}
       \begin{center}
-        \textbf{Day 2 Final Q\&A and Discussion}
+        \textbf{Final Q\&A and Discussion}
       \end{center}
     \end{column}
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 42: Academic Bibliography
+% -------------------------------------------------------------
 \begin{frame}{Academic Literature \& Foundational References}
   \begin{block}{\tiny Primary Academic Bibliography (Clickable DOIs)}
     \begin{itemize}\tiny
@@ -745,6 +1252,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \item \href{https://ssrn.com/abstract=2695101}{Baz, J., Rattray, M., Harvey, C. R., Van Hemert, O., \& Hofmann, G. (2015)}. Dissecting Investment Strategies: Momentum, Value, Carry. \emph{Man AHL / SSRN Working Paper}.
       \item \href{https://www.nber.org/papers/w20439}{Daniel, K., \& Moskowitz, T. J. (2016)}. Momentum Crashes. \emph{Journal of Financial Economics}, 122(2), 221--247.
       \item \href{https://arxiv.org/abs/1904.04912}{Lim, B., Zohren, S., \& Roberts, S. (2019)}. Enhancing Time Series Momentum Strategies Using Deep Neural Networks. \emph{Journal of Financial Data Science}, 1(2), 19--38.
+      \item \href{https://www.nber.org/papers/w25551}{Ehsani, S., \& Linnainmaa, J. T. (2022)}. Factor Momentum and the Momentum Factor. \emph{Journal of Finance}, 77(3), 1877--1919.
       \item \href{https://arxiv.org/abs/2112.08534}{Wood, K., Giegerich, S., Roberts, S., \& Zohren, S. (2022)}. Trading with the Momentum Transformer: An Intelligent and Interpretable Architecture. \emph{arXiv:2112.08534}.
     \end{itemize}
   \end{block}
