@@ -16,7 +16,7 @@
 \graphicspath{{../book/Figures/}{../../trans4mom/presentations/}{../../trans4mom/research/}{../../trans4mom/docs/Figures/}}
 
 % Balanced Academic Typography Hierarchy
-\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamerfont{frametitle}{size=\large,series=\bfseries}
 \setbeamerfont{framesubtitle}{size=\scriptsize}
 \setbeamerfont{block title}{size=\scriptsize,series=\bfseries}
 \setbeamerfont{block body}{size=\scriptsize}
@@ -56,6 +56,23 @@
 \setbeamercolor{block body example}{bg=lightteal, fg=black}
 \setbeamercolor{structure}{fg=darkteal}
 
+% Custom sober academic footline: strictly Nick Firoozye, Short Title, and Frame Number
+\setbeamertemplate{footline}{
+  \leavevmode%
+  \hbox{%
+    \begin{beamercolorbox}[wd=.30\paperwidth,ht=2.25ex,dp=1ex,leftskip=2ex]{author in head/foot}%
+      \usebeamerfont{author in head/foot}Nick Firoozye
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.50\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+      \usebeamerfont{title in head/foot}\insertshorttitle
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.20\paperwidth,ht=2.25ex,dp=1ex,rightskip=2ex,right]{date in head/foot}%
+      \usebeamerfont{date in head/foot}\insertframenumber{} / \inserttotalframenumber
+    \end{beamercolorbox}%
+  }%
+  \vskip0pt%
+}
+
 % Python code listing styling
 \lstset{
   language=Python,
@@ -70,7 +87,7 @@
   rulecolor=\color{mediumteal}
 }
 
-\title{The Foundations of Systematic Momentum and the Transition to AI}
+\title[Momentum Foundations \& The Momentum Transformer]{The Foundations of Systematic Momentum and the Transition to AI}
 \subtitle{Mechanics, Asymmetries, Deep Momentum Networks, and the Momentum Transformer}
 \author[Nick Firoozye]{Nick Firoozye}
 \institute{UCL Computer Science \& Financial Computing}
@@ -206,10 +223,10 @@
 \begin{frame}[plain]
   \vfill
   \centering
-  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
-    {\Huge \textbf{Day 1: Part I}}\\[0.4cm]
-    {\Large \textbf{Systematic Momentum Foundations}}
-  \end{beamercolorbox}
+  {\scriptsize\scshape\color{darkteal!70!black} Day 1 \quad\textbar\quad Part I}\\[0.35cm]
+  {\large\bfseries\color{darkteal} Systematic Momentum Foundations}\\[0.25cm]
+  {\color{darkteal!40!black}\rule{3.5cm}{0.4pt}}\\[0.3cm]
+  {\footnotesize\color{black!70} Core Mechanics, Filter Equivalence, and Factor Dynamics}
   \vfill
 \end{frame}
 
@@ -532,16 +549,34 @@
   \end{columns}
 \end{frame}
 
+% -------------------------------------------------------------
+% Slide 18: Market Regimes & Changepoint Detection (BOCPD)
+% -------------------------------------------------------------
+\begin{frame}{Market Regimes \& Changepoint Detection (BOCPD)}
+  \begin{block}{Bayesian Online Changepoint Detection (\href{https://arxiv.org/abs/0710.3742}{Adams \& MacKay 2007})}
+    Computes exact posterior distributions over current run-length $r_t$ (time elapsed since last structural regime change) via recursive message passing.
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{center}
+    \includegraphics[width=0.92\linewidth,height=3.5cm,keepaspectratio]{BOCPD_chgptsDJIA.png}
+  \end{center}
+  \vspace{-0.2cm}
+  \begin{itemize}\scriptsize
+    \item \textbf{Why Moving Averages Fail:} Fixed-lookback filters average prices across structural breaks, causing severe lag drag or false breakouts.
+    \item \textbf{The Motivation for AI:} Financial series exhibit piecewise-stationary regimes. Rather than static lookbacks, models require dynamic conditioning on regime transitions.
+  \end{itemize}
+\end{frame}
+
 % =========================================================================
 % STANDALONE SECTION SLIDE: DAY 1 - PART II
 % =========================================================================
 \begin{frame}[plain]
   \vfill
   \centering
-  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
-    {\Huge \textbf{Day 1: Part II}}\\[0.4cm]
-    {\Large \textbf{Transitioning to Deep Learning}}
-  \end{beamercolorbox}
+  {\scriptsize\scshape\color{darkteal!70!black} Day 1 \quad\textbar\quad Part II}\\[0.35cm]
+  {\large\bfseries\color{darkteal} Transitioning to Deep Learning}\\[0.25cm]
+  {\color{darkteal!40!black}\rule{3.5cm}{0.4pt}}\\[0.3cm]
+  {\footnotesize\color{black!70} Deep Momentum Networks, Sharpe Loss, and Differentiable Sizing}
   \vfill
 \end{frame}
 
@@ -757,10 +792,10 @@ class DifferentiableSharpeLoss(nn.Module):
 \begin{frame}[plain]
   \vfill
   \centering
-  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
-    {\Huge \textbf{Day 2: Part III}}\\[0.4cm]
-    {\Large \textbf{Inside the Momentum Transformer}}
-  \end{beamercolorbox}
+  {\scriptsize\scshape\color{darkteal!70!black} Day 2 \quad\textbar\quad Part III}\\[0.35cm]
+  {\large\bfseries\color{darkteal} The Momentum Transformer}\\[0.25cm]
+  {\color{darkteal!40!black}\rule{3.5cm}{0.4pt}}\\[0.3cm]
+  {\footnotesize\color{black!70} Attention Mechanics, Variable Selection, and Head Specialisation}
   \vfill
 \end{frame}
 
@@ -974,10 +1009,10 @@ class DifferentiableSharpeLoss(nn.Module):
 \begin{frame}[plain]
   \vfill
   \centering
-  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
-    {\Huge \textbf{Day 2: Part IV}}\\[0.4cm]
-    {\Large \textbf{Systems, Engineering, \& Code Review}}
-  \end{beamercolorbox}
+  {\scriptsize\scshape\color{darkteal!70!black} Day 2 \quad\textbar\quad Part IV}\\[0.35cm]
+  {\large\bfseries\color{darkteal} Systems, Engineering, \& Empirical Realities}\\[0.25cm]
+  {\color{darkteal!40!black}\rule{3.5cm}{0.4pt}}\\[0.3cm]
+  {\footnotesize\color{black!70} Overfitting Diagnostics, Inductive Bias, and Cluster Scalability}
   \vfill
 \end{frame}
 
@@ -1044,62 +1079,64 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 39: The Overfitting Extreme: +-19 Sharpe
+% Slide 40: The Overfitting Extreme (+19 to -19 Sharpe)
 % -------------------------------------------------------------
-\begin{frame}{The Overfitting Extreme: The $\pm 19$ Sharpe Phenomenon}
-  \begin{alertblock}{The "Double-Lag" \& Unconstrained Capacity Trap}
-    In early experimental runs with high-capacity networks (160-dim, 2-layer transformers) and unaligned feature selection:
-    \begin{itemize}\scriptsize
-      \item The model achieved an astonishing in-sample Sharpe ratio of \textbf{+19.2}.
-      \item When evaluated out-of-sample on unseen market periods, performance collapsed to \textbf{-18.7}.
-    \end{itemize}
-  \end{alertblock}
-  \vspace{0.1cm}
-  \begin{columns}[t]
-    \begin{column}{0.48\textwidth}
-      \textbf{\scriptsize What Happened?}
-      \begin{itemize}\scriptsize
-        \item \textbf{Noise Memorisation:} The unconstrained attention heads memorized specific idiosyncratic noise spikes.
-        \item \textbf{Look-Ahead Leaks:} Unaligned feature normalization leaked future volatility moments into the inputs.
-      \end{itemize}
+\begin{frame}{The Overfitting Extreme: Cross-Sectional Attention Collapse}
+  \begin{columns}[c]
+    \begin{column}{0.44\textwidth}
+      \begin{alertblock}{The $+19$ to $-19$ Sharpe Trap}
+        In an unconstrained cross-sectional transformer architecture without domain regularisation:
+        \begin{itemize}\tiny
+          \item \textbf{In-Sample (1990--2024):} Near-monotonic ascent with Sharpe \textbf{+19.2}.
+          \item \textbf{Out-of-Sample (2025+):} Catastrophic liquidation with Sharpe \textbf{-18.7}.
+        \end{itemize}
+      \end{alertblock}
+      \begin{block}{\scriptsize Autopsy of the Failure}
+        \begin{itemize}\tiny
+          \item \textbf{Noise Memorisation:} Unrestricted cross-asset attention memorised idiosyncratic noise rather than macro regimes.
+          \item \textbf{Excess Capacity:} 160 hidden units without inductive bias produced runaway leverage.
+        \end{itemize}
+      \end{block}
     \end{column}
-    \begin{column}{0.48\textwidth}
-      \textbf{\scriptsize The Solution}
-      \begin{itemize}\scriptsize
-        \item \textbf{Domain Feature Selection:} Strict VSN gating with verified ex-ante signals.
-        \item \textbf{Capacity Control:} Reducing hidden dimensions (64-dim, 1-layer).
-        \item \textbf{Residual Anchoring:} Anchoring to the classical prior prevented runaway leverage.
-      \end{itemize}
+    \begin{column}{0.54\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[width=\linewidth,height=3.6cm,keepaspectratio]{backtest_cross_sectional.png}
+        \caption{Unconstrained cross-sectional transformer: spectacular in-sample fit followed by catastrophic out-of-sample collapse.}
+      \end{figure}
     \end{column}
   \end{columns}
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 40: Breadth-Regularisation Link
+% Slide 41: Taming Overfitting via Bayesian Prior Anchoring
 % -------------------------------------------------------------
-\begin{frame}{The Breadth-Regularisation Link: 24 vs. 46 Assets}
+\begin{frame}{Taming Overfitting: Bayesian Prior Anchoring (V9 Audit)}
   \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Narrow Universe (24 Assets)}
-        \begin{itemize}\scriptsize
-          \item In-Sample Sharpe: $1.27$
-          \item Out-of-Sample Sharpe: \textbf{-1.00}
-          \item \emph{Diagnosis:} Severe overfitting. The model memorized asset-specific noise patterns.
+    \begin{column}{0.45\textwidth}
+      \begin{block}{\scriptsize Residual Prior Modulation}
+        Rather than predicting unconstrained positions, the model modulates an established momentum prior:
+        \begin{equation*}
+          \mathrm{Position}_t = \tanh\Big(\mathrm{Prior}_t \cdot (1 + \alpha_t)\Big)
+        \end{equation*}
+        \begin{itemize}\tiny
+          \item $\mathrm{Prior}_t$: Multi-horizon MACD signal.
+          \item $\alpha_t$: Bounded adjustment with zero-weight / zero-bias initialisation ($\alpha_0 \equiv 0$).
+          \item \textbf{Feature Restriction:} Variable Selection Network (VSN) restricted strictly to momentum inputs.
         \end{itemize}
       \end{block}
-      \begin{block}{Broad Universe (46 Assets)}
-        \begin{itemize}\scriptsize
-          \item In-Sample Sharpe: $1.35$
-          \item Out-of-Sample Sharpe: \textbf{+1.04}
-          \item \emph{Diagnosis:} Cross-asset variance forces attention heads to identify macro regimes common across markets.
+      \begin{alertblock}{\scriptsize Audit Recovery \& The Sharpe Gap}
+        \begin{itemize}\tiny
+          \item \textbf{Empirical Recovery:} Recovers stable Net OOS Sharpe of \textbf{+1.04} across 46 assets (1990--2026).
+          \item \textbf{Why It Is Not Sufficient:} Literature targets $>2.0$ Sharpe; closing the gap requires explicit CPD modules and ensembling.
         \end{itemize}
-      \end{block}
+      \end{alertblock}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.53\textwidth}
       \begin{figure}[ht]
         \centering
-        \includegraphics[height=3.8cm,keepaspectratio]{final_audit_results.png}
-        \caption{Full-period cumulative net return and out-of-sample audit breakdown.}
+        \includegraphics[width=\linewidth,height=3.6cm,keepaspectratio]{backtest_v9_final.png}
+        \caption{V9 audit: Bayesian prior modulation tames catastrophic overfitting, delivering stable +1.04 OOS Sharpe across 46 assets.}
       \end{figure}
     \end{column}
   \end{columns}
