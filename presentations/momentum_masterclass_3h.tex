@@ -13,11 +13,11 @@
 \usetikzlibrary{shapes,arrows.meta,positioning,calc,fit,backgrounds}
 
 % Graphic search paths
-\graphicspath{{../book/Figures/}{../../trans4mom/research/}{../../trans4mom/docs/Figures/}}
+\graphicspath{{../book/Figures/}{../../trans4mom/presentations/}{../../trans4mom/research/}{../../trans4mom/docs/Figures/}}
 
-% Understated, compact academic font sizing to eliminate overlaps
-\setbeamerfont{frametitle}{size=\small,series=\bfseries}
-\setbeamerfont{framesubtitle}{size=\footnotesize}
+% Balanced Academic Typography Hierarchy
+\setbeamerfont{frametitle}{size=\normalsize,series=\bfseries}
+\setbeamerfont{framesubtitle}{size=\scriptsize}
 \setbeamerfont{block title}{size=\scriptsize,series=\bfseries}
 \setbeamerfont{block body}{size=\scriptsize}
 \setbeamerfont{block title alerted}{size=\scriptsize,series=\bfseries}
@@ -72,58 +72,63 @@
 
 \title{The Foundations of Systematic Momentum and the Transition to AI}
 \subtitle{Mechanics, Asymmetries, Deep Momentum Networks, and the Momentum Transformer}
-\author{Nick Firoozye}
+\author[Nick Firoozye]{Nick Firoozye}
 \institute{UCL Computer Science \& Financial Computing}
 \date{\today}
 
 \begin{document}
 
 % -------------------------------------------------------------
-% Slide 1: Title Page
+% Title Page
 % -------------------------------------------------------------
 \begin{frame}
   \titlepage
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 2: Masterclass Thematic Agenda
+% Masterclass Syllabus Overview
 % -------------------------------------------------------------
 \begin{frame}{Masterclass Thematic Structure}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Part I: Systematic Momentum Foundations}
+      \textbf{Day 1: Momentum \& The Shift to AI}
       \begin{itemize}\scriptsize
-        \item Canonical algorithmic trading architecture
-        \item Behavioural origins \& heuristic deconstruction
-        \item Classical TSMOM vs. XSMOM
-        \item Filter equivalence \& multi-century persistence
-        \item Skewness, straddle convexity \& factor momentum
-        \item Momentum crashes \& heuristic failure
-      \end{itemize}
-      \vspace{0.1cm}
-      \textbf{Part II: The Shift to Deep Learning}
-      \begin{itemize}\scriptsize
-        \item Deep Momentum Networks (Lim et al.)
-        \item Why MSE fails: optimizing for Sharpe \& Sortino
-        \item Turnover penalisation \& differentiable trading
+        \item \textbf{Part I: Systematic Momentum Foundations}
+        \begin{itemize}\tiny
+          \item Canonical algorithmic trading architecture
+          \item Behavioural origins \& heuristic deconstruction
+          \item Classical TSMOM vs. XSMOM
+          \item Filter equivalence \& multi-century persistence
+          \item Skewness, straddle convexity \& factor momentum
+          \item Momentum crashes \& heuristic failure
+        \end{itemize}
+        \item \textbf{Part II: Transitioning to Deep Learning}
+        \begin{itemize}\tiny
+          \item Deep Momentum Networks (Lim et al.)
+          \item Why MSE fails: optimizing for Sharpe \& Sortino
+          \item Turnover penalisation \& differentiable trading
+          \item State-space models \& changepoint limits
+        \end{itemize}
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Part III: The Momentum Transformer}
+      \textbf{Day 2: Transformers \& Practical Realities}
       \begin{itemize}\scriptsize
-        \item The non-stationarity trilemma
-        \item Trans4mom architecture: VSN, LSTM, Attention
-        \item Inductive bias: residual prior modulation
-        \item Decoding multi-head attention \& macro regimes
-      \end{itemize}
-      \vspace{0.1cm}
-      \textbf{Part IV: Systems, Engineering \& Code Review}
-      \begin{itemize}\scriptsize
-        \item Modern architectures: TFT, PatchTST, Informer
-        \item Data bottlenecks: continuous futures roll gaps
-        \item Overfitting extremes: the $\pm 19$ Sharpe phenomenon
-        \item HPC engineering: solving the CUDA memory wall
-        \item Code review of core \texttt{trans4mom} modules
+        \item \textbf{Part III: The Momentum Transformer}
+        \begin{itemize}\tiny
+          \item The non-stationarity trilemma
+          \item Trans4mom architecture: VSN, LSTM, Attention
+          \item Inductive bias: residual prior modulation
+          \item Decoding multi-head attention \& macro regimes
+        \end{itemize}
+        \item \textbf{Part IV: Systems, Engineering, \& Code Review}
+        \begin{itemize}\tiny
+          \item Modern architectures: TFT, PatchTST, Informer
+          \item Data bottlenecks: continuous futures roll gaps
+          \item Overfitting extremes: the $\pm 19$ Sharpe phenomenon
+          \item HPC engineering: solving the CUDA memory wall
+          \item Interactive code review of \texttt{trans4mom}
+        \end{itemize}
       \end{itemize}
     \end{column}
   \end{columns}
@@ -137,50 +142,52 @@
   \begin{tikzpicture}[
     >=Stealth,
     font=\sffamily\tiny,
-    node distance=0.35cm and 0.4cm,
-    box/.style={rectangle, rounded corners=3pt, draw=sysblue!80, fill=syslightblue, thick, align=center, inner sep=4pt, minimum height=0.65cm},
-    modelbox/.style={rectangle, rounded corners=3pt, draw=sysslate!80, fill=syslightslate, thick, align=center, inner sep=3pt, minimum width=1.5cm, minimum height=0.55cm},
-    allocbox/.style={rectangle, rounded corners=3pt, draw=systeal!85, fill=syslightteal, very thick, align=center, inner sep=4pt, minimum height=0.65cm},
-    execbox/.style={rectangle, rounded corners=3pt, draw=sysblue!90, fill=syslightblue, very thick, align=center, inner sep=4pt, minimum height=0.65cm},
-    extbox/.style={rectangle, rounded corners=3pt, draw=sysamber!80, fill=syslightamber, thick, align=center, inner sep=3pt, minimum width=2.4cm, minimum height=0.55cm},
-    backtestloop/.style={draw=alertred, line width=1.2pt, dashed, rounded corners=5pt}
+    node distance=0.25cm and 0.35cm,
+    box/.style={rectangle, rounded corners=3pt, draw=sysblue!80, fill=syslightblue, thick, align=center, inner sep=3pt, minimum height=0.6cm, minimum width=2.5cm},
+    modelbox/.style={rectangle, rounded corners=3pt, draw=sysslate!80, fill=syslightslate, thick, align=center, inner sep=3pt, minimum width=2.3cm, minimum height=0.55cm},
+    allocbox/.style={rectangle, rounded corners=3pt, draw=systeal!85, fill=syslightteal, very thick, align=center, inner sep=3pt, minimum width=2.8cm, minimum height=0.6cm},
+    execbox/.style={rectangle, rounded corners=3pt, draw=sysblue!90, fill=syslightblue, very thick, align=center, inner sep=3pt, minimum width=2.4cm, minimum height=0.6cm},
+    extbox/.style={rectangle, rounded corners=3pt, draw=sysamber!80, fill=syslightamber, thick, align=center, inner sep=3pt, minimum width=2.3cm, minimum height=0.55cm},
+    backtestloop/.style={draw=alertred, line width=1.1pt, dashed, rounded corners=5pt}
   ]
-    % Main Horizontal Spine
-    \node[box] (data) at (0, 1.2) {\textbf{Data Sources}\\Market, Macro, Alt};
-    \node[box, right=of data] (clean) {\textbf{Cleaning \& Storage}\\Outliers, Imputation, Rolls};
-    \node[box, right=of clean] (feat) {\textbf{Feature Engineering}\\Norm., Vol-Scaling, Lags};
+    % Row 1: Ingestion & Feature Engineering (Left to Right)
+    \node[box] (data) at (0, 2.1) {\textbf{Data Sources}\\Market, Macro, Alt};
+    \node[box, right=of data, xshift=0.4cm] (clean) {\textbf{Cleaning \& Storage}\\Outliers, Imputation, Rolls};
+    \node[box, right=of clean, xshift=0.4cm] (feat) {\textbf{Feature Engineering}\\Norm., Vol-Scaling, Lags};
 
-    % Triad Models
-    \node[modelbox] (alpha) at (6.8, 1.9) {\textbf{Edge / Alpha}\\$\hat{\mu}_t$};
-    \node[modelbox] (risk) at (6.8, 1.2) {\textbf{Risk Model}\\$\hat{\Sigma}_t$};
-    \node[modelbox] (tca) at (6.8, 0.5) {\textbf{TCA Model}\\$\hat{\mathcal{C}}_t$};
-
-    \node[allocbox, right=of risk, xshift=0.9cm] (alloc) {\textbf{Allocation / Sizing}\\Risk Budgeting, Constraints};
-    \node[execbox, right=of alloc] (exec) {\textbf{Execution}\\Slicing, Routing};
-
-    % Spine arrows
     \draw[->, thick, sysblue!80] (data) -- (clean);
     \draw[->, thick, sysblue!80] (clean) -- (feat);
-    \draw[->, thick, sysblue!80] (feat.east) -- ++(0.2,0) |- (alpha.west);
-    \draw[->, thick, sysblue!80] (feat.east) -- (risk.west);
-    \draw[->, thick, sysblue!80] (feat.east) -- ++(0.2,0) |- (tca.west);
-    \draw[->, thick, sysslate!80] (alpha.east) -| ($(alloc.west)+(-0.2,0)$) -- (alloc.west);
-    \draw[->, thick, sysslate!80] (risk.east) -- (alloc.west);
-    \draw[->, thick, sysslate!80] (tca.east) -| ($(alloc.west)+(-0.2,0)$) -- (alloc.west);
+
+    % Row 2: Triad Models (Edge, Risk, TCA)
+    \node[modelbox] (alpha) at (0.9, 0.9) {\textbf{Edge / Alpha Model}\\$\hat{\mu}_t$ (Trend, ML)};
+    \node[modelbox] (risk) at (4.5, 0.9) {\textbf{Risk Model}\\$\hat{\Sigma}_t$ (Factor Covariance)};
+    \node[modelbox] (tca) at (8.1, 0.9) {\textbf{TCA Model}\\$\hat{\mathcal{C}}_t$ (Spread, Impact)};
+
+    \draw[->, thick, sysblue!80] (feat.south) -- ++(0,-0.3) -| (alpha.north);
+    \draw[->, thick, sysblue!80] (feat.south) -- ++(0,-0.3) -| (risk.north);
+    \draw[->, thick, sysblue!80] (feat.south) -- ++(0,-0.3) -| (tca.north);
+
+    % Row 3: Allocation and Execution
+    \node[allocbox] (alloc) at (2.2, -0.3) {\textbf{Portfolio Allocation / Sizing}\\Risk Budgeting, Constraints};
+    \node[execbox] (exec) at (6.5, -0.3) {\textbf{Execution Engine}\\Slicing, Routing, Fills};
+
+    \draw[->, thick, sysslate!80] (alpha.south) |- (alloc.west);
+    \draw[->, thick, sysslate!80] (risk.south) -- ++(0,-0.2) -| ($(alloc.north)+(0.5,0)$);
+    \draw[->, thick, sysslate!80] (tca.south) -- ++(0,-0.4) -| ($(alloc.east)+(0.2,0)$) -- (alloc.east);
     \draw[->, thick, systeal!85] (alloc) -- (exec);
 
-    % Governance / Oversight Side Modules
-    \node[extbox] (perf) at (9.4, -0.6) {\textbf{Performance Analysis}\\PnL Decomposition, Attribution};
-    \node[extbox] (riskmgt) at (5.2, -0.6) {\textbf{Risk Management}\\Limits, VaR, Mandates};
+    % Row 4: External Oversight Modules
+    \node[extbox] (riskmgt) at (9.4, -0.05) {\textbf{Risk Management}\\Limits, VaR Mandates};
+    \node[extbox] (perf) at (9.4, -0.7) {\textbf{Performance Analysis}\\PnL Attribution, Sharpe};
 
-    \draw[->, thick, gray!70] (exec.south) |- (perf.east);
-    \draw[->, thick, gray!70] (exec.south) |- (riskmgt.east);
-    \draw[->, thick, dashed, sysblue!80] (exec.south) -- ++(0,-0.3) -| ($(alloc.south)+(-0.2,0)$)
+    \draw[->, thick, gray!70] (exec.east) |- (riskmgt.west);
+    \draw[->, thick, gray!70] (exec.east) |- (perf.west);
+    \draw[->, thick, dashed, sysblue!80] (exec.south) -- ++(0,-0.25) -| ($(alloc.south)+(0,0)$)
       node[pos=0.3, below, font=\tiny] {Positions $w_t$};
 
     % Backtesting Loop Enclosure
     \begin{scope}[on background layer]
-      \node[backtestloop, fit=(clean)(feat)(alpha)(risk)(tca)(alloc)(perf), inner sep=7pt] (btbox) {};
+      \node[backtestloop, fit=(clean)(feat)(alpha)(risk)(tca)(alloc)(perf), inner sep=5pt] (btbox) {};
     \end{scope}
     \node[anchor=north east, font=\tiny\bfseries, text=alertred] at (btbox.north east)
       {Offline Simulation / Backtesting Loop};
@@ -194,12 +201,20 @@
 \end{frame}
 
 % =========================================================================
-% PART I: SYSTEMATIC MOMENTUM FOUNDATIONS
+% STANDALONE SECTION SLIDE: DAY 1 - PART I
 % =========================================================================
-\section{Part I: Systematic Momentum Foundations}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
+    {\Huge \textbf{Day 1: Part I}}\\[0.4cm]
+    {\Large \textbf{Systematic Momentum Foundations}}
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
 
 % -------------------------------------------------------------
-% Slide 4: Philosophy of Momentum
+% Slide 5: Philosophy of Momentum
 % -------------------------------------------------------------
 \begin{frame}{The Philosophy of Momentum: Buy High, Sell Higher}
   \begin{block}{Deconstructing the Core Heuristic}
@@ -208,7 +223,7 @@
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Behavioural Origins}
+      \textbf{\scriptsize Behavioural Origins}
       \begin{itemize}\scriptsize
         \item \textbf{Disposition effect:} Investors realise gains prematurely while holding losers, causing initial underreaction to fundamental news.
         \item \textbf{Anchoring \& conservatism:} Slow Bayesian updating creates persistent auto-correlated price discovery.
@@ -216,7 +231,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Market Microstructure}
+      \textbf{\scriptsize Market Microstructure}
       \begin{itemize}\scriptsize
         \item \textbf{Liquidity provision limits:} Capital constraints among market makers prevent instantaneous price adjustment.
         \item \textbf{Feedback loops:} Systematic portfolio rebalancing and stop-loss execution amplify intermediate directional displacement.
@@ -227,7 +242,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 5: TSMOM vs. XSMOM
+% Slide 6: TSMOM vs. XSMOM
 % -------------------------------------------------------------
 \begin{frame}{Two Flavours of Momentum: TSMOM vs. XSMOM}
   \begin{block}{Time-Series Momentum (TSMOM / Absolute Momentum)}
@@ -247,7 +262,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 6: Digital Trend Filters
+% Slide 7: Classical Signal Formulations
 % -------------------------------------------------------------
 \begin{frame}{Classical Signal Formulations}
   \begin{block}{Digital Filtering Implementations}
@@ -271,7 +286,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 7: Filter Equivalence Theorem
+% Slide 8: Filter Equivalence Theorem
 % -------------------------------------------------------------
 \begin{frame}{The Filter Equivalence Theorem}
   \begin{block}{Linear Filter Representation (\href{https://ssrn.com/abstract=2465623}{Bruder \& Gaussel 2011}, \href{http://www.thierry-roncalli.com/download/Alternative_Risk_Premia.pdf}{Hamdan et al. 2012})}
@@ -284,14 +299,14 @@
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Core Equivalence Findings}
+      \textbf{\scriptsize Core Equivalence Findings}
       \begin{itemize}\scriptsize
         \item Different digital filters (SMA, EWMA, MACD) yield strategy positions with mutual correlations $>0.90$.
         \item Apparent diversity across moving average heuristics is mathematical redundancy.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Key Takeaway}
+      \textbf{\scriptsize Key Takeaway}
       \begin{itemize}\scriptsize
         \item Classical heuristic tweaking (e.g. testing 50/200 vs 40/180) merely shifts lag weights slightly.
         \item A fundamentally different paradigm is needed to capture dynamic regimes.
@@ -301,7 +316,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 8: 200 Years of Trend Following
+% Slide 9: 200 Years of Trend Following
 % -------------------------------------------------------------
 \begin{frame}{Multi-Century Empirical Persistence: The 200-Year Evidence}
   \begin{block}{Long-Horizon Statistical Proof (\href{https://arxiv.org/abs/1404.7797}{Lempérière et al. 2014})}
@@ -316,7 +331,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 9: Crisis Alpha
+% Slide 10: Crisis Alpha
 % -------------------------------------------------------------
 \begin{frame}{The Quant Meltdown Survival: Crisis Alpha}
   \begin{block}{Portfolio Stabilisation During Systemic Shocks}
@@ -331,11 +346,64 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 10: Lookback Straddle Equivalence
+% Slide 11: Skewness Foundations (Swapped & Paired)
+% -------------------------------------------------------------
+\begin{frame}{Skewness Foundations: Martin-Zou Analytical Proof}
+  \begin{block}{The Martin-Zou Positive Skewness Theorem (\href{https://www.risk.net/derivatives/structured-products/2194247/momentum-trading-skews-me}{Martin \& Zou 2012})}
+    When filtering Gaussian innovations $X_t \sim \mathcal{N}(0, \sigma^2)$ through an EWMA trend filter $s_t = c \sum_{k=1}^\infty \rho^k X_{t-k}$, compounded strategy returns possess strictly positive skewness:
+    \begin{equation*}
+      \mathbb{E}\left[R_{t+T}^3\right] = 6 \sum_{j=1}^T (T - j) a_j \gamma_j^a > 0
+    \end{equation*}
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{columns}[c]
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.0cm,keepaspectratio]{L5/MartinsSkewnessEWMA1.png}
+        \caption{Analytical positive skewness vs. horizon (Martin \& Zou 2012).}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.0cm,keepaspectratio]{L5/chf_usd_skew.png}
+        \caption{Empirical right-skewed return distribution (Potters \& Bouchaud).}
+      \end{figure}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 12: Empirical Skewness vs. Negative Carry Skewness
+% -------------------------------------------------------------
+\begin{frame}{Empirical Skewness Across Horizons vs. Carry Risk}
+  \begin{columns}[c]
+    \begin{column}{0.5\textwidth}
+      \begin{figure}[ht]
+        \centering
+        \includegraphics[height=3.6cm,keepaspectratio]{L5/Skew vs Sharpe.png}
+        \caption{Strategy Skewness vs. Sharpe Ratio across horizons (Lempérière et al.).}
+      \end{figure}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Positive vs. Negative Skewness}
+        \begin{itemize}\scriptsize
+          \item \textbf{Trend Following:} Frequent small whipsaw losses compensated by occasional outsized positive windfalls (positive right-skew).
+          \item \textbf{FX Carry / Vol Selling:} Steady incremental positive carry yields punctuated by catastrophic tail drawdowns (severe negative skew).
+          \item Blending positive-skew momentum with negative-skew carry creates an ideal uncorrelation profile.
+        \end{itemize}
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 13: Lookback Straddle Equivalence
 % -------------------------------------------------------------
 \begin{frame}{Mathematical Convexity: Fung-Hsieh Straddle Equivalence}
   \begin{block}{Fung-Hsieh Lookback Option Equivalence (\href{https://people.duke.edu/~dah7/RFS2001.pdf}{Fung \& Hsieh 2001})}
-    A continuous-time trend-following strategy with dynamic stop-losses and position flipping generates an asymmetric payoff mathematically equivalent to a portfolio of lookback straddles:
+    A continuous-time trend-following strategy with dynamic stop-losses generates an asymmetric payoff mathematically equivalent to a portfolio of lookback straddles:
     \begin{equation*}
       \text{Payoff}_{\text{lookback}} = \max_{0 \le t \le T} P_t - \min_{0 \le t \le T} P_t
     \end{equation*}
@@ -343,14 +411,14 @@
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Structural Intuition}
+      \textbf{\scriptsize Structural Intuition}
       \begin{itemize}\scriptsize
         \item Delivers positive gamma in large directional moves, regardless of market direction.
         \item Trend followers capture extreme market deviations without paying explicit option premiums.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{The Cost of Convexity}
+      \textbf{\scriptsize The Cost of Convexity}
       \begin{itemize}\scriptsize
         \item Whip-saw losses in sideways, range-bound regimes represent the implicit "theta decay" of trend following.
       \end{itemize}
@@ -359,61 +427,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 11: Martin-Zou Skewness Theorem
-% -------------------------------------------------------------
-\begin{frame}{Skewness \& Asymmetric Tail Risk: Martin-Zou Theorem}
-  \begin{block}{The Martin-Zou Positive Skewness Theorem (\href{https://www.risk.net/derivatives/structured-products/2194247/momentum-trading-skews-me}{Martin \& Zou 2012})}
-    When filtering i.i.d. Gaussian innovations $X_t \sim \mathcal{N}(0, \sigma^2)$ through an EWMA trend filter $s_t = c \sum_{k=1}^\infty \rho^k X_{t-k}$, the compounded strategy return possesses strictly positive skewness:
-    \begin{equation*}
-      \mathbb{E}\left[R_{t+T}^3\right] = 6 \sum_{j=1}^T (T - j) a_j \gamma_j^a > 0
-    \end{equation*}
-    Unlike carry and short-volatility strategies that suffer severe negative skewness (tail crashes), momentum delivers structural right skewness.
-  \end{block}
-  \vspace{-0.1cm}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \begin{figure}[ht]
-        \centering
-        \includegraphics[height=3.1cm,keepaspectratio]{L5/MartinsSkewnessEWMA1.png}
-        \caption{Analytical positive skewness vs. horizon (Martin \& Zou 2012).}
-      \end{figure}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{figure}[ht]
-        \centering
-        \includegraphics[height=3.1cm,keepaspectratio]{L5/Skew vs Sharpe.png}
-        \caption{Strategy Skewness vs. Sharpe Ratio across horizons (Lempérière et al.).}
-      \end{figure}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% -------------------------------------------------------------
-% Slide 12: Empirical Return Distribution Skewness
-% -------------------------------------------------------------
-\begin{frame}{Empirical Evidence of Asymmetric Skewness}
-  \begin{columns}[c]
-    \begin{column}{0.48\textwidth}
-      \begin{figure}[ht]
-        \centering
-        \includegraphics[height=3.4cm,keepaspectratio]{L5/chf_usd_skew.png}
-        \caption{Right-skewed return distribution of trend following (Potters \& Bouchaud).}
-      \end{figure}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{Positive vs. Negative Skewness}
-        \begin{itemize}\scriptsize
-          \item \textbf{Trend Following:} Frequent small whipsaw losses compensated by occasional outsized positive windfalls (positive skew).
-          \item \textbf{FX Carry / Vol Selling:} Steady incremental positive carry yields punctuated by catastrophic tail drawdowns (negative skew).
-          \item Blending the two forms the foundation of alternative risk premia investing.
-        \end{itemize}
-      \end{block}
-    \end{column}
-  \end{columns}
-\end{frame}
-
-% -------------------------------------------------------------
-% Slide 13: Multi-Style Risk Premia: Momentum, Value, Carry
+% Slide 14: Multi-Style Risk Premia: Momentum, Value, Carry
 % -------------------------------------------------------------
 \begin{frame}{Multi-Style Alternative Risk Premia}
   \begin{block}{Combining Momentum, Value, and Carry (\href{https://ssrn.com/abstract=2695101}{Baz, Rattray, Harvey et al. 2015})}
@@ -428,7 +442,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 14: Factor Momentum
+% Slide 15: Factor Momentum
 % -------------------------------------------------------------
 \begin{frame}{Factor Momentum: The Explanatory Driver}
   \begin{block}{The Explanatory Factor Finding (\href{https://www.nber.org/papers/w25551}{Ehsani \& Linnainmaa 2022})}
@@ -443,12 +457,12 @@
     \begin{column}{0.48\textwidth}
       \begin{figure}[ht]
         \centering
-        \includegraphics[height=3.1cm,keepaspectratio]{L8/famafrench.pdf}
+        \includegraphics[height=3.0cm,keepaspectratio]{L8/famafrench.pdf}
         \caption{Systematic Factor Model decomposition driving cross-sectional returns.}
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Key Implications}
+      \textbf{\scriptsize Key Implications}
       \begin{itemize}\scriptsize
         \item Momentum is not an idiosyncratic stock anomaly; it is a macro phenomenon driving factor premia.
         \item Factors (Value, Size, Investment, Profitability) exhibit strong auto-regressive momentum.
@@ -459,7 +473,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 15: Momentum Crashes
+% Slide 16: Momentum Crashes
 % -------------------------------------------------------------
 \begin{frame}{Momentum Crashes: The Rebound Anomaly}
   \begin{block}{The Rebound Crash Anomaly (\href{https://www.nber.org/papers/w20439}{Daniel \& Moskowitz 2016})}
@@ -475,7 +489,7 @@
       \end{figure}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Crash Mechanism}
+      \textbf{\scriptsize Crash Mechanism}
       \begin{itemize}\scriptsize
         \item In a market panic, "losers" become highly levered, distressed assets.
         \item When the market abruptly rebounds, distressed losers surge dramatically.
@@ -487,25 +501,25 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 16: Limitations of Classical Heuristics
+% Slide 17: Limitations of Classical Heuristics
 % -------------------------------------------------------------
 \begin{frame}{Limitations of Fixed Heuristics}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{1. The Lag Drag Dilemma}
+      \textbf{\scriptsize 1. The Lag Drag Dilemma}
       \begin{itemize}\scriptsize
         \item Long lookback windows (e.g., 200 days) protect against high-frequency noise but bleed capital when regimes pivot.
         \item Short windows (e.g., 10 days) adapt rapidly to pivots but suffer severe transaction cost bleed in choppy markets.
       \end{itemize}
       \vspace{0.1cm}
-      \textbf{2. Fixed-Threshold Brittleness}
+      \textbf{\scriptsize 2. Fixed-Threshold Brittleness}
       \begin{itemize}\scriptsize
         \item Discrete decisions ($s_t \in \{-1, +1\}$) ignore continuous regime uncertainty.
         \item Linear scaling fails to model cross-asset volatility spillovers.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{3. Classical State-Space Extensions}
+      \textbf{\scriptsize 3. Classical State-Space Extensions}
       \begin{itemize}\scriptsize
         \item \textbf{Kalman filtering:} Estimates latent trend slope dynamically, but assumes Gaussian innovations.
         \item \textbf{BOCPD:} Computes run-length hazard rates, but struggles with multi-asset interactions.
@@ -519,12 +533,20 @@
 \end{frame}
 
 % =========================================================================
-% PART II: THE PARADIGM SHIFT TO DEEP LEARNING
+% STANDALONE SECTION SLIDE: DAY 1 - PART II
 % =========================================================================
-\section{Part II: The Shift to Deep Learning}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
+    {\Huge \textbf{Day 1: Part II}}\\[0.4cm]
+    {\Large \textbf{Transitioning to Deep Learning}}
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
 
 % -------------------------------------------------------------
-% Slide 17: Deep Momentum Networks
+% Slide 19: Deep Momentum Networks
 % -------------------------------------------------------------
 \begin{frame}{From Fixed Rules to Deep Momentum Networks (DMNs)}
   \begin{block}{The Machine Learning Paradigm Shift (\href{https://arxiv.org/abs/1904.04912}{Lim, Zohren, \& Roberts 2019})}
@@ -533,7 +555,7 @@
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Classical Pipeline}
+      \textbf{\scriptsize Classical Pipeline}
       \begin{itemize}\scriptsize
         \item Heuristic price filtering (e.g. moving average difference).
         \item Static sign or linear scaling.
@@ -542,7 +564,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Deep Momentum Network (DMN)}
+      \textbf{\scriptsize Deep Momentum Network (DMN)}
       \begin{itemize}\scriptsize
         \item Inputs: multi-horizon returns and normalized volatility features across asset universes.
         \item Architecture: Recurrent layers (LSTM) learn path-dependent memory states.
@@ -553,7 +575,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 18: Why MSE Fails
+% Slide 20: Why MSE Fails
 % -------------------------------------------------------------
 \begin{frame}{Optimizing for the Right Metric: Why MSE Fails}
   \begin{block}{The Breakdown of Mean Squared Error in Trading}
@@ -562,7 +584,7 @@
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Why MSE Disconnects from PnL}
+      \textbf{\scriptsize Why MSE Disconnects from PnL}
       \begin{itemize}\scriptsize
         \item \textbf{Low SNR:} Returns are dominated by noise. A model minimizing MSE converges to predicting zero return everywhere.
         \item \textbf{Symmetric Penalty:} MSE treats missing a rally identically to holding an inverse position in a crash.
@@ -570,7 +592,7 @@
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{The Financial Objective}
+      \textbf{\scriptsize The Financial Objective}
       \begin{itemize}\scriptsize
         \item Quant practitioners trade risk-adjusted distributions, not point forecasts.
         \item The network must solve for the optimal policy mapping history to position: $f_\theta: \mathcal{X}_{1:t} \to z_t$.
@@ -584,7 +606,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 19: Differentiable Sharpe Loss
+% Slide 21: Differentiable Sharpe Loss
 % -------------------------------------------------------------
 \begin{frame}{Formulating Differentiable Sharpe Loss}
   \begin{block}{End-to-End Sharpe Loss}
@@ -604,7 +626,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 20: Differentiable Sortino Loss
+% Slide 22: Differentiable Sortino Loss
 % -------------------------------------------------------------
 \begin{frame}{Downside Geometry: Differentiable Sortino Loss}
   \begin{block}{Penalizing Downside Semivariance: Sortino Formulation}
@@ -624,7 +646,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 21: Turnover Costs & Subgradient Smoothing
+% Slide 23: Turnover Costs & Subgradient Smoothing
 % -------------------------------------------------------------
 \begin{frame}{Transaction Costs \& Turnover Frictions}
   \begin{block}{Turnover Friction Penalisation}
@@ -644,7 +666,7 @@
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 22: PyTorch Sharpe Loss Code
+% Slide 24: PyTorch Sharpe Loss Code
 % -------------------------------------------------------------
 \begin{frame}[fragile]{PyTorch Implementation: Differentiable Sharpe Loss}
 \begin{lstlisting}
@@ -673,12 +695,30 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 23: State-Space Evolution
+% Slide 25: BOCPD Changepoints & Regimes (NEW SLIDE)
+% -------------------------------------------------------------
+\begin{frame}{Market Regimes \& Changepoint Detection (BOCPD)}
+  \begin{block}{Bayesian Online Changepoint Detection (\href{https://arxiv.org/abs/0710.3742}{Adams \& MacKay 2007})}
+    Computes exact posterior distributions over current run-length $r_t$ (time elapsed since last structural regime change) via recursive message passing.
+  \end{block}
+  \vspace{-0.1cm}
+  \begin{center}
+    \includegraphics[width=0.92\linewidth,height=3.6cm,keepaspectratio]{BOCPD_chgptsDJIA.png}
+  \end{center}
+  \vspace{-0.2cm}
+  \begin{itemize}\scriptsize
+    \item \textbf{Why Heuristics Fail:} Moving averages average past data across structural breaks, causing severe lag drag.
+    \item \textbf{The Transformer Motivation:} Instead of resetting state counters, self-attention associative memory routes queries to previous historical regimes matching the post-changepoint signature.
+  \end{itemize}
+\end{frame}
+
+% -------------------------------------------------------------
+% Slide 26: State-Space Evolution
 % -------------------------------------------------------------
 \begin{frame}{State-Space Evolution: Kalman vs. BOCPD vs. LSTMs}
   \begin{columns}[t]
     \begin{column}{0.32\textwidth}
-      \textbf{Kalman Filter}
+      \textbf{\scriptsize Kalman Filter}
       \begin{itemize}\tiny
         \item Explicit linear state-space model.
         \item Assumes Gaussian innovations.
@@ -687,7 +727,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \textbf{BOCPD (Changepoint)}
+      \textbf{\scriptsize BOCPD (Changepoint)}
       \begin{itemize}\tiny
         \item Computes recursive posterior over run-length $r_t$.
         \item Detects structural regime shifts instantaneously.
@@ -696,7 +736,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.32\textwidth}
-      \textbf{Recurrent Net (LSTM)}
+      \textbf{\scriptsize Recurrent Net (LSTM)}
       \begin{itemize}\tiny
         \item Gated hidden states ($h_t, c_t$) capture non-linear memory.
         \item End-to-end training with Sharpe loss.
@@ -712,12 +752,20 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % =========================================================================
-% PART III: THE MOMENTUM TRANSFORMER
+% STANDALONE SECTION SLIDE: DAY 2 - PART III
 % =========================================================================
-\section{Part III: Inside the Momentum Transformer}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
+    {\Huge \textbf{Day 2: Part III}}\\[0.4cm]
+    {\Large \textbf{Inside the Momentum Transformer}}
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
 
 % -------------------------------------------------------------
-% Slide 24: Why Transformers for Momentum?
+% Slide 28: Why Transformers for Momentum?
 % -------------------------------------------------------------
 \begin{frame}{Why Transformers for Momentum? The Non-Stationarity Trilemma}
   \begin{block}{The Non-Stationarity Trilemma in Financial Time Series}
@@ -726,7 +774,7 @@ class DifferentiableSharpeLoss(nn.Module):
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{Limits of Classical Baselines}
+      \textbf{\scriptsize Limits of Classical Baselines}
       \begin{itemize}\scriptsize
         \item \textbf{Linear filters} assume future moments mirror the past.
         \item \textbf{LSTMs} store past dynamics in hidden states, but suffer exponential gradient decay over multi-quarter horizons.
@@ -734,7 +782,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{The Transformer Advantage}
+      \textbf{\scriptsize The Transformer Advantage}
       \begin{itemize}\scriptsize
         \item \textbf{Associative memory:} Multi-head self-attention treats historical observations as an open, content-addressable database.
         \item When today's volatility shock resembles an event from years ago, attention heads reference that regime directly without path degradation.
@@ -744,7 +792,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 25: Trans4mom Architecture Overview
+% Slide 29: Trans4mom Architecture Overview
 % -------------------------------------------------------------
 \begin{frame}{The Trans4mom Architecture (\href{https://arxiv.org/abs/2112.08534}{Wood et al. 2022})}
   \begin{block}{Architectural Pipeline Overview}
@@ -753,25 +801,25 @@ class DifferentiableSharpeLoss(nn.Module):
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{1. Variable Selection Network (VSN)}
+      \textbf{\scriptsize 1. Variable Selection Network (VSN)}
       \begin{itemize}\scriptsize
         \item Sparse feature gating across multi-horizon inputs (returns, MACD, volatility, CPD scores).
         \item Dynamic relevance weights conditioned on static asset class context.
       \end{itemize}
       \vspace{0.05cm}
-      \textbf{2. Locality Enhancement (LSTM Layer)}
+      \textbf{\scriptsize 2. Locality Enhancement (LSTM Layer)}
       \begin{itemize}\scriptsize
         \item Processes high-frequency sequential order and local volatility clustering.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{3. Multi-Head Causal Self-Attention}
+      \textbf{\scriptsize 3. Multi-Head Causal Self-Attention}
       \begin{itemize}\scriptsize
         \item Relates timesteps across horizons of 252 trading days.
         \item Enforces strict causal upper-triangular masking to prohibit future information leakage.
       \end{itemize}
       \vspace{0.05cm}
-      \textbf{4. Residual Signal Head ($\alpha$-Modulation)}
+      \textbf{\scriptsize 4. Residual Signal Head ($\alpha$-Modulation)}
       \begin{itemize}\scriptsize
         \item Modulates a classical baseline momentum prior rather than estimating unconstrained positioning.
       \end{itemize}
@@ -780,7 +828,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 26: Variable Selection Networks (VSN)
+% Slide 30: Variable Selection Networks (VSN)
 % -------------------------------------------------------------
 \begin{frame}{Variable Selection Networks (VSN) \& Static Conditioning}
   \begin{block}{Feature Sparsity \& Noise Suppression}
@@ -800,7 +848,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 27: Structural Inductive Bias: Handcuffs Principle
+% Slide 31: Structural Inductive Bias: Handcuffs Principle
 % -------------------------------------------------------------
 \begin{frame}{Structural Inductive Bias: The Residual Prior Anchoring}
   \begin{alertblock}{The Overfitting Hazard of Unconstrained Transformers}
@@ -820,7 +868,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 28: Interpretability: Causal Query-Key Routing
+% Slide 32: Interpretability: Causal Query-Key Routing
 % -------------------------------------------------------------
 \begin{frame}{Interpretability: Demystifying Causal Attention Heads}
   \begin{block}{Mathematical Formulation of Attention Routing}
@@ -833,13 +881,13 @@ class DifferentiableSharpeLoss(nn.Module):
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{What the Query Asks}
+      \textbf{\scriptsize What the Query Asks}
       \begin{itemize}\scriptsize
         \item "What was the market doing during previous drawdowns or breakouts with similar volatility signatures?"
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{What the Keys Provide}
+      \textbf{\scriptsize What the Keys Provide}
       \begin{itemize}\scriptsize
         \item Direct addressing into historical regimes (e.g. 2008 GFC, 2020 COVID shock, 2022 rate cycle).
       \end{itemize}
@@ -848,7 +896,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 29: Empirical Attention Map (Dedicated Full-Width Slide)
+% Slide 33: Empirical Attention Map (Dedicated Full-Width Slide)
 % -------------------------------------------------------------
 \begin{frame}{Attention Head Specialisation: Empirical S\&P 500 Map}
   \begin{center}
@@ -861,7 +909,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 30: Head Typology & Regime Decoding
+% Slide 34: Head Typology & Regime Decoding
 % -------------------------------------------------------------
 \begin{frame}{Head Typology: Decoding the Learned Attention Roles}
   \begin{columns}[t]
@@ -896,7 +944,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 31: Cross-Sectional Attention Maps
+% Slide 35: Cross-Sectional Attention Maps
 % -------------------------------------------------------------
 \begin{frame}{Cross-Sectional Attention: Synchronous Macro Regimes}
   \begin{columns}[c]
@@ -921,12 +969,20 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % =========================================================================
-% PART IV: SYSTEM REALITIES, ENGINEERING & CODE REVIEW
+% STANDALONE SECTION SLIDE: DAY 2 - PART IV
 % =========================================================================
-\section{Part IV: Systems, Engineering, \& Code Review}
+\begin{frame}[plain]
+  \vfill
+  \centering
+  \begin{beamercolorbox}[sep=12pt,center,colsep=-4bp,rounded=true,shadow=true]{frametitle}
+    {\Huge \textbf{Day 2: Part IV}}\\[0.4cm]
+    {\Large \textbf{Systems, Engineering, \& Code Review}}
+  \end{beamercolorbox}
+  \vfill
+\end{frame}
 
 % -------------------------------------------------------------
-% Slide 32: Alternative Transformer Architectures
+% Slide 37: Alternative Transformer Architectures
 % -------------------------------------------------------------
 \begin{frame}{Alternative Modern Architectures}
   \begin{block}{Comparative Survey of Modern Sequence Models}
@@ -934,20 +990,20 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{block}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{1. Temporal Fusion Transformer (TFT)}
+      \textbf{\scriptsize 1. Temporal Fusion Transformer (TFT)}
       \begin{itemize}\scriptsize
         \item Developed by Lim et al. (2021).
         \item Separates static metadata, observed inputs, and known future inputs (e.g. rollover dates).
         \item Multi-quantile outputs for distribution modeling.
       \end{itemize}
-      \textbf{2. PatchTST (Nie et al. 2023)}
+      \textbf{\scriptsize 2. PatchTST (Nie et al. 2023)}
       \begin{itemize}\scriptsize
         \item Segments time series into contiguous sub-series "patches" (tokens).
         \item Reduces sequence length from $L$ to $L/P$.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{3. Informer \& Autoformer}
+      \textbf{\scriptsize 3. Informer \& Autoformer}
       \begin{itemize}\scriptsize
         \item \textbf{Informer (Zhou et al.):} ProbSparse attention selects dominant queries ($O(L \log L)$).
         \item \textbf{Autoformer (Wu et al.):} Replaces self-attention with autocorrelation mechanisms.
@@ -960,7 +1016,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 33: The Data Reality Check
+% Slide 38: The Data Reality Check
 % -------------------------------------------------------------
 \begin{frame}{The Data Reality Check: Why Architecture Cannot Save Bad Data}
   \begin{alertblock}{The Hard Truth of Financial Deep Learning}
@@ -968,7 +1024,7 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{alertblock}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{1. The Roll Gap Catastrophe}
+      \textbf{\scriptsize 1. The Roll Gap Catastrophe}
       \begin{itemize}\scriptsize
         \item Futures contracts expire periodically.
         \item Simplistic free data (e.g. unadjusted Yahoo continuous contracts) concatenates adjacent contracts without backward adjustment.
@@ -977,7 +1033,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{2. Roll Methodology Matters}
+      \textbf{\scriptsize 2. Roll Methodology Matters}
       \begin{itemize}\scriptsize
         \item \textbf{Panama (Difference) Adjustment:} Preserves absolute price differences; causes negative historical prices in commodities.
         \item \textbf{Ratio Adjustment:} Preserves true compounding percentage returns across rolls. \emph{Mandatory for quantitative Sharpe models.}
@@ -988,7 +1044,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 34: The Overfitting Extreme: +-19 Sharpe
+% Slide 39: The Overfitting Extreme: +-19 Sharpe
 % -------------------------------------------------------------
 \begin{frame}{The Overfitting Extreme: The $\pm 19$ Sharpe Phenomenon}
   \begin{alertblock}{The "Double-Lag" \& Unconstrained Capacity Trap}
@@ -1001,14 +1057,14 @@ class DifferentiableSharpeLoss(nn.Module):
   \vspace{0.1cm}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{What Happened?}
+      \textbf{\scriptsize What Happened?}
       \begin{itemize}\scriptsize
         \item \textbf{Noise Memorisation:} The unconstrained attention heads memorized specific idiosyncratic noise spikes.
         \item \textbf{Look-Ahead Leaks:} Unaligned feature normalization leaked future volatility moments into the inputs.
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{The Solution}
+      \textbf{\scriptsize The Solution}
       \begin{itemize}\scriptsize
         \item \textbf{Domain Feature Selection:} Strict VSN gating with verified ex-ante signals.
         \item \textbf{Capacity Control:} Reducing hidden dimensions (64-dim, 1-layer).
@@ -1019,7 +1075,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 35: Breadth-Regularisation Link
+% Slide 40: Breadth-Regularisation Link
 % -------------------------------------------------------------
 \begin{frame}{The Breadth-Regularisation Link: 24 vs. 46 Assets}
   \begin{columns}[c]
@@ -1050,7 +1106,7 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 36: HPC & The CUDA Wall
+% Slide 41: HPC & The CUDA Wall
 % -------------------------------------------------------------
 \begin{frame}[fragile]{HPC Implementation: Overcoming the $O(T^2)$ Memory Wall}
   \begin{alertblock}{The CUDA Out-Of-Memory (OOM) Trap}
@@ -1058,7 +1114,7 @@ class DifferentiableSharpeLoss(nn.Module):
   \end{alertblock}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{The Zero-Copy Lazy Loader Solution}
+      \textbf{\scriptsize The Zero-Copy Lazy Loader Solution}
       \begin{itemize}\scriptsize
         \item Store flat 1D contiguous arrays in memory.
         \item Utilize NumPy's \texttt{sliding\_window\_view} with zero-copy stride pointers.
@@ -1067,7 +1123,7 @@ class DifferentiableSharpeLoss(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{Cluster Job Submission Practice}
+      \textbf{\scriptsize Cluster Job Submission Practice}
       \begin{itemize}\scriptsize
         \item When submitting to SGE clusters, enforce resource reservations:
         \begin{lstlisting}[language=bash]
@@ -1084,10 +1140,10 @@ class DifferentiableSharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 37: Code Review 1: Feature Processor
+% Slide 42: Code Review 1: Feature Processor
 % -------------------------------------------------------------
 \begin{frame}[fragile]{Code Review: Feature Processing \& Ex-Ante Scaling}
-  \textbf{Module:} \texttt{trans4mom/data/processor.py}
+  \textbf{\scriptsize Module:} \texttt{trans4mom/data/processor.py}
 \begin{lstlisting}
 class FeatureProcessor:
     def compute_volatility(self, df: pd.DataFrame) -> pd.DataFrame:
@@ -1116,10 +1172,10 @@ class FeatureProcessor:
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 38: Code Review 2: Loss Function
+% Slide 43: Code Review 2: Loss Function
 % -------------------------------------------------------------
 \begin{frame}[fragile]{Code Review: Sharpe Loss \& Friction Penalisation}
-  \textbf{Module:} \texttt{trans4mom/engine/loss.py}
+  \textbf{\scriptsize Module:} \texttt{trans4mom/engine/loss.py}
 \begin{lstlisting}
 class SharpeLoss(nn.Module):
     def forward(self, positions, returns, spreads=None, vol_scales=None):
@@ -1145,10 +1201,10 @@ class SharpeLoss(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 39: Code Review 3: Transformer Residual Head
+% Slide 44: Code Review 3: Transformer Residual Head
 % -------------------------------------------------------------
 \begin{frame}[fragile]{Code Review: Ensemble Transformer Residual Modulation}
-  \textbf{Module:} \texttt{trans4mom/models/architecture.py}
+  \textbf{\scriptsize Module:} \texttt{trans4mom/models/architecture.py}
 \begin{lstlisting}
 class EnsembleMomentumTransformer(nn.Module):
     def __init__(self, input_dim, num_vars, hidden_dim=64, num_heads=4):
@@ -1177,7 +1233,7 @@ class EnsembleMomentumTransformer(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 40: Rigorous Backtesting Protocol
+% Slide 45: Rigorous Backtesting Protocol
 % -------------------------------------------------------------
 \begin{frame}{Rigorous Backtesting Protocol: Mitigating Look-Ahead Bias}
   \begin{block}{Three Pillars of Academic Backtest Rigor}
@@ -1201,18 +1257,18 @@ class EnsembleMomentumTransformer(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 41: Masterclass Synthesis
+% Slide 46: Masterclass Synthesis
 % -------------------------------------------------------------
 \begin{frame}{Masterclass Synthesis: From Heuristics to AI Momentum}
   \begin{columns}[t]
     \begin{column}{0.48\textwidth}
-      \textbf{What Survived 200 Years}
+      \textbf{\scriptsize What Survived 200 Years}
       \begin{itemize}\scriptsize
         \item Momentum persistence across macroeconomic regimes.
         \item Positive return skewness and crisis alpha during equity shocks.
         \item The fundamental role of volatility targeting ($1/\sigma$).
       \end{itemize}
-      \textbf{What AI Transformed}
+      \textbf{\scriptsize What AI Transformed}
       \begin{itemize}\scriptsize
         \item Replaced rigid moving average parameters with dynamic attention mechanisms.
         \item Formulated end-to-end differentiable loss directly optimizing Sharpe and Sortino ratios.
@@ -1220,7 +1276,7 @@ class EnsembleMomentumTransformer(nn.Module):
       \end{itemize}
     \end{column}
     \begin{column}{0.48\textwidth}
-      \textbf{The Rules of Engagement}
+      \textbf{\scriptsize The Rules of Engagement}
       \begin{itemize}\scriptsize
         \item \textbf{Never abandon inductive bias:} Anchor deep models to proven classical priors ($\alpha$-residual modulation).
         \item \textbf{Prioritize data fidelity:} Eliminate futures roll artifacts using ratio adjustment or institutional continuous feeds.
@@ -1235,7 +1291,7 @@ class EnsembleMomentumTransformer(nn.Module):
 \end{frame}
 
 % -------------------------------------------------------------
-% Slide 42: Academic Bibliography
+% Slide 47: Academic Bibliography
 % -------------------------------------------------------------
 \begin{frame}{Academic Literature \& Foundational References}
   \begin{block}{\tiny Primary Academic Bibliography (Clickable DOIs)}
@@ -1243,6 +1299,7 @@ class EnsembleMomentumTransformer(nn.Module):
       \item \href{https://doi.org/10.1111/j.1540-6261.1993.tb04702.x}{Jegadeesh, N., \& Titman, S. (1993)}. Returns to Buying Winners and Selling Losers. \emph{Journal of Finance}, 48(1), 65--91.
       \item \href{https://people.duke.edu/~dah7/RFS2001.pdf}{Fung, W., \& Hsieh, D. A. (2001)}. The Risk in Hedge Fund Strategies: Theory, and Evidence from Trend Followers. \emph{Review of Financial Studies}, 14(2), 313--341.
       \item \href{https://arxiv.org/abs/physics/0508104}{Bouchaud, J.-P., \& Potters, M. (2005)}. Momentum Trading: More Winners than Losers. \emph{arXiv:physics/0508104}.
+      \item \href{https://arxiv.org/abs/0710.3742}{Adams, R. P., \& MacKay, D. J. (2007)}. Bayesian Online Changepoint Detection. \emph{arXiv:0710.3742}.
       \item \href{https://ssrn.com/abstract=2465623}{Bruder, B., \& Gaussel, N. (2011)}. Risk-Return Analysis of Dynamic Investment Strategies. \emph{SSRN Working Paper 2465623}.
       \item \href{https://doi.org/10.1016/j.jfineco.2011.11.003}{Moskowitz, T. J., Ooi, Y. H., \& Pedersen, L. H. (2012)}. Time Series Momentum. \emph{Journal of Financial Economics}, 104(2), 228--250.
       \item \href{https://www.risk.net/derivatives/structured-products/2194247/momentum-trading-skews-me}{Martin, R., \& Zou, D. (2012)}. Momentum Trading 'Skews Me. \emph{Risk Magazine}.
