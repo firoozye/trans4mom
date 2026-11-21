@@ -41,7 +41,7 @@ class TimeSeriesDataset(Dataset):
                 'pm': group['prior_mom'].values.astype(np.float32),
                 'mon': group.index.month.values.astype(np.int64),
                 'day': group.index.dayofweek.values.astype(np.int64),
-                'aid': asset_id_map.get(sym, 0),
+                'aid': int(group['asset_id'].iloc[0]) if 'asset_id' in group.columns else asset_id_map.get(sym, 0),
                 'vs': group['vol_scale'].values.astype(np.float32)
             }
             
@@ -73,6 +73,7 @@ class TimeSeriesDataset(Dataset):
 def main():
     parser = argparse.ArgumentParser(description="HPC Training: Wood et al. 2022 Exact Replication")
     parser.add_argument("--config", type=str, default="config_1990.yaml")
+    parser.add_argument("--prefix", type=str, default="pinnacle", help="Output weights filename prefix")
     parser.add_argument("--load_weights", type=str, default=None, help="Path to weights to resume from")
     parser.add_argument("--seed", type=int, default=None, help="Random seed for this run")
     args = parser.parse_args()
@@ -164,8 +165,8 @@ def main():
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
             patience_counter = 0
-            torch.save(model.state_dict(), f"weights/ensemble_best_seed_{seed}.pt")
-            print(f"  --> New Best Model Saved (Seed: {seed}).")
+            torch.save(model.state_dict(), f"weights/{args.prefix}_best_seed_{seed}.pt")
+            print(f"  --> New Best Model Saved (Seed: {seed}, Prefix: {args.prefix}).")
         else:
             patience_counter += 1
             if patience_counter >= patience:
@@ -173,7 +174,7 @@ def main():
                 break
         
         if epoch % 10 == 0:
-            torch.save(model.state_dict(), f"weights/ensemble_epoch_{epoch}_seed_{seed}.pt")
+            torch.save(model.state_dict(), f"weights/{args.prefix}_epoch_{epoch}_seed_{seed}.pt")
 
     print("Training Complete.")
 

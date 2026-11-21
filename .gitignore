@@ -16,6 +16,21 @@ data/raw/futures/
 data/raw/futures_v2/
 data/processed/futures_2010_present.parquet
 
+# Pinnacle Proprietary Data & Credentials (Strict T&C protection)
+data/PinnacleData/
+data/raw/pinnacle/
+data/processed/pinnacle/
+data/processed/pinnacle*.parquet
+*.clc
+*.clc.*
+*.RAD
+*.LNG
+*.NON
+*.PIN
+*.ASC
+.pinnacle_*
+
+
 # Ignore all markdown files
 *.md
 
