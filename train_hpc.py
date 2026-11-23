@@ -10,6 +10,33 @@ from torch.utils.data import DataLoader, Dataset
 from engine.loss import SharpeLoss
 from models.architecture import EnsembleMomentumTransformer
 
+def get_best_gpu():
+    if not torch.cuda.is_available():
+        raise RuntimeError(f"FATAL: CUDA is not available on host {os.uname().nodename}. HPC training requires a working GPU.")
+    
+    num_gpus = torch.cuda.device_count()
+    print(f"Probing {num_gpus} CUDA device(s) on host {os.uname().nodename}:", flush=True)
+    best_device_id = 0
+    max_free_mem = -1
+    
+    for i in range(num_gpus):
+        try:
+            free_mem, total_mem = torch.cuda.mem_get_info(i)
+            print(f"  GPU {i} ({torch.cuda.get_device_name(i)}): {free_mem / (1024**3):.2f} GB free / {total_mem / (1024**3):.2f} GB total", flush=True)
+            if free_mem > max_free_mem:
+                max_free_mem = free_mem
+                best_device_id = i
+        except Exception as e:
+            print(f"  Could not probe GPU {i}: {e}", flush=True)
+            
+    if max_free_mem < 1.0 * (1024**3):
+        raise RuntimeError(f"FATAL: No GPU on {os.uname().nodename} has >= 1.0 GB of free memory (maximum free is {max_free_mem / (1024**3):.2f} GB).")
+        
+    print(f"Selected GPU {best_device_id} with {max_free_mem / (1024**3):.2f} GB free memory.", flush=True)
+    torch.cuda.set_device(best_device_id)
+    torch.cuda.empty_cache()
+    return torch.device(f"cuda:{best_device_id}")
+
 def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
@@ -110,8 +137,9 @@ def main():
     train_loader = DataLoader(train_ds, batch_size=train_cfg['batch_size'], shuffle=True, num_workers=4)
     val_loader = DataLoader(val_ds, batch_size=train_cfg['batch_size'], shuffle=False, num_workers=4)
     
-    # 4. Model Setup
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # 4. Model Setup (Strict GPU Requirement with automatic best device selection)
+    device = get_best_gpu()
+    
     model = EnsembleMomentumTransformer(
         input_dim=1, num_vars=len(feat_cols), hidden_dim=model_cfg['hidden_dim'],
         num_heads=model_cfg['num_heads'], num_layers=model_cfg['num_layers'],

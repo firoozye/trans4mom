@@ -1,6 +1,8 @@
 # Data & Weights
 weights/
 outputs/
+logs/
+
 
 # Ignore all parquet by default
 *.parquet
@@ -21,6 +23,7 @@ data/PinnacleData/
 data/raw/pinnacle/
 data/processed/pinnacle/
 data/processed/pinnacle*.parquet
+reports/data/
 *.clc
 *.clc.*
 *.RAD

@@ -38,7 +38,7 @@ training:
   batch_size: 128
   lr: 0.0001
   weight_decay: 0.0001
-  patience: 20
+  patience: 30
   trans_cost: 0.0001 # 1 bps turnover friction
   annualization: 252.0
   seed: 42
