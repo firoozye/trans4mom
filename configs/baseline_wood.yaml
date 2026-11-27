@@ -1,14 +1,8 @@
-# Momentum Transformer: Pinnacle Data Continuous Linked Contracts (1990-2026)
-# Replication Configuration for Wood, Roberts & Zohren (2022)
-
+# Momentum Transformer: Wood et al. (2022) 8-Feature Baseline
 data:
-  exchange: "Pinnacle Data Corp CLC (Ratio-Adjusted .RAD)"
-  since: "1990-01-01T00:00:00Z"
-  timeframe: "1d"
   raw_path: "data/PinnacleData/CLCDATA/"
   processed_path: "data/processed/pinnacle_futures_1990_2026.parquet"
 
-# Asset Classification for Static Context Embeddings (5 categories)
 asset_map:
   EQUITY: ["ES", "SP", "EN", "ND", "YM", "DJ", "ER", "RL", "MD", "NK", "LX", "AX", "CA", "HS", "AP", "XU"]
   FIXED_INCOME: ["US", "TY", "FB", "TU", "FF", "ED", "DT", "UB", "UZ", "GS", "CB"]
@@ -16,31 +10,29 @@ asset_map:
   AGRICULTURE: ["C_", "W_", "KW", "S_", "BO", "SM", "CC", "KC", "CT", "SB", "JO", "LC", "FC", "LH"]
   FX: ["FN", "BN", "JN", "AN", "CN", "SN", "MP", "DX"]
 
-# Feature Engineering
 features:
+  include_cpd: false
   return_windows: [1, 21, 63, 126, 252]
   macd_pairs: [[8, 24], [16, 48], [32, 96]]
   vol_span: 60
-  clean_outliers: true
-  outlier_threshold: 5.0
 
-# Model Hyperparameters (Official Wood et al. 2022 Specs)
 model:
-  hidden_dim: 64
-  num_heads: 4
-  num_layers: 1
+  d_model: 64
+  n_heads: 4
+  d_head: 16
+  num_asset_classes: 5
   dropout: 0.1
+  eps: 0.001
   seq_len: 252
+  stride: 252 # Non-overlapping annual sampling
 
-# Training Hyperparameters (Wood et al. 2022 Benchmark)
 training:
   epochs: 80
-  batch_size: 128
-  lr: 0.0001
-  weight_decay: 0.0001
-  patience: 30
-  trans_cost: 0.0001 # 1 bps turnover friction
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 0.00001
+  patience: 25
+  trans_cost: 0.0001 # 1 bp turnover penalty
   annualization: 252.0
-  seed: 42
-  train_split: '2022-12-31'
-  val_split: '2024-12-31'
+  train_split: '2015-12-31'
+  val_split: '2018-12-31'

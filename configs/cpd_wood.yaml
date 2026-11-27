@@ -1,0 +1,39 @@
+# Momentum Transformer: Wood et al. (2022) + GP-CPD 10-Feature Architecture
+data:
+  raw_path: "data/PinnacleData/CLCDATA/"
+  processed_path: "data/processed/pinnacle_futures_1990_2026.parquet"
+
+asset_map:
+  EQUITY: ["ES", "SP", "EN", "ND", "YM", "DJ", "ER", "RL", "MD", "NK", "LX", "AX", "CA", "HS", "AP", "XU"]
+  FIXED_INCOME: ["US", "TY", "FB", "TU", "FF", "ED", "DT", "UB", "UZ", "GS", "CB"]
+  ENERGY_METALS: ["CL", "BC", "HO", "RB", "NG", "BG", "GC", "SI", "HG", "PL", "PA"]
+  AGRICULTURE: ["C_", "W_", "KW", "S_", "BO", "SM", "CC", "KC", "CT", "SB", "JO", "LC", "FC", "LH"]
+  FX: ["FN", "BN", "JN", "AN", "CN", "SN", "MP", "DX"]
+
+features:
+  include_cpd: true
+  cpd_windows: [21, 126]
+  return_windows: [1, 21, 63, 126, 252]
+  macd_pairs: [[8, 24], [16, 48], [32, 96]]
+  vol_span: 60
+
+model:
+  d_model: 64
+  n_heads: 4
+  d_head: 16
+  num_asset_classes: 5
+  dropout: 0.1
+  eps: 0.001
+  seq_len: 252
+  stride: 252 # Non-overlapping annual sampling
+
+training:
+  epochs: 80
+  batch_size: 64
+  lr: 0.001
+  weight_decay: 0.00001
+  patience: 25
+  trans_cost: 0.0001 # 1 bp turnover penalty
+  annualization: 252.0
+  train_split: '2015-12-31'
+  val_split: '2018-12-31'

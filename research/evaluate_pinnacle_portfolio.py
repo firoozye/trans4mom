@@ -13,9 +13,13 @@ import pandas as pd
 import numpy as np
 from models.architecture import EnsembleMomentumTransformer
 
-def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
+def evaluate_models(data_path: str, weight_paths: list, config: dict, prefix: str = "pinnacle", seq_len: int = 252):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using compute device: {device}", flush=True)
+    
+    train_split = config.get('training', {}).get('train_split', '2015-12-31')
+    val_split = config.get('training', {}).get('val_split', '2018-12-31')
+    print(f"Evaluation Splits: Train <= {train_split} | Val <= {val_split} | OOS > {train_split}", flush=True)
     
     df = pd.read_parquet(data_path)
     feat_cols = [f'ret_{k}' for k in [1, 21, 63, 126, 252]] + \
@@ -135,27 +139,27 @@ def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
         vol_p = p.std() * np.sqrt(252) * 100
         print(f"  {name:20s} | Model SR: {sr_m:5.2f} (Ret: {ret_m:5.1f}%, Vol: {vol_m:4.1f}%) | Prior SR: {sr_p:5.2f} (Ret: {ret_p:5.1f}%, Vol: {vol_p:4.1f}%)", flush=True)
 
+    def print_splits(port_s, prior_s, label):
+        print(f"\n=======================================================", flush=True)
+        print(f"Results for: {label}", flush=True)
+        print(f"=======================================================", flush=True)
+        print_period_stats(port_s, prior_s, '1990-01-01', train_split, f'IN-SAMPLE (1990-{train_split[:4]})')
+        print_period_stats(port_s, prior_s, str(pd.to_datetime(train_split) + pd.Timedelta(days=1))[:10], '2026-11-20', 'OUT-OF-SAMPLE TOTAL')
+        print_period_stats(port_s, prior_s, str(pd.to_datetime(train_split) + pd.Timedelta(days=1))[:10], val_split, f'  ↳ OOS Val ({train_split[:4]}-{val_split[:4]})')
+        print_period_stats(port_s, prior_s, str(pd.to_datetime(val_split) + pd.Timedelta(days=1))[:10], '2026-11-20', f'  ↳ OOS Test ({val_split[:4]}-2026)')
+        # If Wood et al split (val <= 2018), also show the exact paper test window 2019-2020 and post-paper extension 2021-2026
+        if val_split == '2018-12-31':
+            print_period_stats(port_s, prior_s, '2019-01-01', '2020-12-31', '    * Paper Test (2019-2020)')
+            print_period_stats(port_s, prior_s, '2021-01-01', '2026-11-20', '    * Live Ext (2021-2026)')
+        print(f"  [Footnote: Full 1990-2026 Reference | Model SR: {((port_s.mean()/(port_s.std()+1e-9))*np.sqrt(252)):.2f}]", flush=True)
+
     # Print Individual Seed Results
     for name, _ in models:
-        print(f"\n=======================================================", flush=True)
-        print(f"Results for Individual Seed: {name}", flush=True)
-        print(f"=======================================================", flush=True)
         port_seed = pd.concat(seed_portfolios[name], axis=1).mean(axis=1)
-        print_period_stats(port_seed, port_prior, '1990-01-01', '2022-12-31', 'IN-SAMPLE (1990-2022)')
-        print_period_stats(port_seed, port_prior, '2023-01-01', '2026-11-20', 'OUT-OF-SAMPLE TOTAL')
-        print_period_stats(port_seed, port_prior, '2023-01-01', '2024-12-31', '  ↳ OOS Val (2023-2024)')
-        print_period_stats(port_seed, port_prior, '2025-01-01', '2026-11-20', '  ↳ OOS Test (2025-2026)')
-        print(f"  [Footnote: Full 1990-2026 Reference | Model SR: {((port_seed.mean()/(port_seed.std()+1e-9))*np.sqrt(252)):.2f}]", flush=True)
+        print_splits(port_seed, port_prior, f"Individual Seed: {name}")
 
     # Print Ensemble Results
-    print(f"\n=======================================================", flush=True)
-    print(f"*** MULTI-SEED ENSEMBLE RESULTS ({len(models)} SEEDS COMBINED) ***", flush=True)
-    print(f"=======================================================", flush=True)
-    print_period_stats(port_ensemble, port_prior, '1990-01-01', '2022-12-31', 'IN-SAMPLE (1990-2022)')
-    print_period_stats(port_ensemble, port_prior, '2023-01-01', '2026-11-20', 'OUT-OF-SAMPLE TOTAL')
-    print_period_stats(port_ensemble, port_prior, '2023-01-01', '2024-12-31', '  ↳ OOS Val (2023-2024)')
-    print_period_stats(port_ensemble, port_prior, '2025-01-01', '2026-11-20', '  ↳ OOS Test (2025-2026)')
-    print(f"  [Footnote: Full 1990-2026 Reference | Model SR: {((port_ensemble.mean()/(port_ensemble.std()+1e-9))*np.sqrt(252)):.2f}]", flush=True)
+    print_splits(port_ensemble, port_prior, f"*** MULTI-SEED ENSEMBLE ({len(models)} SEEDS COMBINED) ***")
 
     # Save PnL Series and Generate Visual Charts
     os.makedirs("reports/figures", exist_ok=True)
@@ -167,7 +171,7 @@ def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
         clean_name = name.replace('.pt', '')
         df_pnl[clean_name] = pd.concat(seed_portfolios[name], axis=1).mean(axis=1)
 
-    csv_path = "reports/data/pinnacle_portfolio_daily_pnl.csv"
+    csv_path = f"reports/data/{prefix}_portfolio_daily_pnl.csv"
     df_pnl.to_csv(csv_path)
     print(f"\nSaved daily portfolio PnL series to: {csv_path}", flush=True)
 
@@ -193,14 +197,14 @@ def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
         ax1.plot(cum_pnl.index, cum_pnl['Ensemble'], color='#0D47A1', linewidth=2.5, label=f'Momentum Transformer Ensemble ({len(models)} Seeds)')
         ax1.plot(cum_pnl.index, cum_pnl['Prior_TSMOM'], color='#B71C1C', linestyle='--', linewidth=1.8, label='Classical Prior Baseline (TSMOM)')
 
-        # Visual Out-of-Sample highlighting (2023 to 2026)
-        train_end = pd.to_datetime('2022-12-31')
-        val_end = pd.to_datetime('2024-12-31')
-        ax1.axvspan(train_end, cum_pnl.index[-1], color='#E8F5E9', alpha=0.5, label='OUT-OF-SAMPLE (2023-2026)')
-        ax1.axvline(train_end, color='#2E7D32', linestyle='--', linewidth=1.5, label='In-Sample / OOS Boundary (2022)')
-        ax1.axvline(val_end, color='#7B1FA2', linestyle=':', linewidth=1.2, label='OOS Val / Test Boundary (2024)')
+        # Visual Out-of-Sample highlighting
+        dt_train_end = pd.to_datetime(train_split)
+        dt_val_end = pd.to_datetime(val_split)
+        ax1.axvspan(dt_train_end, cum_pnl.index[-1], color='#E8F5E9', alpha=0.5, label=f'OUT-OF-SAMPLE ({train_split[:4]}-2026)')
+        ax1.axvline(dt_train_end, color='#2E7D32', linestyle='--', linewidth=1.5, label=f'In-Sample Boundary ({train_split[:4]})')
+        ax1.axvline(dt_val_end, color='#7B1FA2', linestyle=':', linewidth=1.2, label=f'Val / Test Boundary ({val_split[:4]})')
 
-        ax1.set_title("Wood, Roberts & Zohren (2022) Replication: In-Sample vs. Out-of-Sample PnL\n55 Continuous Futures Contracts (Equities, Fixed Income, Commodities, FX)", fontsize=13, fontweight='bold', pad=12)
+        ax1.set_title(f"Wood, Roberts & Zohren (2022) Replication: In-Sample vs. Out-of-Sample PnL\n59 Continuous Futures Contracts (Equities, Fixed Income, Commodities, FX)", fontsize=13, fontweight='bold', pad=12)
         ax1.set_ylabel("Cumulative Return (%)", fontsize=11)
         ax1.legend(loc='upper left', frameon=True, framealpha=0.9)
         ax1.grid(True, linestyle='--', alpha=0.6)
@@ -220,32 +224,33 @@ def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
         ax2.grid(True, linestyle='--', alpha=0.6)
 
         plt.tight_layout()
-        chart_path = "reports/figures/pinnacle_cumulative_pnl.png"
-        chart_path_tagged = f"reports/figures/pinnacle_cumulative_pnl_{len(models)}seeds.png"
+        chart_path = f"reports/figures/{prefix}_cumulative_pnl.png"
+        chart_path_tagged = f"reports/figures/{prefix}_cumulative_pnl_{len(models)}seeds.png"
         fig.savefig(chart_path, dpi=300)
         fig.savefig(chart_path_tagged, dpi=300)
         plt.close(fig)
         print(f"Generated full-history PnL chart at: {chart_path} and {chart_path_tagged}", flush=True)
 
-        # Dedicated OUT-OF-SAMPLE (2023-2026) Zoom Chart
-        df_oos = df_pnl.loc['2023-01-01':]
+        # Dedicated OUT-OF-SAMPLE Zoom Chart
+        start_oos = str(dt_train_end + pd.Timedelta(days=1))[:10]
+        df_oos = df_pnl.loc[start_oos:]
         cum_oos = df_oos.cumsum() * 100
 
         fig_oos, ax_oos = plt.subplots(figsize=(12, 6))
         for c in seed_cols:
-            seed_label = c.replace('pinnacle_best_', '').replace('_', ' ').title()
+            seed_label = c.replace(f'{prefix}_best_', '').replace('pinnacle_best_', '').replace('_', ' ').title()
             ax_oos.plot(cum_oos.index, cum_oos[c], alpha=0.35, linewidth=1.2, label=f"Model {seed_label}")
         ax_oos.plot(cum_oos.index, cum_oos['Ensemble'], color='#0D47A1', linewidth=2.5, label=f'Ensemble {len(models)} Seeds (OOS)')
         ax_oos.plot(cum_oos.index, cum_oos['Prior_TSMOM'], color='#B71C1C', linestyle='--', linewidth=1.8, label='Prior TSMOM (OOS)')
-        ax_oos.axvline(val_end, color='#7B1FA2', linestyle=':', linewidth=1.5, label='Validation / Test Boundary')
-        ax_oos.set_title(f"OUT-OF-SAMPLE PERFORMANCE (2023 - 2026) [{len(models)}-Seed Ensemble]\n55 Futures Contracts, Transaction Costs Deducted", fontsize=12, fontweight='bold', pad=10)
+        ax_oos.axvline(dt_val_end, color='#7B1FA2', linestyle=':', linewidth=1.5, label=f'Val / Test Boundary ({val_split[:4]})')
+        ax_oos.set_title(f"OUT-OF-SAMPLE PERFORMANCE ({train_split[:4]} - 2026) [{len(models)}-Seed Ensemble]\n59 Futures Contracts, Transaction Costs Deducted", fontsize=12, fontweight='bold', pad=10)
         ax_oos.set_ylabel("Cumulative Out-of-Sample Return (%)", fontsize=11)
         ax_oos.set_xlabel("Date", fontsize=11)
         ax_oos.legend(loc='upper left', frameon=True)
         ax_oos.grid(True, linestyle='--', alpha=0.6)
         plt.tight_layout()
-        oos_chart_path = "reports/figures/pinnacle_out_of_sample_pnl.png"
-        oos_chart_path_tagged = f"reports/figures/pinnacle_out_of_sample_pnl_{len(models)}seeds.png"
+        oos_chart_path = f"reports/figures/{prefix}_out_of_sample_pnl.png"
+        oos_chart_path_tagged = f"reports/figures/{prefix}_out_of_sample_pnl_{len(models)}seeds.png"
         fig_oos.savefig(oos_chart_path, dpi=300)
         fig_oos.savefig(oos_chart_path_tagged, dpi=300)
         plt.close(fig_oos)
@@ -256,15 +261,21 @@ def evaluate_models(data_path: str, weight_paths: list, seq_len: int = 252):
 
 if __name__ == "__main__":
     import argparse
+    import yaml
     parser = argparse.ArgumentParser(description="Evaluate Pinnacle Momentum Transformer Portfolio")
+    parser.add_argument("--config", type=str, default="config_pinnacle.yaml")
+    parser.add_argument("--prefix", type=str, default="pinnacle")
     parser.add_argument("--data", type=str, default="data/processed/pinnacle_futures_1990_2026.parquet")
     parser.add_argument("--seeds", type=str, default=None, help="Comma-separated seed IDs to evaluate (e.g. '1,2,4,5')")
     args = parser.parse_args()
 
+    with open(args.config, 'r') as f:
+        cfg = yaml.safe_load(f)
+
     if args.seeds:
         seed_list = [s.strip() for s in args.seeds.split(',')]
-        weights = [f"weights/pinnacle_best_seed_{s}.pt" for s in seed_list if os.path.exists(f"weights/pinnacle_best_seed_{s}.pt")]
+        weights = [f"weights/{args.prefix}_best_seed_{s}.pt" for s in seed_list if os.path.exists(f"weights/{args.prefix}_best_seed_{s}.pt")]
     else:
-        weights = sorted(glob.glob("weights/pinnacle_best_seed_*.pt"))
+        weights = sorted(glob.glob(f"weights/{args.prefix}_best_seed_*.pt"))
 
-    evaluate_models(args.data, weights)
+    evaluate_models(args.data, weights, config=cfg, prefix=args.prefix)
